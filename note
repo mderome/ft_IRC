@@ -1,0 +1,22 @@
+nom de client ne doivent pas contenir : 
+• ' ' ou 0x20 (espace)
+• ',' ou 0x2c (virgule)
+• '*' ou 0x2a (asterisque)
+• '?' ou 0x3f (point d'interrogation)
+• '!' ou 0x21 (point d'exclamation)
+• '@' ou 0x40 (arobase)
+• '.' ou 0x2e (point)
+
+ils ne doivent pas commencer par:
+• '$' ou 0x24 (dollar)
+• ':' ou 0x3a (deux-point)
+• ('#', 0x23)
+• ('&', 0x26)
+
+regles de chanel
+
+les channels reguliers doivent commencer par ('#', 0x23).
+
+les channels local doivent commencer par ('&', 0x26).
+
+ils ne peuvent pas contenir (' ', 0x20), ('^G', 0x07) ou (',', 0x2C)
