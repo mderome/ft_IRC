@@ -1,3 +1,5 @@
-# ft_IRC
+# ft_irc
 
-test
+## doc:  
+https://modern.ircdocs.horse/#architectural  
+https://www.rfc-editor.org/rfc/rfc2812.html  
