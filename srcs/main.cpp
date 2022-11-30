@@ -18,16 +18,24 @@ int	main(int ac, char **av)
 	// ssize_t					nread;
 	// char 					buff[BUF_SIZE];
 
-	if (ac != 3)
+	if (ac == 3)
+	{
+		if (std::atoi(av[1]) < 0)
+		{
+			std::cerr << "The port can't be inferior at 0\n";
+			return -2;
+		}
+		else if (std::atoi(av[1]) > 65535)
+		{
+			std::cerr << "The port can't be superior at 65535\n";
+			return -3;
+		}
+	}
+	else
 	{
 		std::cerr << "Usage: %s port password.\n";
 		return -1;
 	}
-	if (std::atoi(av[1]) < 0)
-	{
-		std::cerr << "The port can't be inferior at 0\n";
-		return -2;
-	}
-	(void)av;
-	return 0;
+	
+	return (0);
 }
