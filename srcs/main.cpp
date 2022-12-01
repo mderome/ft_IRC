@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:41:22 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 14:45:45 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/01 16:12:32 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ int	main(int ac, char **av)
 			//start running server here
 			try {
 				Server server(av[1], av[2]);
-				server.createListener();
 			}
 			catch (std::exception &e) {
 				std::cerr << e.what() << std::endl;

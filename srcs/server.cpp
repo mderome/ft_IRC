@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 15:49:39 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/01 16:49:19 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,21 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+
 Server::Server() {}
 
 Server::Server(std::string port, std::string password)
 {
     _port = port;
     _password = password;
+
+    createListener();
+    std::cout << WHITE "* Server created *" END << std::endl;
+    serverStart();
 }
 
 Server::~Server() {}
@@ -118,4 +127,37 @@ void    Server::createListener(void)
     std::cout << GREEN "=== listen() success" END << std::endl;
 
     this->_listener = listenerFd;
+}
+
+void    Server::serverStart(void)
+{
+    int     clientFd;
+    struct sockaddr_storage clientAddr;
+    socklen_t   addrSize = sizeof(clientAddr);
+    char    host[NI_MAXHOST];
+    char    service[NI_MAXSERV];
+
+    std::cout << CYAN "Waiting for connection..." END << std::endl;
+
+    while (1)
+    {
+        clientFd = accept(this->_listener, (struct sockaddr *)&clientAddr, &addrSize);
+        if (clientFd == -1)
+        {
+            std::cerr << "Error: accept()" << std::endl;
+            continue;
+        }
+        std::cout << GREEN "=== accept() success" END << std::endl;
+
+        if (getnameinfo((struct sockaddr *)&clientAddr, addrSize, host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
+        {
+            std::cout << CYAN "=== Connection from " << host << " on port " << service << END << std::endl;
+        }
+        // else
+        // {
+        //     inet_ntop(clientAddr.ss_family, get_in_addr((struct sockaddr *)&clientAddr), host, NI_MAXHOST);
+        //     std::cout << CYAN "=== Connection from " << host << " on port " << ntohs(get_in_port((struct sockaddr *)&clientAddr)) << END << std::endl;
+        // }
+        close(clientFd);
+    }
 }
