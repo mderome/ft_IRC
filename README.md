@@ -1,4 +1,4 @@
-# ft_irc
+# ft_irc (Internet Relay Chat)
 
 ### Connect Clients to Server using IRSSI:  
 https://www.youtube.com/watch?v=mI-Ekrfg2tg&ab_channel=GreyHat  

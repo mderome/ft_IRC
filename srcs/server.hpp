@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 14:14:33 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/01 15:49:20 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include <iostream>
 # include <cstdlib>
 
-# define	BUF_SIZE 10000
+#include "color.hpp"
 
 class Server
 {
@@ -31,12 +31,14 @@ class Server
 
         std::string getPort(void)const;
         std::string getPassword(void)const;
+        int getListener(void)const;
 
         void    createListener(void);
 
     private:
         std::string _port;
         std::string _password;
+        int     _listener;
 };
 
 #endif

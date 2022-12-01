@@ -6,13 +6,14 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 14:54:05 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/01 15:49:39 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 Server::Server() {}
 
@@ -32,6 +33,11 @@ std::string Server::getPort(void)const
 std::string Server::getPassword(void)const
 {
     return (this->_password);
+}
+
+int Server::getListener(void)const
+{
+    return (this->_listener);
 }
 
 void    Server::createListener(void)
@@ -66,7 +72,50 @@ void    Server::createListener(void)
     
     if (getaddrinfo(NULL, this->_port.c_str(), &hint, &res) != 0)
     {
-        std::cerr << "Error: getaddrinfo" << std::endl;
+        std::cerr << "Error: getaddrinfo()" << std::endl;
         exit(1);
     }
+
+    std::cout << GREEN "=== getaddrinfo() success" END << std::endl;
+    /*
+        // DEBUG
+    std::cout << CYAN "res->ai_family: " << res->ai_family << std::endl;
+    std::cout << "res->ai_socktype: " << res->ai_socktype << std::endl;
+    std::cout << "res->ai_protocol: " << res->ai_protocol << std::endl;
+    std::cout << "res->ai_addrlen: " << res->ai_addrlen << std::endl;
+    std::cout << "res->ai_addr: " << res->ai_addr << std::endl;
+    std::cout << "res->ai_canonname: " << res->ai_canonname << std::endl;
+    std::cout << "res->ai_next: " << res->ai_next << END << std::endl;
+    */
+    
+    int     listenerFd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (listenerFd == -1)
+    {
+        std::cerr << "Error: socket()" << std::endl;
+        exit(1);
+    }
+    std::cout << GREEN "=== socket() success" END << std::endl;
+
+    // Connect the socket to the address returned by getaddrinfo()
+    if (bind(listenerFd, res->ai_addr, res->ai_addrlen) == -1)
+    {
+        std::cerr << "Error: bind()" << std::endl;
+        freeaddrinfo(res);
+        close(listenerFd);
+        exit(1);
+    }
+    freeaddrinfo(res);
+
+    std::cout << GREEN "=== bind() success" END << std::endl;
+    
+    // Listen for incoming connections
+    if (listen(listenerFd, 1000) == -1)
+    {
+        std::cerr << "Error: listen()" << std::endl;
+        close(listenerFd);
+        exit(1);
+    }
+    std::cout << GREEN "=== listen() success" END << std::endl;
+
+    this->_listener = listenerFd;
 }
