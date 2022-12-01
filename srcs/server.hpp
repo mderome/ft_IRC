@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 14:02:26 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/01 14:14:33 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ class Server
 
         std::string getPort(void)const;
         std::string getPassword(void)const;
+
+        void    createListener(void);
 
     private:
         std::string _port;
