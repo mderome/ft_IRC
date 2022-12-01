@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/12/01 13:41:22 by esafar            #+#    #+#             */
+/*   Updated: 2022/12/01 13:43:46 by esafar           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -7,6 +19,15 @@
 
 #define	BUF_SIZE 10000
 
+bool	checkPort(std::string port)
+{
+	for (int i = 0; i < port.size(); i++)
+	{
+		if (port[i] < '0' || port[i] > '9')
+			return (false);
+	}
+	return (true);
+}
 
 int	main(int ac, char **av)
 {
@@ -20,22 +41,20 @@ int	main(int ac, char **av)
 
 	if (ac == 3)
 	{
-		if (std::atoi(av[1]) < 0)
+		if (!checkPort(av[1]))
 		{
-			std::cerr << "The port can't be inferior at 0\n";
-			return -2;
+			std::cerr << "Error: Invalid port number" << std::endl;
+			return (EXIT_FAILURE);
 		}
-		else if (std::atoi(av[1]) > 65535)
+		else
 		{
-			std::cerr << "The port can't be superior at 65535\n";
-			return -3;
+			//start running server here
 		}
 	}
 	else
 	{
-		std::cerr << "Usage: %s port password.\n";
-		return -1;
+		std::cerr << "Error: usage: ./ircserv <port> <password>" << std::endl;
+		return (EXIT_FAILURE);
 	}
-	
 	return (0);
 }
