@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 18:09:50 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/01 18:20:06 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,11 @@ Server::Server(std::string port, std::string password)
 }
 
 Server::~Server() {}
+
+std::vector<struct pollfd>  Server::getPollFd(void)const
+{
+    return (this->_clients);
+}
 
 std::string Server::getPort(void)const
 {
@@ -142,7 +147,7 @@ void    Server::serverStart(void)
 
     while (1)
     {
-        int pollResult = poll(&serverFd, 1, -1); // -1 : wait indefinitely
+        int pollResult = poll(&serverFd, 1, -1); // poll() waits for an event concerning fd. "-1" is to wait indefinitely
         if (pollResult == -1)
         {
             std::cerr << "Error: poll()" << std::endl;
@@ -166,7 +171,6 @@ void    Server::serverStart(void)
             // this->_clients.push_back(clientFd);
             // std::cout << CYAN "Server fd: " END << this->_listener << std::endl;
             // std::cout << CYAN "Waiting for password..." END << std::endl;
-            
         }
     }
 }
