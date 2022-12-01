@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 18:20:06 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/01 19:03:19 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ Server::~Server() {}
 
 std::vector<struct pollfd>  Server::getPollFd(void)const
 {
-    return (this->_clients);
+    return (this->_pollfds);
 }
 
 std::string Server::getPort(void)const
@@ -143,34 +143,41 @@ void    Server::serverStart(void)
     serverFd.events = POLLIN; // POLLIN : There is data to read
     serverFd.revents = 0; // Manage event detection
 
+    this->_pollfds.push_back(serverFd); // Add serverFd to pollfds vector 
+
     std::cout << CYAN "Waiting for clients..." END << std::endl;
 
     while (1)
     {
-        int pollResult = poll(&serverFd, 1, -1); // poll() waits for an event concerning fd. "-1" is to wait indefinitely
-        if (pollResult == -1)
+        for (pollfd_iterator it = this->_pollfds.begin(); it != this->_pollfds.end(); it++)
         {
-            std::cerr << "Error: poll()" << std::endl;
-            exit(1);
-        }
-        std::cout << GREEN "=== poll() success" END << std::endl;
-        
-        if (serverFd.revents & POLLIN)
-        {
-            std::cout << WHITE "New connection" END << std::endl;
-            
-            int clientFd = accept(this->_listener, NULL, NULL); // Accept the connection on a specific socket
-            if (clientFd == -1)
+            // int pollResult = poll(&serverFd, 1, -1); // initially
+            // get vector array and throw it to poll
+            int pollResult = poll(this->_pollfds.data(), this->_pollfds.size(), -1); // poll() waits for an event concerning fd. "-1" is to wait indefinitely
+            if (pollResult == -1)
             {
-                std::cerr << "Error: accept()" << std::endl;
+                std::cerr << "Error: poll()" << std::endl;
                 exit(1);
             }
-            std::cout << GREEN "=== accept() success" END << std::endl;
-            std::cout << WHITE "Client connected" END << std::endl;
-            std::cout << CYAN "Client fd: " << clientFd << END << std::endl;
-            // this->_clients.push_back(clientFd);
-            // std::cout << CYAN "Server fd: " END << this->_listener << std::endl;
-            // std::cout << CYAN "Waiting for password..." END << std::endl;
+            std::cout << GREEN "=== poll() success" END << std::endl;
+            
+            if (it->revents & POLLIN)
+            {
+                std::cout << WHITE "New connection" END << std::endl;
+                
+                int clientFd = accept(this->_listener, NULL, NULL); // Accept the connection on a specific socket
+                if (clientFd == -1)
+                {
+                    std::cerr << "Error: accept()" << std::endl;
+                    exit(1);
+                }
+                std::cout << GREEN "=== accept() success" END << std::endl;
+                std::cout << WHITE "Client connected" END << std::endl;
+                std::cout << CYAN "Client fd: " << clientFd << END << std::endl;
+                // this->_pollfds.push_back(clientFd);
+                // std::cout << CYAN "Server fd: " END << this->_listener << std::endl;
+                // std::cout << CYAN "Waiting for password..." END << std::endl;
+            }   
         }
     }
 }

@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 18:16:55 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/01 18:58:26 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@
 
 class Server
 {
+    typedef std::vector<pollfd>::iterator pollfd_iterator;
+
     public:
         Server();
         Server(std::string port, std::string password);
@@ -44,7 +46,7 @@ class Server
         std::string _port;
         std::string _password;
         int     _listener;
-        std::vector<struct pollfd> _clients;
+        std::vector<struct pollfd> _pollfds;
         
 };
 
