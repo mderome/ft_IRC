@@ -29,6 +29,10 @@ void    User::setServer(std::string server){
 	_server = server;
 }
 
+void    User::setRegistered(){
+	_registered = !_registered;
+}
+
 std::string	User::getUsername(){
 	return(_nickname);
 }
@@ -47,4 +51,8 @@ std::string    User::getRealname(){
 
 std::string    User::getServer(){
 	return(_server);
+}
+
+bool    User::getRegistered(){
+	return(_registered);
 }
