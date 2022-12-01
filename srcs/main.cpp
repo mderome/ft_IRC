@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include "utils/parsing.hpp"
+#include "utils/test.hpp"
 
 #define	BUF_SIZE 10000
 
@@ -18,6 +20,7 @@ int	main(int ac, char **av)
 	// ssize_t					nread;
 	// char 					buff[BUF_SIZE];
 
+
 	if (ac == 3)
 	{
 		if (std::atoi(av[1]) < 0)
@@ -29,6 +32,17 @@ int	main(int ac, char **av)
 		{
 			std::cerr << "The port can't be superior at 65535\n";
 			return -3;
+		}
+		else
+		{
+			test         t(av[2]);
+
+			std::cout << "Server name : " << t.get_name() << std::endl;
+			std::cout << "Valid server name : " << t.valid_server_name(t.get_name()) << std::endl;
+			std::cout << "Valid user name : " << t.valid_user_name(t.get_name()) << std::endl;
+			std::cout << "Valid channel name : " << t.valid_channel_name(t.get_name()) << std::endl;
+			std::cout << "Is local : " << t.is_local(t.get_name()) << std::endl;
+			std::cout << "Is regular : " << t.is_regular(t.get_name()) << std::endl;
 		}
 	}
 	else
