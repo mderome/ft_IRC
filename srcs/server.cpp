@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 16:49:19 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/01 18:09:50 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <poll.h>
 
 Server::Server() {}
 
@@ -131,33 +132,41 @@ void    Server::createListener(void)
 
 void    Server::serverStart(void)
 {
-    int     clientFd;
-    struct sockaddr_storage clientAddr;
-    socklen_t   addrSize = sizeof(clientAddr);
-    char    host[NI_MAXHOST];
-    char    service[NI_MAXSERV];
+    pollfd serverFd;
 
-    std::cout << CYAN "Waiting for connection..." END << std::endl;
+    serverFd.fd = this->_listener; // File descriptor to poll
+    serverFd.events = POLLIN; // POLLIN : There is data to read
+    serverFd.revents = 0; // Manage event detection
+
+    std::cout << CYAN "Waiting for clients..." END << std::endl;
 
     while (1)
     {
-        clientFd = accept(this->_listener, (struct sockaddr *)&clientAddr, &addrSize);
-        if (clientFd == -1)
+        int pollResult = poll(&serverFd, 1, -1); // -1 : wait indefinitely
+        if (pollResult == -1)
         {
-            std::cerr << "Error: accept()" << std::endl;
-            continue;
+            std::cerr << "Error: poll()" << std::endl;
+            exit(1);
         }
-        std::cout << GREEN "=== accept() success" END << std::endl;
-
-        if (getnameinfo((struct sockaddr *)&clientAddr, addrSize, host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
+        std::cout << GREEN "=== poll() success" END << std::endl;
+        
+        if (serverFd.revents & POLLIN)
         {
-            std::cout << CYAN "=== Connection from " << host << " on port " << service << END << std::endl;
+            std::cout << WHITE "New connection" END << std::endl;
+            
+            int clientFd = accept(this->_listener, NULL, NULL); // Accept the connection on a specific socket
+            if (clientFd == -1)
+            {
+                std::cerr << "Error: accept()" << std::endl;
+                exit(1);
+            }
+            std::cout << GREEN "=== accept() success" END << std::endl;
+            std::cout << WHITE "Client connected" END << std::endl;
+            std::cout << CYAN "Client fd: " << clientFd << END << std::endl;
+            // this->_clients.push_back(clientFd);
+            // std::cout << CYAN "Server fd: " END << this->_listener << std::endl;
+            // std::cout << CYAN "Waiting for password..." END << std::endl;
+            
         }
-        // else
-        // {
-        //     inet_ntop(clientAddr.ss_family, get_in_addr((struct sockaddr *)&clientAddr), host, NI_MAXHOST);
-        //     std::cout << CYAN "=== Connection from " << host << " on port " << ntohs(get_in_port((struct sockaddr *)&clientAddr)) << END << std::endl;
-        // }
-        close(clientFd);
     }
 }

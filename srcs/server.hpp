@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 16:21:20 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/01 18:08:11 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,9 @@
 # include <string>
 # include <iostream>
 # include <cstdlib>
+
+#include <vector>
+#include <poll.h>
 
 #include "color.hpp"
 
@@ -40,6 +43,8 @@ class Server
         std::string _port;
         std::string _password;
         int     _listener;
+        std::vector<struct pollfd> _clients;
+        
 };
 
 #endif
