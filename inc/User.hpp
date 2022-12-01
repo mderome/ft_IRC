@@ -14,6 +14,11 @@ class User
         void    setHostname(std::string hostname);
         void    setRealname(std::string realname);
         void    setServer(std::string server);
+        std::string getUsername();
+        std::string getNickname();
+        std::string getHostname();
+        std::string getRealname();
+        std::string getServer();
     private:
         std::string _username;
         std::string _nickname;
