@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/02 17:25:54 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/02 17:50:01 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,7 +168,6 @@ void    Server::serverStart(void)
                 if (it->fd == this->_listener)
                 {
                     // Accept a new connection
-                    std::cout << "acceptNewConnection() ->" << std::endl;
                     std::cout << "listener: " << this->_listener << std::endl;
                     acceptNewConnection();
                     break ;
@@ -313,7 +312,7 @@ int	Server::getMessage(User *user)
 			break ;
 		str.append(buf);
 	}
-    std::cout << MAGENTA "str = " << str << END << std::endl;
+    std::cout << MAGENTA "Message received = " << str << END << std::endl;
 	user->setMessage(str);
 	return (nbytes);
 }
