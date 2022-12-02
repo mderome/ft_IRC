@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 18:58:26 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/02 15:53:04 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,12 @@
 
 #include <vector>
 #include <poll.h>
+#include <map>
 
+#include "user.hpp"
 #include "color.hpp"
+
+class User;
 
 class Server
 {
@@ -41,12 +45,18 @@ class Server
 
         void    createListener(void);
         void    serverStart(void);
+        void    acceptNewConnection(void);
+        void    addUserToPollFd(int clientFd, struct sockaddr_storage clientAddr);
+        void    printUserData(int clientFd, struct sockaddr_storage clientAddr);
+        void    receiveData(pollfd_iterator &it);
+        int     getMessage(User *user);
 
     private:
         std::string _port;
         std::string _password;
         int     _listener;
         std::vector<struct pollfd> _pollfds;
+        std::map<int, User *>   _users;
         
 };
 

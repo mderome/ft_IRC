@@ -6,13 +6,13 @@
 #    By: esafar <esafar@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/30 13:35:26 by esafar            #+#    #+#              #
-#    Updated: 2022/12/01 14:42:38 by esafar           ###   ########.fr        #
+#    Updated: 2022/12/02 15:31:05 by esafar           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ircserv
 
-SRCS = srcs/main.cpp srcs/server.cpp
+SRCS = srcs/main.cpp srcs/server.cpp srcs/user.cpp
 
 GCC = c++
 FLAGS = -g -Wextra -Wall -Werror -std=c++98 

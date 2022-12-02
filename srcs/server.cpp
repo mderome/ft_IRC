@@ -6,13 +6,14 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 19:03:19 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/02 17:25:54 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server.hpp"
 #include <stdio.h>
-#include <string.h>
+// #include <string.h>
+#include <cstring>
 #include <unistd.h>
 
 #include <sys/types.h>
@@ -63,7 +64,7 @@ void    Server::createListener(void)
     /*
         Set up hints for getaddrinfo call
     */
-    memset(&hint, 0, sizeof(hint));
+    std::memset(&hint, 0, sizeof(hint));
 
     /*
         Family of address desired:
@@ -103,6 +104,7 @@ void    Server::createListener(void)
     std::cout << "res->ai_next: " << res->ai_next << END << std::endl;
     */
     
+    // Create a communication endpoint
     int     listenerFd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (listenerFd == -1)
     {
@@ -123,7 +125,7 @@ void    Server::createListener(void)
 
     std::cout << GREEN "=== bind() success" END << std::endl;
     
-    // Listen for incoming connections
+    // Listen for incoming connections. 1000 represents the maximum length of the queue of pending connections.
     if (listen(listenerFd, 1000) == -1)
     {
         std::cerr << "Error: listen()" << std::endl;
@@ -139,8 +141,8 @@ void    Server::serverStart(void)
 {
     pollfd serverFd;
 
-    serverFd.fd = this->_listener; // File descriptor to poll
-    serverFd.events = POLLIN; // POLLIN : There is data to read
+    serverFd.fd = this->_listener; // File descriptor to poll (to listen)
+    serverFd.events = POLLIN; // POLLIN : There is data to read. Manage events expected.
     serverFd.revents = 0; // Manage event detection
 
     this->_pollfds.push_back(serverFd); // Add serverFd to pollfds vector 
@@ -159,25 +161,159 @@ void    Server::serverStart(void)
                 std::cerr << "Error: poll()" << std::endl;
                 exit(1);
             }
-            std::cout << GREEN "=== poll() success" END << std::endl;
+            // std::cout << GREEN "=== poll() success" END << std::endl;
             
             if (it->revents & POLLIN)
             {
-                std::cout << WHITE "New connection" END << std::endl;
-                
-                int clientFd = accept(this->_listener, NULL, NULL); // Accept the connection on a specific socket
-                if (clientFd == -1)
+                if (it->fd == this->_listener)
                 {
-                    std::cerr << "Error: accept()" << std::endl;
-                    exit(1);
+                    // Accept a new connection
+                    std::cout << "acceptNewConnection() ->" << std::endl;
+                    std::cout << "listener: " << this->_listener << std::endl;
+                    acceptNewConnection();
+                    break ;
                 }
-                std::cout << GREEN "=== accept() success" END << std::endl;
-                std::cout << WHITE "Client connected" END << std::endl;
-                std::cout << CYAN "Client fd: " << clientFd << END << std::endl;
-                // this->_pollfds.push_back(clientFd);
-                // std::cout << CYAN "Server fd: " END << this->_listener << std::endl;
-                // std::cout << CYAN "Waiting for password..." END << std::endl;
+                // else
+                // {
+                    // Receive data from a client
+                    receiveData(it);                    
+
+                    // Send data to a client
+                    // int bytesSent = send(it->fd, buf, bytesReceived + 1, 0);
+                    // if (bytesSent == -1)
+                    // {
+                    //     std::cerr << "Error: send()" << std::endl;
+                    //     close(it->fd);
+                    //     this->_pollfds.erase(it);
+                    //     continue;
+                    // }
+                    // std::cout << GREEN "=== send() success" END << std::endl;
+                // }
             }   
         }
     }
+}
+
+void    Server::acceptNewConnection(void)
+{
+    struct sockaddr_storage userAddr;
+    socklen_t userAddrSize = sizeof(userAddr);
+    
+    // Accept a new connection on a specified socket
+    int userFd = accept(this->_listener, (struct sockaddr *)&userAddr, &userAddrSize);
+    if (userFd == -1)
+    {
+        std::cerr << RED "Error: accept()" END << std::endl;
+        exit(1);
+    }
+    std::cout << GREEN "=== accept() success" END << std::endl;
+
+    // Add userFd to pollfds vector
+    addUserToPollFd(userFd, userAddr);
+
+    // Print data about the client
+    printUserData(userFd, userAddr);
+}
+
+
+void    Server::addUserToPollFd(int userFd, struct sockaddr_storage userAddr)
+{
+    pollfd userFdPoll;
+    
+    userFdPoll.fd = userFd; // File descriptor to poll (to listen)
+    userFdPoll.events = POLLIN; // POLLIN : There is data to read. Manage events expected.
+    userFdPoll.revents = 0; // Manage event detection
+    
+    std::cout << "===== userFd: " << userFd << std::endl;
+    this->_pollfds.push_back(userFdPoll); // Add userFd to pollfds vector
+    this->_users.insert(std::pair<int, User *>(userFd, new User(userFd, &userAddr))); // Add userFd to users map
+    // this->_users.insert(std::make_pair(userFd, new User(userFd, &userAddr))); // Add userFd to users map
+}
+
+void    Server::printUserData(int userFd, struct sockaddr_storage userAddr)
+{
+    char host[NI_MAXHOST]; // NI_MAXHOST : Maximum size of a fully-qualified domain name
+    char port[NI_MAXSERV]; // NI_MAXSERV : Maximum size of a decimal port number
+
+    // Get the user's IP address and port number
+    int result = getnameinfo((struct sockaddr *)&userAddr, sizeof(userAddr), host, NI_MAXHOST, port, NI_MAXSERV, 0);
+    if (result)
+    {
+        std::cerr << RED "Error: getnameinfo()" END << std::endl;
+        exit(1);
+    }
+    std::cout << GREEN "=== getnameinfo() success" END << std::endl;
+
+    std::cout << CYAN "Client connected: " MAGENTA << host << ":" << port << CYAN ", on socket " MAGENTA << userFd << END << std::endl;
+}
+
+// void    Server::receiveData(pollfd_iterator &it)
+// {
+//     User   *user = _users.at(it->fd);
+    
+//     // Receive data from a client
+//     char buf[4096]; // 4096 : Maximum size of a message
+//     std::memset(buf, 0, sizeof(buf));
+//     int bytesReceived = recv(it->fd, buf, sizeof(buf), 0); // recv() returns the number of bytes received
+//     if (bytesReceived <= 0)
+//     {
+//         // std::cerr << RED "Error: recv()" END << std::endl;
+//         close(this->_listener);
+//         // exit(1);
+//     }
+//     // std::cout << GREEN "=== recv() success" END << std::endl;
+
+//     if (std::string(buf, 0, bytesReceived) != "")
+//         std::cout << WHITE "Received: " << std::string(buf, 0, bytesReceived) << END << std::endl;
+// }
+
+void	Server::receiveData(pollfd_iterator &it)
+{
+	// try
+	// {
+        std::cout << "receiveData() it->fd: " << it->fd << std::endl;
+		User	*user = this->_users.at(it->fd);
+        // std::cout << "user->getFd() = " << user->getFd() << std::endl;
+		int		nbytes = 0;
+
+		nbytes = getMessage(user);
+		if (nbytes <= 0)
+		{
+			if (nbytes == 0) // disconnect
+				std::cout << "pollserver : socket " << it->fd << " hung up" << std::endl;
+			else // error
+				std::cerr << "Error : recv" << std::endl;
+			// _delUser(it);
+            std::cout << "delUser" << std::endl;
+		}
+		else
+            std::cout << "handleCmd" << std::endl;
+			// _handleCmd(user);
+	// }
+	// catch (const std::out_of_range &e)
+	// {
+	// 	std::cout << "Out of range from receiveData" << std::endl;
+	// }
+}
+
+int	Server::getMessage(User *user)
+{
+	int			fd = user->getFd();
+	int			nbytes = 0;
+	char		buf[1024];
+	std::string	str;
+
+	// user->clearMsg();
+    std::cout << "clear msg" << std::endl;
+	while (str.rfind("\r\n") != str.length() - 2 || str.length() < 2)
+	{
+		memset(buf, 0, sizeof(buf));
+		nbytes = recv(fd, buf, sizeof(buf), 0);
+		if (nbytes <= 0)
+			break ;
+		str.append(buf);
+	}
+    std::cout << MAGENTA "str = " << str << END << std::endl;
+	user->setMessage(str);
+	return (nbytes);
 }
