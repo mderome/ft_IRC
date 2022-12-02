@@ -33,6 +33,10 @@ void    User::setRegistered(){
 	_registered = !_registered;
 }
 
+void    User::setMessage(std::string message){
+	_message = message;
+}
+
 std::string	User::getUsername(){
 	return(_nickname);
 }
@@ -55,4 +59,8 @@ std::string    User::getServer(){
 
 bool    User::getRegistered(){
 	return(_registered);
+}
+
+std::string    User::getMessage(){
+	return(_message);
 }
