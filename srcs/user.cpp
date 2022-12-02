@@ -69,3 +69,7 @@ std::string    User::getMessage(){
 int    User::getFd(){
     return(_fd);
 }
+
+void	User::clearMessage(){
+	_message.clear();
+}

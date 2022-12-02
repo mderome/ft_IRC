@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/02 17:50:01 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/02 19:31:33 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,8 +286,12 @@ void	Server::receiveData(pollfd_iterator &it)
             std::cout << "delUser" << std::endl;
 		}
 		else
+        {
             std::cout << "handleCmd" << std::endl;
+            // print message received
+            std::cout << "pollserver : socket " << it->fd << " sent " << nbytes << " bytes : " << user->getMessage() << std::endl;
 			// _handleCmd(user);
+        }
 	// }
 	// catch (const std::out_of_range &e)
 	// {
@@ -302,8 +306,8 @@ int	Server::getMessage(User *user)
 	char		buf[1024];
 	std::string	str;
 
-	// user->clearMsg();
-    std::cout << "clear msg" << std::endl;
+	user->clearMessage();
+    // std::cout << "clear msg" << std::endl;
 	while (str.rfind("\r\n") != str.length() - 2 || str.length() < 2)
 	{
 		memset(buf, 0, sizeof(buf));
@@ -313,6 +317,6 @@ int	Server::getMessage(User *user)
 		str.append(buf);
 	}
     std::cout << MAGENTA "Message received = " << str << END << std::endl;
-	user->setMessage(str);
+	user->setMessage(str);    
 	return (nbytes);
 }

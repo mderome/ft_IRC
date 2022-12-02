@@ -27,6 +27,7 @@ class User
         bool        getRegistered(void);
         std::string getMessage(void);
         int         getFd(void);
+        void        clearMessage(void);
 
     private:
         std::string _username;
@@ -38,6 +39,7 @@ class User
         int         _fd;
         struct sockaddr_storage *_userAddr;
         std::string _message;
+
 };
 
 #endif
