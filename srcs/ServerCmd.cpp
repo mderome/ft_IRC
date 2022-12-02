@@ -1,5 +1,7 @@
 #include "../inc/User.hpp"
 
+// CONNECTION  COMMANDES
+
 void	pass_cmd(User *user, std::string param){
 	if (!param.length())
 		return;//si pas de param  ERR_NEEDMOREPARAMS
@@ -38,4 +40,8 @@ void	oper_cmd(User *user, std::string param){
 		return ; // ERR_PASSWDMISMATCH
 	//RPL_YOUREOPER
 	// avoir une fonction qui ajoute un operator a un channel
+}
+
+void	quit_cmd(User *user, std::string param){
+	// pas de parsing a faire
 }
