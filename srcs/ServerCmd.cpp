@@ -2,6 +2,13 @@
 #include "../inc/server.hpp"
 
 // CONNECTION  COMMANDES
+void	Server::_indexingCmd(){
+	_indexCmd.insert(std::pair<std::string, func>("PASS", &Server::pass_cmd));
+	_indexCmd.insert(std::pair<std::string, func>("NICK", &Server::nick_cmd));
+	_indexCmd.insert(std::pair<std::string, func>("PING", &Server::ping_cmd));
+	_indexCmd.insert(std::pair<std::string, func>("OPER", &Server::nick_cmd));
+	_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::quit_cmd));
+}
 
 void	Server::pass_cmd(User *user, std::string param){
 	if (!param.length())
