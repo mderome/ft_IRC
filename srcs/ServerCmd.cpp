@@ -10,6 +10,15 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::quit_cmd));
 }
 
+void	Server::chooseCmd(User *user){
+	std::string	msg = user->getMessage();
+	std::string	param;
+	std::string	cmd_name;
+
+	//parse for msg for get cmd_name and param;
+	// Bon courage :)
+}
+
 void	Server::pass_cmd(User *user, std::string param){
 	if (!param.length())
 		return;//si pas de param  ERR_NEEDMOREPARAMS
