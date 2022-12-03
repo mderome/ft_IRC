@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mderome <mderome@student.42.fr>            +#+  +:+       +#+        */
+/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/02 21:23:39 by mderome          ###   ########.fr       */
+/*   Updated: 2022/12/03 15:54:17 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@
 
 #include "user.hpp"
 #include "color.hpp"
-
-class User;
 
 class Server
 {
@@ -51,9 +49,16 @@ class Server
         void    receiveData(pollfd_iterator &it);
         int     getMessage(User *user);
 
+        void	pass_cmd(User *user, std::string param);
+        void	nick_cmd(User *user, std::string param);
+        void	ping_cmd(User *user, std::string param);
+        void	oper_cmd(User *user, std::string param);
+        void	quit_cmd(User *user, std::string param);
+
     private:
         std::string _port;
         std::string _password;
+        std::string _hostname;
         int     _listener;
         std::vector<struct pollfd> _pollfds;
         std::map<int, User *>   _users;

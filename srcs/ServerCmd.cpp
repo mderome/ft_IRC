@@ -1,18 +1,19 @@
 #include "../inc/user.hpp"
+#include "../inc/server.hpp"
 
 // CONNECTION  COMMANDES
 
-void	pass_cmd(User *user, std::string param){
+void	Server::pass_cmd(User *user, std::string param){
 	if (!param.length())
 		return;//si pas de param  ERR_NEEDMOREPARAMS
 	if (user->getRegistered())
 		return; // throw Err ERR_ALREADYREGISTRED
 	if (!param.compare(_password))//private value in server
 		return;// ERR_PASSWDMISMATCH 
-	user->setRegister();
+	user->setRegistered();
 }
 
-void	nick_cmd(User *user, std::string param){
+void	Server::nick_cmd(User *user, std::string param){
 	if (param.empty())
 		return; // ERR_NONICKNAMEGIVEN
 	// parse for nickname is valid ERR_ERRONEUSNICKNAME
@@ -24,7 +25,7 @@ void	nick_cmd(User *user, std::string param){
 	user->setNickname(param);
 }
 
-void	ping_cmd(User *user, std::string param){
+void	Server::ping_cmd(User *user, std::string param){
 	if (param.empty())
 		return ; //ERR_NEEDMOREPARAMS
 	if (param != _hostname)
@@ -32,9 +33,11 @@ void	ping_cmd(User *user, std::string param){
 	// reply msg to RPL_PONG (nickname user,_hostname)
 }
 
-void	oper_cmd(User *user, std::string param){
+void	Server::oper_cmd(User *user, std::string param){
 	// split param pour avoir name et password | Parameters: <name> <password>
-	if (this->getHostname() != user->getHostname())
+	std::string	password;
+
+	if (_hostname != user->getHostname())
 		return ; // ERR_NOOPERHOST
 	if (password != getPassword())
 		return ; // ERR_PASSWDMISMATCH
@@ -42,6 +45,6 @@ void	oper_cmd(User *user, std::string param){
 	// avoir une fonction qui ajoute un operator a un channel
 }
 
-void	quit_cmd(User *user, std::string param){
+void	Server::quit_cmd(User *user, std::string param){
 	// pas de parsing a faire
 }

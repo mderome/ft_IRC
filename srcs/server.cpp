@@ -6,7 +6,7 @@
 /*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/03 15:33:31 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/03 15:46:10 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,7 +197,7 @@ void    Server::serverStart(void)
                         std::string lol = "001 : lolilol\n";
                     }
                     std::cout << GREEN "=== send() success" END << std::endl;
-                    send(it->fd, lol.c_str(), lol.size(), 0);
+                    // send(it->fd, lol.c_str(), lol.size(), 0);
                 }
             }   
         }
