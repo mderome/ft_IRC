@@ -3,16 +3,19 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: esafar <esafar@student.42.fr>              +#+  +:+       +#+         #
+#    By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/30 13:35:26 by esafar            #+#    #+#              #
-#    Updated: 2022/11/30 13:35:50 by esafar           ###   ########.fr        #
+#    Updated: 2022/12/03 15:36:29 by achane-l         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ircserv
 
-SRCS = srcs/main.cpp
+SRCS =	srcs/main.cpp \
+		srcs/parsing.cpp \
+		srcs/server.cpp	\
+		srcs/user.cpp
 
 GCC = c++
 FLAGS = -g -Wextra -Wall -Werror -std=c++98 

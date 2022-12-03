@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:41:22 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/01 13:43:46 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/03 15:34:44 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,15 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <string.h>
 
 #define	BUF_SIZE 10000
 
-bool	checkPort(std::string port)
+#include "../inc/server.hpp"
+
+bool	checkPort(char  *port)
 {
-	for (int i = 0; i < port.size(); i++)
+	for (size_t i = 0; i < strlen(port); i++)
 	{
 		if (port[i] < '0' || port[i] > '9')
 			return (false);
@@ -31,14 +34,6 @@ bool	checkPort(std::string port)
 
 int	main(int ac, char **av)
 {
-	// struct addrinfo 		hint;
-	// struct addrinfo 		*result, *rp;
-	// int						sfd, s;
-	// struct sockaddr_storage peer_addr;
-	// socklen_t				peer_addr_len;
-	// ssize_t					nread;
-	// char 					buff[BUF_SIZE];
-
 	if (ac == 3)
 	{
 		if (!checkPort(av[1]))
@@ -49,6 +44,13 @@ int	main(int ac, char **av)
 		else
 		{
 			//start running server here
+			try {
+				Server server(av[1], av[2]);
+			}
+			catch (std::exception &e) {
+				std::cerr << e.what() << std::endl;
+				return (EXIT_FAILURE);
+			}
 		}
 	}
 	else

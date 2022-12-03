@@ -1,14 +1,17 @@
-#ifndef USER_H
-#define USER_H
+#ifndef USER_HPP
+#define USER_HPP
 
 #pragma once
 #include <string>
 
+#include "server.hpp" // for sockaddr_storage
+
 class User
 {
     public:
-        User();
-        ~User();
+        User(void);
+        User(int userFd, struct sockaddr_storage *userAddr);
+        ~User(void);
         void    setUsername(std::string username);
         void    setNickname(std::string nickname);
         void    setHostname(std::string hostname);
@@ -16,13 +19,16 @@ class User
         void    setServer(std::string server);
         void    setRegistered();
         void    setMessage(std::string message);
-        std::string getUsername();
-        std::string getNickname();
-        std::string getHostname();
-        std::string getRealname();
-        std::string getServer();
-        bool        getRegistered();
-        std::string getMessage();
+        std::string getUsername(void);
+        std::string getNickname(void);
+        std::string getHostname(void);
+        std::string getRealname(void);
+        std::string getServer(void);
+        bool        getRegistered(void);
+        std::string getMessage(void);
+        int         getFd(void);
+        void        clearMessage(void);
+
     private:
         std::string _username;
         std::string _nickname;
@@ -31,7 +37,9 @@ class User
         std::string _server;
         bool        _registered;
         int         _fd;
+        struct sockaddr_storage *_userAddr;
         std::string _message;
+
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include "../inc/User.hpp"
+#include "../inc/user.hpp"
 
 // CONNECTION  COMMANDES
 
