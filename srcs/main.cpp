@@ -1,55 +1,62 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mderome <mderome@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/12/01 13:41:22 by esafar            #+#    #+#             */
+/*   Updated: 2022/12/02 21:24:39 by mderome          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string>
 #include <iostream>
 #include <cstdlib>
-#include "utils/parsing.hpp"
-#include "utils/test.hpp"
+#include <string.h>
 
 #define	BUF_SIZE 10000
 
+#include "server.hpp"
+
+bool	checkPort(char  *port)
+{
+	for (size_t i = 0; i < strlen(port); i++)
+	{
+		if (port[i] < '0' || port[i] > '9')
+			return (false);
+	}
+	return (true);
+}
 
 int	main(int ac, char **av)
 {
-	// struct addrinfo 		hint;
-	// struct addrinfo 		*result, *rp;
-	// int						sfd, s;
-	// struct sockaddr_storage peer_addr;
-	// socklen_t				peer_addr_len;
-	// ssize_t					nread;
-	// char 					buff[BUF_SIZE];
-
-
 	if (ac == 3)
 	{
-		if (std::atoi(av[1]) < 0)
+		if (!checkPort(av[1]))
 		{
-			std::cerr << "The port can't be inferior at 0\n";
-			return -2;
-		}
-		else if (std::atoi(av[1]) > 65535)
-		{
-			std::cerr << "The port can't be superior at 65535\n";
-			return -3;
+			std::cerr << "Error: Invalid port number" << std::endl;
+			return (EXIT_FAILURE);
 		}
 		else
 		{
-			test         t(av[2]);
-
-			std::cout << "Server name : " << t.get_name() << std::endl;
-			std::cout << "Valid server name : " << t.valid_server_name(t.get_name()) << std::endl;
-			std::cout << "Valid user name : " << t.valid_user_name(t.get_name()) << std::endl;
-			std::cout << "Valid channel name : " << t.valid_channel_name(t.get_name()) << std::endl;
-			std::cout << "Is local : " << t.is_local(t.get_name()) << std::endl;
-			std::cout << "Is regular : " << t.is_regular(t.get_name()) << std::endl;
+			//start running server here
+			try {
+				Server server(av[1], av[2]);
+			}
+			catch (std::exception &e) {
+				std::cerr << e.what() << std::endl;
+				return (EXIT_FAILURE);
+			}
 		}
 	}
 	else
 	{
-		std::cerr << "Usage: %s port password.\n";
-		return -1;
+		std::cerr << "Error: usage: ./ircserv <port> <password>" << std::endl;
+		return (EXIT_FAILURE);
 	}
-	
 	return (0);
 }
