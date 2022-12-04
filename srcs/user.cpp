@@ -38,6 +38,10 @@ void    User::setMessage(std::string message){
 	_message = message;
 }
 
+void    User::setDoWelcome(bool welcome){
+	_DoWelcome = welcome;
+}
+
 std::string	User::getUsername(){
 	return(_nickname);
 }
@@ -69,6 +73,11 @@ std::string    User::getMessage(){
 int    User::getFd(){
     return(_fd);
 }
+
+bool    User::getDoWelcome(){
+	return(_DoWelcome);
+}
+
 
 void	User::clearMessage(){
 	_message.clear();

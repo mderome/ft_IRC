@@ -19,6 +19,7 @@ class User
         void    setServer(std::string server);
         void    setRegistered();
         void    setMessage(std::string message);
+        void    setDoWelcome(bool welcome);
         std::string getUsername(void);
         std::string getNickname(void);
         std::string getHostname(void);
@@ -27,6 +28,7 @@ class User
         bool        getRegistered(void);
         std::string getMessage(void);
         int         getFd(void);
+        bool        getDoWelcome(void);
         void        clearMessage(void);
 
     private:
@@ -36,6 +38,7 @@ class User
         std::string _realname;
         std::string _server;
         bool        _registered;
+        bool        _DoWelcome;
         int         _fd;
         struct sockaddr_storage *_userAddr;
         std::string _message;
