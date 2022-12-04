@@ -17,6 +17,23 @@ void	Server::chooseCmd(User *user){
 
 	//parse for msg for get cmd_name and param;
 	// Bon courage :)
+	std::cout << "Dans chooseCMD : " << msg << std::endl;
+}
+
+void	Server::user_cmd(User *user, std::string param){
+	std::string	username;
+	std::string	mode;
+	// * jsp ce que c'est
+	std::string	realname;
+
+	std::cout << param << std::endl;
+	if (user->getRegistered())
+		return ; // ERR_ALREADYREGISTERED (462)
+	// PArsing pour recuperer les params
+	// check username realname et mode
+	user->setRealname(username);
+	user->setUsername(username);
+	// si tt les param sont set RPL_WELCOME
 }
 
 void	Server::pass_cmd(User *user, std::string param){
@@ -27,6 +44,7 @@ void	Server::pass_cmd(User *user, std::string param){
 	if (!param.compare(_password))//private value in server
 		return;// ERR_PASSWDMISMATCH 
 	user->setRegistered();
+	// si tt les param sont set RPL_WELCOME
 }
 
 void	Server::nick_cmd(User *user, std::string param){
@@ -39,9 +57,11 @@ void	Server::nick_cmd(User *user, std::string param){
 			return; // ERR_NICKCOLLISION
 	}
 	user->setNickname(param);
+	// si tt les param sont set RPL_WELCOME
 }
 
 void	Server::ping_cmd(User *user, std::string param){
+	std::cout << user->getMessage() << std::endl;
 	if (param.empty())
 		return ; //ERR_NEEDMOREPARAMS
 	if (param != _hostname)
@@ -53,6 +73,7 @@ void	Server::oper_cmd(User *user, std::string param){
 	// split param pour avoir name et password | Parameters: <name> <password>
 	std::string	password;
 
+	std::cout << param << std::endl;
 	if (_hostname != user->getHostname())
 		return ; // ERR_NOOPERHOST
 	if (password != getPassword())
@@ -63,4 +84,7 @@ void	Server::oper_cmd(User *user, std::string param){
 
 void	Server::quit_cmd(User *user, std::string param){
 	// pas de parsing a faire
+	std::cout << user->getMessage() << std::endl;
+	std::cout << param << std::endl;
+
 }

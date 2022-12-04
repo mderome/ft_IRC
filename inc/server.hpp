@@ -6,7 +6,7 @@
 /*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/03 16:41:10 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/04 14:06:05 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@
 
 #include "user.hpp"
 #include "color.hpp"
+
+class User;
 
 class Server
 {
@@ -51,7 +53,8 @@ class Server
         int     getMessage(User *user);
 
         void    _indexingCmd();
-        void	Server::chooseCmd(User *user);
+        void	chooseCmd(User *user);
+        void	user_cmd(User *user, std::string param);
         void	pass_cmd(User *user, std::string param);
         void	nick_cmd(User *user, std::string param);
         void	ping_cmd(User *user, std::string param);
