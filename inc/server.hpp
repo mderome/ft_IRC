@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
+/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/04 14:06:05 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/05 18:24:10 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,13 @@ class User;
 class Server
 {
     typedef std::vector<pollfd>::iterator pollfd_iterator;
+	typedef std::map<int, User *>::iterator users_iterator;
     typedef void (Server::*func)(User *, std::string);
 
     public:
         Server();
         Server(std::string port, std::string password);
         ~Server();
-        std::map<std::string, func> _indexCmd;
         std::vector<struct pollfd>  getPollFd(void)const;
         std::string getPort(void)const;
         std::string getPassword(void)const;
@@ -54,12 +54,14 @@ class Server
 
         void    _indexingCmd();
         void	chooseCmd(User *user);
-        void	user_cmd(User *user, std::string param);
-        void	pass_cmd(User *user, std::string param);
-        void	nick_cmd(User *user, std::string param);
-        void	ping_cmd(User *user, std::string param);
-        void	oper_cmd(User *user, std::string param);
-        void	quit_cmd(User *user, std::string param);
+        
+        void    closeConnection(User *user);
+
+		void	_userCmd(User *user, std::string buf);
+		void	_passCmd(User *user, std::string buf);
+		void	_nickCmd(User *user, std::string buf);
+        void	_caplsCmd(User *user, std::string buf);
+		void	_quitCmd(User *user, std::string buf);
 
     private:
         std::string _port;
@@ -68,7 +70,7 @@ class Server
         int     _listener;
         std::vector<struct pollfd> _pollfds;
         std::map<int, User *>   _users;
-        
+        std::map<std::string, func> _indexCmd;
 };
 
 #endif

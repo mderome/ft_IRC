@@ -6,6 +6,12 @@
 
 #include "server.hpp" // for sockaddr_storage
 
+#define	RPL_WELCOME(nick, server, user, hostname)	":" + server + " 001 " + nick + " :Welcome to the " + server + " network, " + nick + "[" + user + "@" + hostname + "]"
+	;
+#define	RPL_YOURHOST(nick, server)					":" + server + " 002 " + nick + " :Your host is " + server + ", running version 1.2.3"
+#define	RPL_CREATED(nick, server, timestamp)		":" + server + " 003 " + nick + " :This server was created " + timestamp
+#define	RPL_MYINFO(nick, server)					":" + server + " 004 " + nick + " " + server + " irssi 1.2.3 (20210409 0011)"
+
 class User
 {
     public:
@@ -19,6 +25,8 @@ class User
         void    setServer(std::string server);
         void    setRegistered();
         void    setMessage(std::string message);
+        void    setPassword(bool password);
+        void    setUser(std::string user);
         std::string getUsername(void);
         std::string getNickname(void);
         std::string getHostname(void);
@@ -27,7 +35,15 @@ class User
         bool        getRegistered(void);
         std::string getMessage(void);
         int         getFd(void);
+        bool		getPassword(void) const;
+        std::string getUser(void) const;
+
         void        clearMessage(void);
+
+        void    welcome(void);
+        bool    hasBeenWelcomed(void) const;
+        std::string timestamp(void);
+        void    sendReply(std::string reply);
 
     private:
         std::string _username;
@@ -39,7 +55,9 @@ class User
         int         _fd;
         struct sockaddr_storage *_userAddr;
         std::string _message;
-
+        bool        _password;
+        bool       _welcomed;
+        std::string _user;
 };
 
 #endif

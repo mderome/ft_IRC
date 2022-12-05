@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
+/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/04 14:25:23 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/05 18:22:19 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ Server::Server(std::string port, std::string password)
 
     createListener();
     std::cout << WHITE "* Server created *" END << std::endl;
+    _indexingCmd();
     serverStart();
 }
 
@@ -140,7 +141,7 @@ void    Server::createListener(void)
 void    Server::serverStart(void)
 {
     pollfd serverFd;
-
+    int    pollResult;
     serverFd.fd = this->_listener; // File descriptor to poll (to listen)
     serverFd.events = POLLIN; // POLLIN : There is data to read. Manage events expected.
     serverFd.revents = 0; // Manage event detection
@@ -151,56 +152,34 @@ void    Server::serverStart(void)
 
     while (1)
     {
-        for (pollfd_iterator it = this->_pollfds.begin(); it != this->_pollfds.end(); it++)
+        // int pollResult = poll(&serverFd, 1, -1); // initially
+        // get vector array and throw it to poll
+        pollResult = poll(this->_pollfds.data(), this->_pollfds.size(), -1); // poll() waits for an event concerning fd. "-1" is to wait indefinitely
+        if (pollResult == -1)
         {
-            std::cout << "dedans" << std::endl;
-            // int pollResult = poll(&serverFd, 1, -1); // initially
-            // get vector array and throw it to poll
-            int pollResult = poll(this->_pollfds.data(), this->_pollfds.size(), -1); // poll() waits for an event concerning fd. "-1" is to wait indefinitely
-            if (pollResult == -1)
+            std::cerr << "Error: poll()" << std::endl;
+            exit(1);
+        }
+        else {
+            for (pollfd_iterator it = this->_pollfds.begin(); it != this->_pollfds.end(); it++)
             {
-                std::cerr << "Error: poll()" << std::endl;
-                exit(1);
+                // std::cout << GREEN "=== poll() success" END << std::endl;
+                
+                if (it->revents & POLLIN)
+                {
+                    if (it->fd == this->_listener)
+                    {
+                        // Accept a new connection
+                        std::cout << "listener: " << this->_listener << std::endl;
+                        acceptNewConnection(); 
+                        break;
+                    }
+                    // Receive data from client
+                    receiveData(it);
+                } 
+                if (it == this->_pollfds.end())
+                    break;
             }
-            // std::cout << GREEN "=== poll() success" END << std::endl;
-            
-            if (it->revents & POLLIN)
-            {
-                if (it->fd == this->_listener)
-                {
-                    // Accept a new connection
-                    std::cout << "listener: " << this->_listener << std::endl;
-                    acceptNewConnection();
-                }
-                else
-                {
-                    std::cout << "receiveData() it->fd: " << it->fd << std::endl;
-                    User	*user = this->_users.find(it->fd)->second;
-                    std::cout << "user->getFd() = " << user->getFd() << std::endl;
-		            int		nbytes = 0;
-                    nbytes = getMessage(user);
-                    std::cout << "test\n";
-                    if (nbytes <= 0)
-                    {
-                        if (nbytes == 0) // disconnect
-                             std::cout << "pollserver : socket " << it->fd << " hung up" << std::endl;
-                        else // error
-                            std::cerr << "Error : recv" << std::endl;
-                        //_delUser(it);
-                        std::cout << "delUser" << std::endl;
-                    }
-                    else
-                    {
-                        std::cout << "handleCmd" << std::endl;
-                        // print message received
-                        std::cout << "pollserver : socket " << it->fd << " sent " << nbytes << " bytes : " << user->getMessage() << std::endl;
-                        chooseCmd(user);
-                        std::string lol = "001 : lolilol\n";
-                    }
-                    std::cout << GREEN "=== send() success" END << std::endl;
-                    // send(it->fd, lol.c_str(), lol.size(), 0);
-                }
-            }   
         }
     }
 }
@@ -211,21 +190,22 @@ void    Server::acceptNewConnection(void)
     socklen_t userAddrSize = sizeof(userAddr);
     
     // Accept a new connection on a specified socket
-    std::cout << "avant accept\n"; 
     int userFd = accept(this->_listener, (struct sockaddr *)&userAddr, &userAddrSize);
-    std::cout << "apres accept\n"; 
     if (userFd == -1)
     {
         std::cerr << RED "Error: accept()" END << std::endl;
-        exit(1);
+        // exit(1);
     }
-    std::cout << GREEN "=== accept() success" END << std::endl;
+    else
+    {
+        std::cout << GREEN "=== accept() success" END << std::endl;
 
-    // Add userFd to pollfds vector
-    addUserToPollFd(userFd, userAddr);
+        // Add userFd to pollfds vector
+        addUserToPollFd(userFd, userAddr);
 
-    // Print data about the client
-    printUserData(userFd, userAddr);
+        // Print data about the client
+        printUserData(userFd, userAddr);
+    }
 }
 
 
@@ -260,40 +240,31 @@ void    Server::printUserData(int userFd, struct sockaddr_storage userAddr)
     std::cout << CYAN "Client connected: " MAGENTA << host << ":" << port << CYAN ", on socket " MAGENTA << userFd << END << std::endl;
 }
 
-// void    Server::receiveData(pollfd_iterator &it)
-// {
-//     User   *user = _users.at(it->fd);
-    
-//     // Receive data from a client
-//     char buf[4096]; // 4096 : Maximum size of a message
-//     std::memset(buf, 0, sizeof(buf));
-//     int bytesReceived = recv(it->fd, buf, sizeof(buf), 0); // recv() returns the number of bytes received
-//     if (bytesReceived <= 0)
-//     {
-//         // std::cerr << RED "Error: recv()" END << std::endl;
-//         close(this->_listener);
-//         // exit(1);
-//     }
-//     // std::cout << GREEN "=== recv() success" END << std::endl;
-
-//     if (std::string(buf, 0, bytesReceived) != "")
-//         std::cout << WHITE "Received: " << std::string(buf, 0, bytesReceived) << END << std::endl;
-// }
-
 void	Server::receiveData(pollfd_iterator &it)
 {
-	// try
-	// {
-        std::cout << "receiveData() it->fd: " << it->fd << std::endl;
-		User	*user = this->_users.find(it->fd)->second;
-        std::cout << "user->getFd() = " << user->getFd() << std::endl;
+	try
+	{
+		User	*user = this->_users.at(it->fd);
+		int		nbytes = 0;
 
-
-        
-	// catch (const std::out_of_range &e)
-	// {
-	// 	std::cout << "Out of range from receiveData" << std::endl;
-	// }
+		nbytes = getMessage(user);        
+        std::cout << YELLOW "bytes sent: " << nbytes << END << std::endl;
+		if (nbytes <= 0)
+		{
+			if (nbytes == 0) // disconnect
+				std::cout << "pollserver : socket " << it->fd << " hung up" << std::endl;
+			else // error
+				std::cerr << "Error : recv" << std::endl;
+			// _delUser(it);
+            std::cout << RED "delUser" END << std::endl;
+		}
+		else
+			chooseCmd(user);
+	}
+	catch (const std::out_of_range &e)
+	{
+		std::cout << "Out of range from receiveData" << std::endl;
+	}
 }
 
 int	Server::getMessage(User *user)
@@ -309,12 +280,33 @@ int	Server::getMessage(User *user)
 	{
 		memset(buf, 0, sizeof(buf));
 		nbytes = recv(fd, buf, sizeof(buf), 0);
-        std::cout << nbytes << " buf = " << buf <<std::endl;
 		if (nbytes <= 0)
 			break ;
 		str.append(buf);
 	}
-    std::cout << MAGENTA "Message received = " << str << END << std::endl;
+    std::cout << std::endl << GREEN "Full message received from client: " MAGENTA << str << END << "";
 	user->setMessage(str);    
 	return (nbytes);
+}
+
+void	Server::closeConnection(User *user)
+{
+	try
+	{
+		user->sendReply("Please, enter PASS first. Disconnecting.");
+		int	fd = user->getFd();
+		close(fd);
+		for (pollfd_iterator it = _pollfds.begin(); it != _pollfds.end(); ++it)
+		{
+			if (fd == it->fd)
+			{
+				_pollfds.erase(it);
+				break;
+			}
+		}
+		_users.erase(fd);
+		delete user;
+		std::cout << "Disconnecting user on socket " << fd << std::endl;
+	}
+	catch (const std::out_of_range &e) {}
 }
