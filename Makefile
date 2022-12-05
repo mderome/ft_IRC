@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+         #
+#    By: esafar <esafar@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/30 13:35:26 by esafar            #+#    #+#              #
-#    Updated: 2022/12/04 14:19:31 by achane-l         ###   ########.fr        #
+#    Updated: 2022/12/05 18:24:44 by esafar           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,8 @@ SRCS =	srcs/main.cpp \
 		srcs/parsing.cpp \
 		srcs/server.cpp	\
 		srcs/ServerCmd.cpp	\
-		srcs/user.cpp
+		srcs/user.cpp \
+		srcs/timestamp.cpp
 
 GCC = c++
 FLAGS = -g -Wextra -Wall -Werror -std=c++98 
