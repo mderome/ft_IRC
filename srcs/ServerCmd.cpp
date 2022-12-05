@@ -76,8 +76,7 @@ void	Server::_caplsCmd(User *user, std::string param)
 		return (user->sendReply("CAP LS command"));
 }
 
-
-void	Server::userCmd(User *user, std::string param){
+void	Server::_userCmd(User *user, std::string param){
 	std::string	username;
 	std::string	mode;
 	// * jsp ce que c'est
@@ -94,7 +93,7 @@ void	Server::userCmd(User *user, std::string param){
 		user->DoWelcome();
 }
 
-void	Server::passCmd(User *user, std::string param){
+void	Server::_passCmd(User *user, std::string param){
 	if (!param.length())
 		return;//si pas de param  ERR_NEEDMOREPARAMS
 	if (user->getRegistered())
@@ -106,7 +105,7 @@ void	Server::passCmd(User *user, std::string param){
 		user->DoWelcome();
 }
 
-void	Server::nickCmd(User *user, std::string param){
+void	Server::_nickCmd(User *user, std::string param){
 	if (param.empty())
 		return; // ERR_NONICKNAMEGIVEN
 	// parse for nickname is valid ERR_ERRONEUSNICKNAME

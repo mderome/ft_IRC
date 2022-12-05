@@ -1,8 +1,8 @@
 #include "../inc/user.hpp"
 
-User::User() : _username(""), _nickname(""), _hostname(""), _realname(""), _server(""), _userAddr(NULL), _password(false), _welcomed(false), _user("") {}
+User::User() : _username(""), _nickname(""), _hostname(""), _realname(""), _server(""), _userAddr(NULL), _password(false), _DoWelcome(false), _user("") {}
 
-User::User(int userFd, struct sockaddr_storage *userAddr) : _nickname(""), _hostname("localhost"), _realname(""), _server("IRC"), _password(false), _welcomed(false), _user("")
+User::User(int userFd, struct sockaddr_storage *userAddr) : _nickname(""), _hostname("localhost"), _realname(""), _server("IRC"), _password(false), _DoWelcome(false), _user("")
 {
 	this->_fd = userFd;
 	this->_userAddr = userAddr;
@@ -111,15 +111,15 @@ void	User::sendReply(std::string reply)
 	}
 }
 
-bool	User::hasBeenWelcomed(void) const {
-	return (_welcomed);
+bool	User::getDoWelcome(void) const {
+	return (_DoWelcome);
 }
 
-void	User::welcome(void)
+void	User::DoWelcome(void)
 {
 	sendReply(RPL_WELCOME(_nickname, _server, _username, _hostname));
 	sendReply(RPL_YOURHOST(_nickname, _server));
 	sendReply(RPL_CREATED(_nickname, _server, timestamp()));
 	sendReply(RPL_MYINFO(_nickname, _server));
-	_welcomed = true;
+	_DoWelcome = true;
 }

@@ -40,8 +40,8 @@ class User
 
         void        clearMessage(void);
 
-        void    welcome(void);
-        bool    hasBeenWelcomed(void) const;
+        void    DoWelcome(void);
+        bool    getDoWelcome(void) const;
         std::string timestamp(void);
         void    sendReply(std::string reply);
 
@@ -56,7 +56,7 @@ class User
         struct sockaddr_storage *_userAddr;
         std::string _message;
         bool        _password;
-        bool       _welcomed;
+        bool       _DoWelcome;
         std::string _user;
 };
 
