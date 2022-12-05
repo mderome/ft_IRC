@@ -33,7 +33,8 @@ void	Server::user_cmd(User *user, std::string param){
 	// check username realname et mode
 	user->setRealname(username);
 	user->setUsername(username);
-	// si tt les param sont set RPL_WELCOME
+	if (user->getNickname().length() && user->getRegistered() && !user->getDoWelcome())
+		user->DoWelcome();
 }
 
 void	Server::pass_cmd(User *user, std::string param){
@@ -44,7 +45,8 @@ void	Server::pass_cmd(User *user, std::string param){
 	if (!param.compare(_password))//private value in server
 		return;// ERR_PASSWDMISMATCH 
 	user->setRegistered();
-	// si tt les param sont set RPL_WELCOME
+	if (user->getNickname().length() && user->getUsername().length())
+		user->DoWelcome();
 }
 
 void	Server::nick_cmd(User *user, std::string param){
@@ -57,7 +59,8 @@ void	Server::nick_cmd(User *user, std::string param){
 			return; // ERR_NICKCOLLISION
 	}
 	user->setNickname(param);
-	// si tt les param sont set RPL_WELCOME
+	if (!user->getUsername().length() && user->getRegistered() && !user->getDoWelcome())
+		user->DoWelcome();
 }
 
 void	Server::ping_cmd(User *user, std::string param){

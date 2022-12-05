@@ -19,7 +19,6 @@ class User
         void    setServer(std::string server);
         void    setRegistered();
         void    setMessage(std::string message);
-        void    setDoWelcome(bool welcome);
         std::string getUsername(void);
         std::string getNickname(void);
         std::string getHostname(void);
@@ -30,6 +29,7 @@ class User
         int         getFd(void);
         bool        getDoWelcome(void);
         void        clearMessage(void);
+        void        DoWelcome();
 
     private:
         std::string _username;

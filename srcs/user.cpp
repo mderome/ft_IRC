@@ -38,8 +38,9 @@ void    User::setMessage(std::string message){
 	_message = message;
 }
 
-void    User::setDoWelcome(bool welcome){
-	_DoWelcome = welcome;
+void    User::DoWelcome(){
+	//send reply
+	_DoWelcome = true;
 }
 
 std::string	User::getUsername(){
