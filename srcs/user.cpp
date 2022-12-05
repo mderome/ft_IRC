@@ -1,8 +1,8 @@
 #include "../inc/user.hpp"
 
-User::User() : _username(""), _nickname(""), _hostname(""), _realname(""), _server(""), _userAddr(NULL), _password(false), _welcomed(false), _user("") {}
+User::User() : _username(""), _nickname(""), _hostname(""), _realname(""), _server(""), _userAddr(NULL), _password(false), _welcomed(false){}
 
-User::User(int userFd, struct sockaddr_storage *userAddr) : _nickname(""), _hostname("localhost"), _realname(""), _server("IRC"), _password(false), _welcomed(false), _user("")
+User::User(int userFd, struct sockaddr_storage *userAddr) : _nickname(""), _hostname("localhost"), _realname(""), _server("IRC"), _password(false), _welcomed(false)
 {
 	this->_fd = userFd;
 	this->_userAddr = userAddr;
@@ -30,10 +30,6 @@ void    User::setServer(std::string server){
 	_server = server;
 }
 
-void    User::setRegistered(){
-	_registered = !_registered;
-}
-
 void    User::setMessage(std::string message){
 	_message = message;
 }
@@ -41,11 +37,6 @@ void    User::setMessage(std::string message){
 void    User::setPassword(bool password) {
 	_password = password;
 }
-
-void	User::setUser(std::string user) {
-	_user = user;
-}
-
 
 std::string	User::getUsername(){
 	return(_nickname);
@@ -67,10 +58,6 @@ std::string    User::getServer(){
 	return(_server);
 }
 
-bool    User::getRegistered(){
-	return(_registered);
-}
-
 std::string    User::getMessage(){
 	return(_message);
 }
@@ -81,10 +68,6 @@ int    User::getFd(){
 
 bool	User::getPassword(void) const {
 	return (_password);
-}
-
-std::string		User::getUser(void) const {
-	return (_user);
 }
 
 void	User::clearMessage(){

@@ -78,14 +78,17 @@ void	Server::_caplsCmd(User *user, std::string buf)
 
 void	Server::_userCmd(User *user, std::string buf)
 {
+	std::string	username;
+	std::string	realname;
+	std::string	mode;
+
 	if (user->hasBeenWelcomed())
-		return (user->sendReply("Error: user: already welcomed"));
-	if (buf.empty())
-		return (user->sendReply("Error: user: empty"));
-
-	// parsing here
-
-	if (user->getNickname().size() && user->getPassword() && !user->hasBeenWelcomed())
+		return (user->sendReply(ERR_ALREADYREGISTRED(user->getNickname())));
+	// PArsing pour recuperer les params renvoyer  ERR_NEEDMOREPARAMS si probleme
+	// check username realname et mode
+	user->setRealname(realname);
+	user->setUsername(username);
+	if (user->getNickname().length() && user->getPassword() && !user->hasBeenWelcomed())
 		user->welcome();
 }
 
@@ -98,26 +101,28 @@ void	Server::_passCmd(User *user, std::string buf)
 	if (buf.compare(_password))
 	{
 		user->setPassword(false);
-		return (user->sendReply("Error: pass: wrong password"));
+		return (user->sendReply(ERR_PASSWDMISMATCH(user->getNickname())));
 	}
 	user->setPassword(true);
-	if (user->getNickname().length() && user->getUser().length())
+	if (user->getNickname().length() && user->getUsername().length())
 		user->welcome();
 }
 
 void	Server::_nickCmd(User *user, std::string buf)
 {
 	if (buf.empty())
-		return (user->sendReply("Error: nick: empty"));
+		return (user->sendReply(ERR_NONICKNAMEGIVEN(user->getNickname()));
+	//PARSE NICKNAME POUR CHECK SI IL EST VALIDE
+	// renvoie ERR_ERRONEUSNICKNAME
 	if (buf.find(' ') != std::string::npos)
 		buf = buf.substr(0, buf.find_first_of(' '));
 	for (users_iterator it = _users.begin(); it != _users.end(); ++it)
 	{
 		if (it->second->getNickname() == buf)
-			return (user->sendReply("Error: nick: already used"));
+			return (user->sendReply(ERR_NICKCOLLISION()));
 	}
 	user->setNickname(buf);
-	if (user->getUser().length() && user->getPassword() && !user->hasBeenWelcomed())
+	if (user->getUsername().length() && user->getPassword() && !user->hasBeenWelcomed())
 		user->welcome();
 }
 

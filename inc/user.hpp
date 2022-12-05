@@ -26,17 +26,14 @@ class User
         void    setRegistered();
         void    setMessage(std::string message);
         void    setPassword(bool password);
-        void    setUser(std::string user);
         std::string getUsername(void);
         std::string getNickname(void);
         std::string getHostname(void);
         std::string getRealname(void);
         std::string getServer(void);
-        bool        getRegistered(void);
         std::string getMessage(void);
         int         getFd(void);
         bool		getPassword(void) const;
-        std::string getUser(void) const;
 
         void        clearMessage(void);
 
@@ -51,13 +48,11 @@ class User
         std::string _hostname;
         std::string _realname;
         std::string _server;
-        bool        _registered;
         int         _fd;
         struct sockaddr_storage *_userAddr;
         std::string _message;
         bool        _password;
         bool       _welcomed;
-        std::string _user;
 };
 
 #endif
