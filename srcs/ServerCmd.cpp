@@ -70,55 +70,54 @@ void	Server::chooseCmd(User *user)
 	}
 }
 
-void	Server::_caplsCmd(User *user, std::string buf)
+void	Server::_caplsCmd(User *user, std::string param)
 {
-	if (buf != "LS")
+	if (param != "LS")
 		return (user->sendReply("CAP LS command"));
 }
 
-void	Server::_userCmd(User *user, std::string buf)
-{
-	if (user->hasBeenWelcomed())
-		return (user->sendReply("Error: user: already welcomed"));
-	if (buf.empty())
-		return (user->sendReply("Error: user: empty"));
 
-	// parsing here
+void	Server::userCmd(User *user, std::string param){
+	std::string	username;
+	std::string	mode;
+	// * jsp ce que c'est
+	std::string	realname;
 
-	if (user->getNickname().size() && user->getPassword() && !user->hasBeenWelcomed())
-		user->welcome();
+	std::cout << param << std::endl;
+	if (user->getRegistered())
+		return ; // ERR_ALREADYREGISTERED (462)
+	// PArsing pour recuperer les params
+	// check username realname et mode
+	user->setRealname(username);
+	user->setUsername(username);
+	if (user->getNickname().length() && user->getRegistered() && !user->getDoWelcome())
+		user->DoWelcome();
 }
 
-void	Server::_passCmd(User *user, std::string buf)
-{
-	if (user->hasBeenWelcomed())
-		return (user->sendReply("Error: pass: already welcomed"));
-	if (!buf.length())
-		return (user->sendReply("Error: pass: empty"));
-	if (buf.compare(_password))
-	{
-		user->setPassword(false);
-		return (user->sendReply("Error: pass: wrong password"));
-	}
-	user->setPassword(true);
-	if (user->getNickname().length() && user->getUser().length())
-		user->welcome();
+void	Server::passCmd(User *user, std::string param){
+	if (!param.length())
+		return;//si pas de param  ERR_NEEDMOREPARAMS
+	if (user->getRegistered())
+		return; // throw Err ERR_ALREADYREGISTRED
+	if (!param.compare(_password))//private value in server
+		return;// ERR_PASSWDMISMATCH 
+	user->setRegistered();
+	if (user->getNickname().length() && user->getUsername().length())
+		user->DoWelcome();
 }
 
-void	Server::_nickCmd(User *user, std::string buf)
-{
-	if (buf.empty())
-		return (user->sendReply("Error: nick: empty"));
-	if (buf.find(' ') != std::string::npos)
-		buf = buf.substr(0, buf.find_first_of(' '));
-	for (users_iterator it = _users.begin(); it != _users.end(); ++it)
-	{
-		if (it->second->getNickname() == buf)
-			return (user->sendReply("Error: nick: already used"));
+void	Server::nickCmd(User *user, std::string param){
+	if (param.empty())
+		return; // ERR_NONICKNAMEGIVEN
+	// parse for nickname is valid ERR_ERRONEUSNICKNAME
+	std::map<int, User *>::iterator it;
+	for (it = _users.begin(); it != _users.end(); it++){
+		if (param.compare(it->second->getNickname()))
+			return; // ERR_NICKCOLLISION
 	}
-	user->setNickname(buf);
-	if (user->getUser().length() && user->getPassword() && !user->hasBeenWelcomed())
-		user->welcome();
+	user->setNickname(param);
+	if (!user->getUsername().length() && user->getRegistered() && !user->getDoWelcome())
+		user->DoWelcome();
 }
 
 void	Server::_quitCmd(User *user, std::string param){
