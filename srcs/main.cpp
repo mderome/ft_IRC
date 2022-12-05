@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mderome <mderome@student.42.fr>            +#+  +:+       +#+        */
+/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:41:22 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/02 21:24:39 by mderome          ###   ########.fr       */
+/*   Updated: 2022/12/03 15:34:44 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 #define	BUF_SIZE 10000
 
-#include "server.hpp"
+#include "../inc/server.hpp"
 
 bool	checkPort(char  *port)
 {

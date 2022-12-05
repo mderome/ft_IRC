@@ -1,4 +1,4 @@
-#include "user.hpp"
+#include "../inc/user.hpp"
 
 User::User() {}
 

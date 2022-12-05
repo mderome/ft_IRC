@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mderome <mderome@student.42.fr>            +#+  +:+       +#+        */
+/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/03 00:51:36 by mderome          ###   ########.fr       */
+/*   Updated: 2022/12/04 14:25:23 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server.hpp"
+#include "../inc/server.hpp"
 #include <stdio.h>
 // #include <string.h>
 #include <cstring>
@@ -153,6 +153,7 @@ void    Server::serverStart(void)
     {
         for (pollfd_iterator it = this->_pollfds.begin(); it != this->_pollfds.end(); it++)
         {
+            std::cout << "dedans" << std::endl;
             // int pollResult = poll(&serverFd, 1, -1); // initially
             // get vector array and throw it to poll
             int pollResult = poll(this->_pollfds.data(), this->_pollfds.size(), -1); // poll() waits for an event concerning fd. "-1" is to wait indefinitely
@@ -193,11 +194,11 @@ void    Server::serverStart(void)
                         std::cout << "handleCmd" << std::endl;
                         // print message received
                         std::cout << "pollserver : socket " << it->fd << " sent " << nbytes << " bytes : " << user->getMessage() << std::endl;
-                        // _handleCmd(user);
+                        chooseCmd(user);
                         std::string lol = "001 : lolilol\n";
                     }
                     std::cout << GREEN "=== send() success" END << std::endl;
-                    send(it->fd, lol.c_str(), lol.size(), 0);
+                    // send(it->fd, lol.c_str(), lol.size(), 0);
                 }
             }   
         }
