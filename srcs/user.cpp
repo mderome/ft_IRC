@@ -94,10 +94,6 @@ void	User::sendReply(std::string reply)
 	}
 }
 
-bool	User::hasBeenWelcomed(void) const {
-	return (_welcomed);
-}
-
 void	User::welcome(void)
 {
 	sendReply(RPL_WELCOME(_nickname, _server, _username, _hostname));
@@ -105,4 +101,8 @@ void	User::welcome(void)
 	sendReply(RPL_CREATED(_nickname, _server, timestamp()));
 	sendReply(RPL_MYINFO(_nickname, _server));
 	_welcomed = true;
+}
+
+bool	User::hasBeenWelcomed() const{
+	return (_welcomed);
 }

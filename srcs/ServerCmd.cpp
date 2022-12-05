@@ -70,9 +70,9 @@ void	Server::chooseCmd(User *user)
 	}
 }
 
-void	Server::_caplsCmd(User *user, std::string buf)
+void	Server::_caplsCmd(User *user, std::string param)
 {
-	if (buf != "LS")
+	if (param != "LS")
 		return (user->sendReply("CAP LS command"));
 }
 
@@ -111,7 +111,7 @@ void	Server::_passCmd(User *user, std::string buf)
 void	Server::_nickCmd(User *user, std::string buf)
 {
 	if (buf.empty())
-		return (user->sendReply(ERR_NONICKNAMEGIVEN(user->getNickname()));
+		return (user->sendReply(ERR_NONICKNAMEGIVEN(user->getNickname())));
 	//PARSE NICKNAME POUR CHECK SI IL EST VALIDE
 	// renvoie ERR_ERRONEUSNICKNAME
 	if (buf.find(' ') != std::string::npos)
