@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: esafar <esafar@student.42.fr>              +#+  +:+       +#+         #
+#    By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/30 13:35:26 by esafar            #+#    #+#              #
-#    Updated: 2022/12/05 18:24:44 by esafar           ###   ########.fr        #
+#    Updated: 2022/12/05 19:46:06 by achane-l         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,6 +17,7 @@ SRCS =	srcs/main.cpp \
 		srcs/server.cpp	\
 		srcs/ServerCmd.cpp	\
 		srcs/user.cpp \
+		srcs/returncode.cpp \
 		srcs/timestamp.cpp
 
 GCC = c++

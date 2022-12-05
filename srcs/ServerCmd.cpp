@@ -82,6 +82,7 @@ void	Server::_userCmd(User *user, std::string buf)
 	std::string	realname;
 	std::string	mode;
 
+	std::cout<< buf << std::endl;
 	if (user->hasBeenWelcomed())
 		return (user->sendReply(ERR_ALREADYREGISTRED(user->getNickname())));
 	// PArsing pour recuperer les params renvoyer  ERR_NEEDMOREPARAMS si probleme
