@@ -1,11 +1,29 @@
 #include "../inc/user.hpp"
 
-User::User() : _username(""), _nickname(""), _hostname(""), _realname(""), _server(""), _userAddr(NULL), _password(false), _welcomed(false), _user("") {}
+User::User() : _username(""), _nickname(""), _hostname(""), _realname(""), _server(""), _userAddr(NULL), _password(false), _welcomed(false), _user("") 
+{
+    _modes.insert(std::pair<std::string, bool>("a", false));
+    _modes.insert(std::pair<std::string, bool>("c", false));
+    _modes.insert(std::pair<std::string, bool>("g", false));
+    _modes.insert(std::pair<std::string, bool>("h", false));
+    _modes.insert(std::pair<std::string, bool>("i", false));
+    _modes.insert(std::pair<std::string, bool>("o", false));
+    _modes.insert(std::pair<std::string, bool>("s", false));
+    _modes.insert(std::pair<std::string, bool>("w", false));
+}
 
 User::User(int userFd, struct sockaddr_storage *userAddr) : _nickname(""), _hostname("localhost"), _realname(""), _server("IRC"), _password(false), _welcomed(false), _user("")
 {
 	this->_fd = userFd;
 	this->_userAddr = userAddr;
+    _modes.insert(std::pair<std::string, bool>("a", false));
+    _modes.insert(std::pair<std::string, bool>("c", false));
+    _modes.insert(std::pair<std::string, bool>("g", false));
+    _modes.insert(std::pair<std::string, bool>("h", false));
+    _modes.insert(std::pair<std::string, bool>("i", false));
+    _modes.insert(std::pair<std::string, bool>("o", false));
+    _modes.insert(std::pair<std::string, bool>("s", false));
+    _modes.insert(std::pair<std::string, bool>("w", false));
 }
 
 User::~User() {}

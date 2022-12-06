@@ -58,6 +58,7 @@ class User
         bool        _password;
         bool       _welcomed;
         std::string _user;
+        std::map<std::string, bool> _modes; // channel modes
 };
 
 #endif
