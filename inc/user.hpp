@@ -27,6 +27,7 @@ class User
         void    setMessage(std::string message);
         void    setPassword(bool password);
         void    setUser(std::string user);
+        void    setModes(std::string modes, bool value);
         std::string getUsername(void);
         std::string getNickname(void);
         std::string getHostname(void);
@@ -37,7 +38,7 @@ class User
         int         getFd(void);
         bool		getPassword(void) const;
         std::string getUser(void) const;
-
+        std::map<std::string, int> getOperator() const;
         void        clearMessage(void);
 
         void    welcome(void);
@@ -58,6 +59,7 @@ class User
         bool        _password;
         bool       _welcomed;
         std::string _user;
+        std::map<std::string, int>  _operator;
         std::map<std::string, bool> _modes; // channel modes
 };
 
