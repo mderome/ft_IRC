@@ -6,9 +6,17 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("USER", &Server::_userCmd)); 
 	_indexCmd.insert(std::pair<std::string, func>("PASS", &Server::_passCmd));
 	_indexCmd.insert(std::pair<std::string, func>("NICK", &Server::_nickCmd));
-	_indexCmd.insert(std::pair<std::string, func>("CAP LS", &Server::_caplsCmd));
+	_indexCmd.insert(std::pair<std::string, func>("CAP", &Server::_caplsCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("PING", &Server::_pingCmd));
-	_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
+	//_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("PRIVMSG", &Server::_privmsgCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("MODE", &Server::_modeCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
+
 }
 
 void	Server::chooseCmd(User *user)
@@ -17,6 +25,7 @@ void	Server::chooseCmd(User *user)
 	std::string	cmd;
 	std::string	buf;
 
+	std::cout << "Message: <" << msg << ">" << std::endl;
 	while (msg.length())
 	{
 		if (msg.find("\r\n") != std::string::npos)
@@ -72,6 +81,7 @@ void	Server::chooseCmd(User *user)
 
 void	Server::_caplsCmd(User *user, std::string buf)
 {
+	std::cout << "CAP LS" << std::endl;
 	if (buf != "LS")
 		return (user->sendReply("CAP LS command"));
 }
@@ -82,9 +92,14 @@ void	Server::_userCmd(User *user, std::string buf)
 		return (user->sendReply("Error: user: already welcomed"));
 	if (buf.empty())
 		return (user->sendReply("Error: user: empty"));
-
+	std::cout << "buf : " << buf << std::endl;
 	// parsing here
-
+	std::string username = buf.substr(0, buf.find(' '));
+	std::string mode = buf.substr(buf.find(' ') + 1, buf.find(' ', buf.find(' ') + 1) - buf.find(' ') - 1);
+	std::string unused = buf.substr(buf.find(' ', buf.find(' ') + 1) + 1, buf.find(' ', buf.find(' ', buf.find(' ') + 1) + 1) - buf.find(' ', buf.find(' ') + 1) - 1);
+	std::string realname = buf.substr(buf.find(':', buf.find(' ', buf.find(' ') + 1) + 1) + 1);
+	user->setUser(username);
+	user->setRealname(realname);
 	if (user->getNickname().size() && user->getPassword() && !user->hasBeenWelcomed())
 		user->welcome();
 }
