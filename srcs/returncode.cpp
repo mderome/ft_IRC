@@ -114,6 +114,10 @@ std::string ERR_NOSUCHNICK(std::string nick, std::string arg) {
 }
 
 std::string ERR_NOSUCHCHANNEL(std::string nick, std::string arg) {
+	return "402 " + nick + ": " + arg + ":No such server";
+}
+
+std::string ERR_NOSUCHCHANNEL(std::string nick, std::string arg) {
 	return "403 " + nick + ": " + arg + ":No such channel";
 }
 

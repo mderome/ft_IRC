@@ -34,30 +34,35 @@ class Channel
         std::map<std::string, bool> getModes() const;
         std::map<std::string, int> getOperator() const;
 
+        int getLimit() const;
+        std::string getPwd() const;
+
         void setName(std::string name);
-        void setUsers(std::map<std::string, int> users);
-        void setBans(std::vector<std::string> bans);
-        void setOldMessages(std::vector<std::string> old_messages);
-        void setModes(std::map<std::string, bool> modes);
-        void setOperator(std::map<std::string, int> operator);
+        void setUsers(User users);
+        void setBans(std::string bans);
+        void setOldMessages(std::string old_messages);
+        void setModes(std::string modes, bool value);
+        void setOperator(User users);
+        void setLimit(int limit);
+        void setPwd(std::string pwd);
 
-        void addUser(std::string nick, int fd);
-        void addBan(std::string nick);
+        void addUser(User user);
+        void addBan(User user);
         void addOldMessage(std::string message);
-        void addOperator(std::string nick, int fd);
+        void addOperator(User user);
 
-        void removeUser(std::string nick);
+        void removeUser(User user);
         void removeBan(std::string nick);
         void removeOldMessage(std::string message);
-        void removeOperator(std::string nick);
+        void removeOperator(User user);
 
         void clearUsers();
         void clearBans();
         void clearOldMessages();
         void clearModes();
-        void clearOperator();
+        void clearOperators();
 
-        void sendToAll(std::string message, Server *server);
+        void sendToAll(std::string message, Server &server);
 };
 
 #endif
