@@ -6,9 +6,17 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("USER", &Server::_userCmd)); 
 	_indexCmd.insert(std::pair<std::string, func>("PASS", &Server::_passCmd));
 	_indexCmd.insert(std::pair<std::string, func>("NICK", &Server::_nickCmd));
-	_indexCmd.insert(std::pair<std::string, func>("CAP LS", &Server::_caplsCmd));
+	_indexCmd.insert(std::pair<std::string, func>("CAP", &Server::_caplsCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("PING", &Server::_pingCmd));
-	_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
+	//_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("PRIVMSG", &Server::_privmsgCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("MODE", &Server::_modeCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
+
 }
 
 void	Server::chooseCmd(User *user)
@@ -17,6 +25,7 @@ void	Server::chooseCmd(User *user)
 	std::string	cmd;
 	std::string	buf;
 
+	std::cout << "Message: <" << msg << ">" << std::endl;
 	while (msg.length())
 	{
 		if (msg.find("\r\n") != std::string::npos)
@@ -72,34 +81,39 @@ void	Server::chooseCmd(User *user)
 
 void	Server::_caplsCmd(User *user, std::string param)
 {
+	std::cout << "CAP LS" << std::endl;
 	if (param != "LS")
 		return (user->sendReply("CAP LS command"));
 }
 
-void	Server::_userCmd(User *user, std::string buf)
+void	Server::_userCmd(User *user, std::string param)
 {
-	std::string	username;
-	std::string	realname;
-	std::string	mode;
-
-	std::cout<< buf << std::endl;
+	std::cout<< param << std::endl;
 	if (user->hasBeenWelcomed())
 		return (user->sendReply(ERR_ALREADYREGISTRED(user->getNickname())));
 	// PArsing pour recuperer les params renvoyer  ERR_NEEDMOREPARAMS si probleme
 	// check username realname et mode
-	user->setRealname(realname);
+	if (param.empty())
+		return (user->sendReply("Error: user: empty"));
+	std::cout << "param : " << param << std::endl;
+	// parsing here
+	std::string username = param.substr(0, param.find(' '));
+	std::string mode = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
+	std::string unused = param.substr(param.find(' ', param.find(' ') + 1) + 1, param.find(' ', param.find(' ', param.find(' ') + 1) + 1) - param.find(' ', param.find(' ') + 1) - 1);
+	std::string realname = param.substr(param.find(':', param.find(' ', param.find(' ') + 1) + 1) + 1);
 	user->setUsername(username);
-	if (user->getNickname().length() && user->getPassword() && !user->hasBeenWelcomed())
+	user->setRealname(realname);
+	if (user->getNickname().size() && user->getPassword() && !user->hasBeenWelcomed())
 		user->welcome();
 }
 
-void	Server::_passCmd(User *user, std::string buf)
+void	Server::_passCmd(User *user, std::string param)
 {
 	if (user->hasBeenWelcomed())
 		return (user->sendReply("Error: pass: already welcomed"));
-	if (!buf.length())
+	if (!param.length())
 		return (user->sendReply("Error: pass: empty"));
-	if (buf.compare(_password))
+	if (param.compare(_password))
 	{
 		user->setPassword(false);
 		return (user->sendReply(ERR_PASSWDMISMATCH(user->getNickname())));
@@ -109,20 +123,20 @@ void	Server::_passCmd(User *user, std::string buf)
 		user->welcome();
 }
 
-void	Server::_nickCmd(User *user, std::string buf)
+void	Server::_nickCmd(User *user, std::string param)
 {
-	if (buf.empty())
+	if (param.empty())
 		return (user->sendReply(ERR_NONICKNAMEGIVEN(user->getNickname())));
 	//PARSE NICKNAME POUR CHECK SI IL EST VALIDE
 	// renvoie ERR_ERRONEUSNICKNAME
-	if (buf.find(' ') != std::string::npos)
-		buf = buf.substr(0, buf.find_first_of(' '));
+	if (param.find(' ') != std::string::npos)
+		param = param.substr(0, param.find_first_of(' '));
 	for (users_iterator it = _users.begin(); it != _users.end(); ++it)
 	{
-		if (it->second->getNickname() == buf)
+		if (it->second->getNickname() == param)
 			return (user->sendReply(ERR_NICKCOLLISION()));
 	}
-	user->setNickname(buf);
+	user->setNickname(param);
 	if (user->getUsername().length() && user->getPassword() && !user->hasBeenWelcomed())
 		user->welcome();
 }

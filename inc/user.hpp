@@ -21,6 +21,9 @@ class User
         void    setRegistered();
         void    setMessage(std::string message);
         void    setPassword(bool password);
+        void    setUser(std::string user);
+        void    setModes(std::string modes, bool value);
+
         std::string getUsername(void);
         std::string getNickname(void);
         std::string getHostname(void);
@@ -29,13 +32,14 @@ class User
         std::string getMessage(void);
         int         getFd(void);
         bool		getPassword(void) const;
-
-        void        clearMessage(void);
+        std::string getUser(void) const;
+        std::map<std::string, int> getOperator() const;
 
         void    welcome(void);
         bool    hasBeenWelcomed(void) const;
         std::string timestamp(void);
         void    sendReply(std::string reply);
+        void        clearMessage(void);
 
     private:
         std::string _username;
@@ -48,6 +52,10 @@ class User
         std::string _message;
         bool        _password;
         bool       _welcomed;
+
+        std::string _user;
+        std::map<std::string, int>  _operator;
+        std::map<std::string, bool> _modes; // channel modes
 };
 
 #endif
