@@ -64,6 +64,10 @@ void	User::setUser(std::string user) {
 	_user = user;
 }
 
+void User::setModes(std::string modes, bool value)
+{
+    _modes[modes] = value;
+}
 
 std::string	User::getUsername(){
 	return(_nickname);
@@ -103,6 +107,11 @@ bool	User::getPassword(void) const {
 
 std::string		User::getUser(void) const {
 	return (_user);
+}
+
+std::map<std::string, int> User::getOperator() const
+{
+    return (_operator);
 }
 
 void	User::clearMessage(){
