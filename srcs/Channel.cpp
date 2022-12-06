@@ -4,9 +4,9 @@ Channel::Channel(User user, std::string name)
 {
     _name = name;
     _limit = 0;
-    _pwd = NULL;
-    _users.insert(std::pair<std::string, int>(user.getNick(), user.getFd()));
-    _operator.insert(std::pair<std::string, int>(user.getNick(), true));
+    // _pwd = NULL;
+    _users.insert(std::pair<std::string, int>(user.getNickname(), user.getFd()));
+    _operator.insert(std::pair<std::string, int>(user.getNickname(), true));
     _modes.insert(std::pair<std::string, bool>("m", false));
     _modes.insert(std::pair<std::string, bool>("n", false));
     _modes.insert(std::pair<std::string, bool>("p", false));
@@ -22,8 +22,8 @@ Channel::Channel(User user, std::string name, std::string password)
     _name = name;
     _limit = 0;
     _pwd = password;
-    _users.insert(std::pair<std::string, int>(user.getNick(), user.getFd()));
-    _operator.insert(std::pair<std::string, int>(user.getNick(), true));
+    _users.insert(std::pair<std::string, int>(user.getNickname(), user.getFd()));
+    _operator.insert(std::pair<std::string, int>(user.getNickname(), true));
     _modes.insert(std::pair<std::string, bool>("m", false));
     _modes.insert(std::pair<std::string, bool>("n", false));
     _modes.insert(std::pair<std::string, bool>("p", false));
@@ -96,7 +96,7 @@ void Channel::setName(std::string name)
 
 void Channel::setUsers(User users)
 {
-    _users.insert(users.getNickname(), users.getFd());
+    _users.insert(std::pair<std::string, int>(users.getNickname(), users.getFd()));
 }
 
 void Channel::setBans(std::string bans)
@@ -116,7 +116,7 @@ void Channel::setModes(std::string modes, bool value)
 
 void Channel::setOperator(User users)
 {
-    _operator.insert(users.getNickname(), true);
+    _operator.insert(std::pair<std::string, bool>(users.getNickname(), true));
 }
 
 void Channel::setLimit(int limit)
@@ -136,12 +136,18 @@ void Channel::removeUser(User user)
 
 void Channel::removeBan(std::string ban)
 {
-    _bans.erase(std::remove(_bans.begin(), _bans.end(), ban), _bans.end());
+    for (std::vector<std::string>::iterator it = _bans.begin(); it < _bans.end(); it++){
+        if (ban == it->data())
+            _bans.erase(it);
+    }
 }
 
 void Channel::removeOldMessage(std::string old_message)
 {
-    _old_messages.erase(std::remove(_old_messages.begin(), _old_messages.end(), old_message), _old_messages.end());
+    for (std::vector<std::string>::iterator it = _old_messages.begin(); it < _old_messages.end(); it++){
+        if (old_message == it->data())
+            _old_messages.erase(it);
+    }
 }
 
 void Channel::removeOperator(User user)
@@ -161,12 +167,12 @@ std::string Channel::getPwd() const
 
 void Channel::addUser(User user)
 {
-    _users.insert(std::pair<std::string, int>(user.getNick(), user.getFd()));
+    _users.insert(std::pair<std::string, int>(user.getNickname(), user.getFd()));
 }
 
-void Channel::addBan(std::string ban)
+void Channel::addBan(User user)
 {
-    _bans.push_back(ban);
+    _bans.push_back(user.getNickname());
 }
 
 void Channel::addOldMessage(std::string old_message)
@@ -176,27 +182,18 @@ void Channel::addOldMessage(std::string old_message)
 
 void Channel::addOperator(User user)
 {
-    _operator.insert(std::pair<std::string, int>(user.getNick(), true));
+    _operator.insert(std::pair<std::string, int>(user.getNickname(), true));
 }
 
-void Channel::removeBan(std::string ban)
-{
-    _bans.erase(std::remove(_bans.begin(), _bans.end(), ban), _bans.end());
-}
-
-void Channel::removeOldMessage(std::string old_message)
-{
-    _old_messages.erase(std::remove(_old_messages.begin(), _old_messages.end(), old_message), _old_messages.end());
-}
 
 void Channel::removeOperator(User user)
 {
-    _operator.erase(user.getNick());
+    _operator.erase(user.getNickname());
 }
 
 void Channel::removeUser(User user)
 {
-    _users.erase(user.getNick());
+    _users.erase(user.getNickname());
 }
 
 void Channel::clearUsers()
@@ -228,6 +225,6 @@ void Channel::sendToAll(std::string message, Server &server)
 {
     for (std::map<std::string, int>::iterator it = _users.begin(); it != _users.end(); it++)
     {
-        server.sendToUser(it->first, message);
+        // server.sendToUser(it->first, message);
     }
 }
