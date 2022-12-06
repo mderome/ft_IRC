@@ -25,7 +25,6 @@ void	Server::chooseCmd(User *user)
 	std::string	cmd;
 	std::string	buf;
 
-	std::cout << "Message: <" << msg << ">" << std::endl;
 	while (msg.length())
 	{
 		if (msg.find("\r\n") != std::string::npos)
