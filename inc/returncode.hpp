@@ -32,6 +32,7 @@ std::string RPL_UMODEIS(std::string nick, std::string mode);
 std::string ERR_NOORIGIN(const std::string nick);
 std::string ERR_NOSUCHNICK(std::string nick, std::string arg);
 std::string ERR_NOTREGISTERED(std::string nick);
+std::string ERR_NOSUCHSERVER(std::string nick, std::string arg);
 std::string ERR_NOSUCHCHANNEL(std::string nick, std::string arg);
 std::string ERR_CANNOTSENDTOCHAN(std::string source, std::string channel);
 std::string	ERR_TOOMANYCHANNELS(std::string nick);

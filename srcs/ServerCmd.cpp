@@ -7,7 +7,7 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("PASS", &Server::_passCmd));
 	_indexCmd.insert(std::pair<std::string, func>("NICK", &Server::_nickCmd));
 	_indexCmd.insert(std::pair<std::string, func>("CAP", &Server::_caplsCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("PING", &Server::_pingCmd));
+	_indexCmd.insert(std::pair<std::string, func>("PING", &Server::_pingCmd));
 	//_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
@@ -52,15 +52,15 @@ void	Server::chooseCmd(User *user)
 					closeConnection(user);
 					break;
 				}
-                
-                for (std::map<std::string, func>::iterator it = this->_indexCmd.begin(); it != this->_indexCmd.end(); it++)
-                {
-                    if (it->first == cmd)
-                    {
-                        (this->*(it->second))(user, buf); // call function from map, giving user and buf as parameters
-                        break;
-                    }
-                }
+				
+				for (std::map<std::string, func>::iterator it = this->_indexCmd.begin(); it != this->_indexCmd.end(); it++)
+				{
+					if (it->first == cmd)
+					{
+						(this->*(it->second))(user, buf); // call function from map, giving user and buf as parameters
+						break;
+					}
+				}
 				msg.erase(0, msg.find("\r\n") + 2);
 			}
 			catch (const std::out_of_range &e)
@@ -145,6 +145,15 @@ void	Server::_quitCmd(User *user, std::string param){
 	std::cout << user->getMessage() << std::endl;
 	std::cout << param << std::endl;
 }
+
+void	Server::_pingCmd(User *user, std::string param){
+	if (param.empty())
+		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
+	if (param != _hostname && param != "IRC")
+		return (user->sendReply(ERR_NOSUCHSERVER(user->getNickname(), param)));
+	user->sendReply(RPL_PONG(user->getNickname(), param));
+}
+
 
 // void	Server::_pingCmd(User *user, std::string param){
 // 	std::cout << user->getMessage() << std::endl;

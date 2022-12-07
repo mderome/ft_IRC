@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
+/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/05 19:14:48 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/07 16:13:39 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,6 +178,22 @@ void    Server::serverStart(void)
                     // Receive data from client
                     receiveData(it);
                 } 
+                else if (it->revents & POLLHUP)
+                {
+                    // Client disconnected
+                    std::cout << "Client disconnected" << std::endl;
+                    close(it->fd);
+                    this->_pollfds.erase(it);
+                    break;
+                }
+                else if (it->revents & POLLERR)
+                {
+                    // Error
+                    std::cerr << "Error: poll()" << std::endl;
+                    close(it->fd);
+                    this->_pollfds.erase(it);
+                    break;
+                }
                 if (it == this->_pollfds.end())
                     break;
             }

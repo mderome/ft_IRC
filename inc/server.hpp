@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
+/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/05 19:33:49 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/07 14:42:24 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ class Server
 		void	_nickCmd(User *user, std::string buf);
         void	_caplsCmd(User *user, std::string buf);
 		void	_quitCmd(User *user, std::string buf);
+        void	_pingCmd(User *user, std::string buf);
 
     private:
         std::string _port;
