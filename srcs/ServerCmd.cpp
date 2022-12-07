@@ -176,3 +176,27 @@ void	Server::_pingCmd(User *user, std::string param){
 // 	//RPL_YOUREOPER
 // 	// avoir une fonction qui ajoute un operator a un channel
 // }
+
+void	Server::_who(User *user, std::string param){
+	if (!user->hasBeenWelcomed())
+		return;
+	try{
+		Channel *channel = _channels.at(param);
+		User	*tmp;
+		for (std::map<std::string, int>::iterator it = channel->getUsers().begin(); it != channel->getUsers().end(); it++){
+			tmp = _users.at(it->second);
+			user->sendReply(RPL_WHOREPLY(user->getNickname(), param, tmp->getUsername(), tmp->getHostname(), tmp->getServer(), tmp->getNickname(), "", "", tmp->getRealname()));
+		}
+	}
+	catch (const std::out_of_range &e){
+		User *tmp;
+		for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); it++){
+			if (it->second->getNickname() == param){
+				tmp = it->second;
+				break;
+			}
+		}
+		user->sendReply(RPL_WHOREPLY(user->getNickname(), "*", tmp->getUsername(), tmp->getHostname(), tmp->getServer(), tmp->getNickname(), "", "", tmp->getRealname()));
+	}
+	user->sendReply(RPL_ENDOFWHO(user->getNickname(), param));
+}

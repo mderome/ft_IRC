@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/07 16:43:28 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/08 00:03:30 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 #include "user.hpp"
 #include "color.hpp"
 #include "./returncode.hpp"
+#include "Channel.hpp"
 
 class User;
 
@@ -65,6 +66,7 @@ class Server
         void	_caplsCmd(User *user, std::string buf);
 		void	_quitCmd(User *user, std::string buf);
         void	_pingCmd(User *user, std::string buf);
+        void	_who(User *user, std::string param);
 
     private:
         std::string _port;
@@ -74,6 +76,7 @@ class Server
         std::vector<struct pollfd> _pollfds;
         std::map<int, User *>   _users;
         std::map<std::string, func> _indexCmd;
+        std::map<std::string, Channel*> _channels;
 };
 
 #endif

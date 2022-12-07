@@ -36,8 +36,8 @@ std::string RPL_UMODEIS(std::string nick, std::string mode) {
 	return "221 " + nick + " :" + mode;
 }
 
-std::string RPL_ENDOFWHO(std::string nick) {
-	return "315 " + nick + " :End of /WHO list.";
+std::string RPL_ENDOFWHO(std::string nick, std::string param) {
+	return "315 " + nick +" "+param+" :End of /WHO list.";
 }
 
 std::string RPL_LISTSTART(std::string nick) {
