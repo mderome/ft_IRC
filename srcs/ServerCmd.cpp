@@ -200,3 +200,15 @@ void	Server::_who(User *user, std::string param){
 	}
 	user->sendReply(RPL_ENDOFWHO(user->getNickname(), param));
 }
+
+void	Server::_topic(User *user, std::string param){
+	std::string	channel_name;
+	if (param.find(' ') != std::string::npos){
+		channel_name = param.substr(0, param.find(' '));
+		param = param.substr(param.find(' '), param.length());
+	}
+	else
+		channel_name = param;
+	try {
+	}
+}

@@ -64,6 +64,11 @@ std::string Channel::getName() const
     return (_name);
 }
 
+std::string Channel::getTopic() const
+{
+    return (_topic);
+}
+
 std::map<std::string, int> Channel::getUsers() const
 {
     return (_users);
@@ -92,6 +97,11 @@ std::map<std::string, int> Channel::getOperator() const
 void Channel::setName(std::string name)
 {
     _name = name;
+}
+
+void Channel::setTopic(std::string topic)
+{
+    _topic = topic;
 }
 
 void Channel::setUsers(User users)

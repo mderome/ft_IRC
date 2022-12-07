@@ -17,6 +17,7 @@ class Channel
         std::vector<std::string>    _old_messages; // all messages in channel
         std::map<std::string, bool> _modes; // channel modes
         std::map<std::string, int>  _operator; // channel operators
+        std::string                 _topic; // channel topic
         int                         _limit; // channel limit if mode +l is set
 
     public:
@@ -36,10 +37,12 @@ class Channel
 
         int getLimit() const;
         std::string getPwd() const;
+        std::string getTopic() const;
 
         void setName(std::string name);
         void setUsers(User users);
         void setBans(std::string bans);
+        void setTopic(std::string topic);
         void setOldMessages(std::string old_messages);
         void setModes(std::string modes, bool value);
         void setOperator(User users);
