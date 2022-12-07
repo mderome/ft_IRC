@@ -16,20 +16,20 @@ std::string RPL_PART(std::string source, std::string channel, std::string msg) {
 	return ":" + source + " PART " + channel + " :" + msg;
 }
 
-std::string RPL_WELCOME(std::string nick) {
-	return "001 " + (nick.empty() ?  "*" : nick) + " :Welcome to the Internet Relay Network!";
+std::string RPL_WELCOME(std::string nick, std::string server, std::string user, std::string hostname){
+	return ":" + server + " 001 " + nick + " :Welcome to the " + server + " network, " + nick + "[" + user + "@" + hostname + "]";
 }
 
-std::string RPL_YOURHOST(std::string nick, std::string servername, std::string version) {
-	return "002 " + nick + " Your host is " + servername + ", running version " + version;
+std::string RPL_YOURHOST(std::string nick, std::string server){
+	return ":" + server + " 002 " + nick + " :Your host is " + server + ", running version 1.2.3";
 }
 
-std::string RPL_CREATED(std::string nick, std::string date) {
-	return "003 " + nick + " This server was created " + date;
+std::string RPL_CREATED(std::string nick, std::string server , std::string date){
+	return ":" + server + " 003 " + nick + " :This server was created " + date;
 }
 
-std::string RPL_MYINFO() {
-	return "004 ";
+std::string RPL_MYINFO(std::string nick, std::string server){
+	return ":" + server + " 004 " + nick + " " + server + " irssi 1.2.3 (20210409 0011)" ;
 }
 
 std::string RPL_UMODEIS(std::string nick, std::string mode) {
@@ -111,6 +111,10 @@ std::string ERR_CANNOTSENDTOCHAN(std::string source, std::string channel) {
 
 std::string ERR_NOSUCHNICK(std::string nick, std::string arg) {
 	return "401 " + nick + ": " + arg + ":No such nick";
+}
+
+std::string ERR_NOSUCHSERVER(std::string nick, std::string arg) {
+	return "402 " + nick + ": " + arg + ":No such server";
 }
 
 std::string ERR_NOSUCHCHANNEL(std::string nick, std::string arg) {

@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/05 18:24:10 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/07 16:43:28 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 
 #include "user.hpp"
 #include "color.hpp"
+#include "./returncode.hpp"
 
 class User;
 
@@ -51,6 +52,7 @@ class Server
         void    printUserData(int clientFd, struct sockaddr_storage clientAddr);
         void    receiveData(pollfd_iterator &it);
         int     getMessage(User *user);
+        void    deleteUser(pollfd_iterator &it);
 
         void    _indexingCmd();
         void	chooseCmd(User *user);
@@ -62,6 +64,7 @@ class Server
 		void	_nickCmd(User *user, std::string buf);
         void	_caplsCmd(User *user, std::string buf);
 		void	_quitCmd(User *user, std::string buf);
+        void	_pingCmd(User *user, std::string buf);
 
     private:
         std::string _port;

@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/05 18:22:19 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/07 16:46:30 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <poll.h>
+#include "../inc/returncode.hpp"
 
 Server::Server() {}
 
@@ -177,6 +178,22 @@ void    Server::serverStart(void)
                     // Receive data from client
                     receiveData(it);
                 } 
+                else if (it->revents & POLLHUP)
+                {
+                    // Client disconnected
+                    std::cout << "Client disconnected" << std::endl;
+                    close(it->fd);
+                    this->_pollfds.erase(it);
+                    break;
+                }
+                else if (it->revents & POLLERR)
+                {
+                    // Error
+                    std::cerr << "Error: poll()" << std::endl;
+                    close(it->fd);
+                    this->_pollfds.erase(it);
+                    break;
+                }
                 if (it == this->_pollfds.end())
                     break;
             }
@@ -255,8 +272,7 @@ void	Server::receiveData(pollfd_iterator &it)
 				std::cout << "pollserver : socket " << it->fd << " hung up" << std::endl;
 			else // error
 				std::cerr << "Error : recv" << std::endl;
-			// _delUser(it);
-            std::cout << RED "delUser" END << std::endl;
+			deleteUser(it);
 		}
 		else
 			chooseCmd(user);
@@ -309,4 +325,22 @@ void	Server::closeConnection(User *user)
 		std::cout << "Disconnecting user on socket " << fd << std::endl;
 	}
 	catch (const std::out_of_range &e) {}
+}
+
+void	Server::deleteUser(pollfd_iterator &it)
+{
+    try
+    {
+        User	*user = this->_users.at(it->fd);
+        int		fd = user->getFd();
+
+        close(fd);
+        _pollfds.erase(it);
+        _users.erase(fd);
+        delete user;
+        std::cout << "Disconnecting user on socket " << fd << std::endl;
+    }
+    catch (const std::out_of_range &e) {
+        std::cout << "Out of range from deleteUser" << std::endl;
+    }
 }

@@ -7,7 +7,7 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("PASS", &Server::_passCmd));
 	_indexCmd.insert(std::pair<std::string, func>("NICK", &Server::_nickCmd));
 	_indexCmd.insert(std::pair<std::string, func>("CAP", &Server::_caplsCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("PING", &Server::_pingCmd));
+	_indexCmd.insert(std::pair<std::string, func>("PING", &Server::_pingCmd));
 	//_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
@@ -25,7 +25,6 @@ void	Server::chooseCmd(User *user)
 	std::string	cmd;
 	std::string	buf;
 
-	std::cout << "Message: <" << msg << ">" << std::endl;
 	while (msg.length())
 	{
 		if (msg.find("\r\n") != std::string::npos)
@@ -53,15 +52,15 @@ void	Server::chooseCmd(User *user)
 					closeConnection(user);
 					break;
 				}
-                
-                for (std::map<std::string, func>::iterator it = this->_indexCmd.begin(); it != this->_indexCmd.end(); it++)
-                {
-                    if (it->first == cmd)
-                    {
-                        (this->*(it->second))(user, buf); // call function from map, giving user and buf as parameters
-                        break;
-                    }
-                }
+				
+				for (std::map<std::string, func>::iterator it = this->_indexCmd.begin(); it != this->_indexCmd.end(); it++)
+				{
+					if (it->first == cmd)
+					{
+						(this->*(it->second))(user, buf); // call function from map, giving user and buf as parameters
+						break;
+					}
+				}
 				msg.erase(0, msg.find("\r\n") + 2);
 			}
 			catch (const std::out_of_range &e)
@@ -79,60 +78,65 @@ void	Server::chooseCmd(User *user)
 	}
 }
 
-void	Server::_caplsCmd(User *user, std::string buf)
+void	Server::_caplsCmd(User *user, std::string param)
 {
 	std::cout << "CAP LS" << std::endl;
-	if (buf != "LS")
+	if (param != "LS")
 		return (user->sendReply("CAP LS command"));
 }
 
-void	Server::_userCmd(User *user, std::string buf)
+void	Server::_userCmd(User *user, std::string param)
 {
+	std::cout<< param << std::endl;
 	if (user->hasBeenWelcomed())
-		return (user->sendReply("Error: user: already welcomed"));
-	if (buf.empty())
+		return (user->sendReply(ERR_ALREADYREGISTRED(user->getNickname())));
+	// PArsing pour recuperer les params renvoyer  ERR_NEEDMOREPARAMS si probleme
+	// check username realname et mode
+	if (param.empty())
 		return (user->sendReply("Error: user: empty"));
-	std::cout << "buf : " << buf << std::endl;
+	std::cout << "param : " << param << std::endl;
 	// parsing here
-	std::string username = buf.substr(0, buf.find(' '));
-	std::string mode = buf.substr(buf.find(' ') + 1, buf.find(' ', buf.find(' ') + 1) - buf.find(' ') - 1);
-	std::string unused = buf.substr(buf.find(' ', buf.find(' ') + 1) + 1, buf.find(' ', buf.find(' ', buf.find(' ') + 1) + 1) - buf.find(' ', buf.find(' ') + 1) - 1);
-	std::string realname = buf.substr(buf.find(':', buf.find(' ', buf.find(' ') + 1) + 1) + 1);
-	user->setUser(username);
+	std::string username = param.substr(0, param.find(' '));
+	std::string mode = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
+	std::string unused = param.substr(param.find(' ', param.find(' ') + 1) + 1, param.find(' ', param.find(' ', param.find(' ') + 1) + 1) - param.find(' ', param.find(' ') + 1) - 1);
+	std::string realname = param.substr(param.find(':', param.find(' ', param.find(' ') + 1) + 1) + 1);
+	user->setUsername(username);
 	user->setRealname(realname);
 	if (user->getNickname().size() && user->getPassword() && !user->hasBeenWelcomed())
 		user->welcome();
 }
 
-void	Server::_passCmd(User *user, std::string buf)
+void	Server::_passCmd(User *user, std::string param)
 {
 	if (user->hasBeenWelcomed())
 		return (user->sendReply("Error: pass: already welcomed"));
-	if (!buf.length())
+	if (!param.length())
 		return (user->sendReply("Error: pass: empty"));
-	if (buf.compare(_password))
+	if (param.compare(_password))
 	{
 		user->setPassword(false);
-		return (user->sendReply("Error: pass: wrong password"));
+		return (user->sendReply(ERR_PASSWDMISMATCH(user->getNickname())));
 	}
 	user->setPassword(true);
-	if (user->getNickname().length() && user->getUser().length())
+	if (user->getNickname().length() && user->getUsername().length())
 		user->welcome();
 }
 
-void	Server::_nickCmd(User *user, std::string buf)
+void	Server::_nickCmd(User *user, std::string param)
 {
-	if (buf.empty())
-		return (user->sendReply("Error: nick: empty"));
-	if (buf.find(' ') != std::string::npos)
-		buf = buf.substr(0, buf.find_first_of(' '));
+	if (param.empty())
+		return (user->sendReply(ERR_NONICKNAMEGIVEN(user->getNickname())));
+	//PARSE NICKNAME POUR CHECK SI IL EST VALIDE
+	// renvoie ERR_ERRONEUSNICKNAME
+	if (param.find(' ') != std::string::npos)
+		param = param.substr(0, param.find_first_of(' '));
 	for (users_iterator it = _users.begin(); it != _users.end(); ++it)
 	{
-		if (it->second->getNickname() == buf)
-			return (user->sendReply("Error: nick: already used"));
+		if (it->second->getNickname() == param)
+			return (user->sendReply(ERR_NICKCOLLISION()));
 	}
-	user->setNickname(buf);
-	if (user->getUser().length() && user->getPassword() && !user->hasBeenWelcomed())
+	user->setNickname(param);
+	if (user->getUsername().length() && user->getPassword() && !user->hasBeenWelcomed())
 		user->welcome();
 }
 
@@ -141,6 +145,15 @@ void	Server::_quitCmd(User *user, std::string param){
 	std::cout << user->getMessage() << std::endl;
 	std::cout << param << std::endl;
 }
+
+void	Server::_pingCmd(User *user, std::string param){
+	if (param.empty())
+		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
+	if (param != _hostname && param != "IRC")
+		return (user->sendReply(ERR_NOSUCHSERVER(user->getNickname(), param)));
+	user->sendReply(RPL_PONG(user->getNickname(), param));
+}
+
 
 // void	Server::_pingCmd(User *user, std::string param){
 // 	std::cout << user->getMessage() << std::endl;

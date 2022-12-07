@@ -12,7 +12,7 @@ User::User() : _username(""), _nickname(""), _hostname(""), _realname(""), _serv
     _modes.insert(std::pair<std::string, bool>("w", false));
 }
 
-User::User(int userFd, struct sockaddr_storage *userAddr) : _nickname(""), _hostname("localhost"), _realname(""), _server("IRC"), _password(false), _welcomed(false), _user("")
+User::User(int userFd, struct sockaddr_storage *userAddr) : _nickname(""), _hostname("localhost"), _realname(""), _server("IRC"), _password(false), _welcomed(false)
 {
 	this->_fd = userFd;
 	this->_userAddr = userAddr;
@@ -46,10 +46,6 @@ void    User::setRealname(std::string realname){
 
 void    User::setServer(std::string server){
 	_server = server;
-}
-
-void    User::setRegistered(){
-	_registered = !_registered;
 }
 
 void    User::setMessage(std::string message){
@@ -87,10 +83,6 @@ std::string    User::getRealname(){
 
 std::string    User::getServer(){
 	return(_server);
-}
-
-bool    User::getRegistered(){
-	return(_registered);
 }
 
 std::string    User::getMessage(){
@@ -134,12 +126,8 @@ void	User::sendReply(std::string reply)
 
 	if (n == -1)
 	{
-		//std::cout << "Error User::sendReply" << std::endl;//Throw erreur ici
+		std::cout << RED "Error User::sendReply" END << std::endl;//Throw erreur ici
 	}
-}
-
-bool	User::hasBeenWelcomed(void) const {
-	return (_welcomed);
 }
 
 void	User::welcome(void)
@@ -149,4 +137,8 @@ void	User::welcome(void)
 	sendReply(RPL_CREATED(_nickname, _server, timestamp()));
 	sendReply(RPL_MYINFO(_nickname, _server));
 	_welcomed = true;
+}
+
+bool	User::hasBeenWelcomed() const{
+	return (_welcomed);
 }
