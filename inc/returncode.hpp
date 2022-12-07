@@ -56,6 +56,6 @@ std::string ERR_NOPRIVILEGES(std::string nick);
 std::string ERR_CHANOPRIVSNEEDED(std::string nick, std::string channel);
 std::string ERR_UMODEUNKNOWNFLAG(std::string nick, std::string flag);
 std::string ERR_USERSDONTMATCH(std::string nick);
-
+std::string ERR_NORECIPIENT(std::string nick);
 
 #endif

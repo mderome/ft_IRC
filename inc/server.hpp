@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/07 16:43:28 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/07 20:10:31 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <string>
 # include <iostream>
 # include <cstdlib>
+# include <unistd.h>
 
 #include <vector>
 #include <poll.h>
@@ -65,6 +66,7 @@ class Server
         void	_caplsCmd(User *user, std::string buf);
 		void	_quitCmd(User *user, std::string buf);
         void	_pingCmd(User *user, std::string buf);
+        void    _privmsgCmd(User *user, std::string param);
 
     private:
         std::string _port;

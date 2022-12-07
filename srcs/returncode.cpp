@@ -129,6 +129,10 @@ std::string ERR_NOORIGIN(const std::string nick) {
 	return "409 " + nick + ":No origin specified";
 }
 
+std::string ERR_NORECIPIENT(std::string nick) {
+	return "411 " + nick + ":No recipient given";
+}
+
 std::string ERR_NONICKNAMEGIVEN(std::string nick) {
 	return "431 " + (nick.empty() ?  "*" : nick) + ":No nickname given";
 }

@@ -8,10 +8,10 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("NICK", &Server::_nickCmd));
 	_indexCmd.insert(std::pair<std::string, func>("CAP", &Server::_caplsCmd));
 	_indexCmd.insert(std::pair<std::string, func>("PING", &Server::_pingCmd));
-	//_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
+	_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("PRIVMSG", &Server::_privmsgCmd));
+	_indexCmd.insert(std::pair<std::string, func>("PRIVMSG", &Server::_privmsgCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MODE", &Server::_modeCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
@@ -118,8 +118,8 @@ void	Server::_passCmd(User *user, std::string param)
 		return (user->sendReply(ERR_PASSWDMISMATCH(user->getNickname())));
 	}
 	user->setPassword(true);
-	if (user->getNickname().length() && user->getUsername().length())
-		user->welcome();
+	// if (user->getNickname().length() && user->getUsername().length())
+	// 	user->welcome();
 }
 
 void	Server::_nickCmd(User *user, std::string param)
@@ -136,15 +136,37 @@ void	Server::_nickCmd(User *user, std::string param)
 			return (user->sendReply(ERR_NICKCOLLISION()));
 	}
 	user->setNickname(param);
-	if (user->getUsername().length() && user->getPassword() && !user->hasBeenWelcomed())
-		user->welcome();
+	// if (user->getUsername().length() && user->getPassword() && !user->hasBeenWelcomed())
+	// 	user->welcome();
 }
 
-void	Server::_quitCmd(User *user, std::string param){
-	// pas de parsing a faire
-	std::cout << user->getMessage() << std::endl;
-	std::cout << param << std::endl;
+void	Server::_quitCmd(User *user, std::string param)
+{
+	if (param.empty())
+		param = "No reason given by user";
+	user->sendReply(":" + user->getNickname() + "!d@" + _hostname + " QUIT :Quit: " + param + ";\n" + user->getNickname() + " is exiting the network with the message: \"Quit: " + param + "\"");
+
+	try
+	{
+		int	fd = user->getFd();
+		close(fd);
+		for (pollfd_iterator it = _pollfds.begin(); it != _pollfds.end(); ++it)
+		{
+			if (fd == it->fd)
+			{
+				_pollfds.erase(it);
+				break;
+			}
+		}
+		_users.erase(fd);
+		delete user;
+		std::cout << "Disconnecting user on socket " << fd << std::endl;
+	}
+	catch (const std::out_of_range &e) {}
 }
+	// // pas de parsing a faire
+	// std::cout << user->getMessage() << std::endl;
+	// std::cout << param << std::endl;
 
 void	Server::_pingCmd(User *user, std::string param){
 	if (param.empty())
@@ -154,15 +176,25 @@ void	Server::_pingCmd(User *user, std::string param){
 	user->sendReply(RPL_PONG(user->getNickname(), param));
 }
 
-
-// void	Server::_pingCmd(User *user, std::string param){
-// 	std::cout << user->getMessage() << std::endl;
-// 	if (param.empty())
-// 		return ; //ERR_NEEDMOREPARAMS
-// 	if (param != _hostname)
-// 		return ; // ERR_NOSUCHSERVER
-// 	// reply msg to RPL_PONG (nickname user,_hostname)
-// }
+void	Server::_privmsgCmd(User *user, std::string param){
+	if (param.empty())
+		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
+	std::string	target = param.substr(0, param.find(' '));
+	std::string	message = param.substr(param.find(' ') + 1);
+	if (message[0] != ':')
+		return (user->sendReply(ERR_NORECIPIENT(user->getNickname())));
+	message = message.substr(1);
+	if (target[0] == '#')
+	{
+		std::cout << "channel" << std::endl;
+		// channel
+	}
+	else
+	{
+		std::cout << "user" << std::endl;
+		// user
+	}
+}
 
 // void	Server::_operCmd(User *user, std::string param){
 // 	// split param pour avoir name et password | Parameters: <name> <password>
