@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/07 14:42:24 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/07 16:43:28 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ class Server
         void    printUserData(int clientFd, struct sockaddr_storage clientAddr);
         void    receiveData(pollfd_iterator &it);
         int     getMessage(User *user);
+        void    deleteUser(pollfd_iterator &it);
 
         void    _indexingCmd();
         void	chooseCmd(User *user);
