@@ -240,3 +240,16 @@ bool    Channel::checkUserIsOperatorOnChannel(std::string user){
         return (false);
     }
 }
+
+std::string Channel::getChannelMode(){
+    std::string minus = "-";
+    std::string plus = "+";
+
+    for (std::map<std::string, bool>::iterator it = _modes.begin(); it != _modes.end(); it++){
+        if (it->second)
+            plus += it->first;
+        else
+            minus += it->second;
+    }
+    return (minus + plus);
+}

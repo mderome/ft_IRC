@@ -142,3 +142,16 @@ void	User::welcome(void)
 bool	User::hasBeenWelcomed() const{
 	return (_welcomed);
 }
+
+std::string	User::getUserMode(){
+    std::string minus = "-";
+    std::string plus = "+";
+
+    for (std::map<std::string, bool>::iterator it = _modes.begin(); it != _modes.end(); it++){
+        if (it->second)
+            plus += it->first;
+        else
+            minus += it->second;
+    }
+    return (minus + plus);
+}

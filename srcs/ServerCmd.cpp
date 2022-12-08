@@ -239,9 +239,9 @@ void	Server::_modesCmd(User *user, std::string param){
 	}
 	else{
 		if (isChannel)
-			return(user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, "", ""))); //get mode
-		else
-			return(user->sendReply(RPL_UMODEIS(user->getNickname(), "")));
+			return(user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channels[target]->getChannelMode(), "")));
+		else if (!isChannel && user->getNickname() == target)
+			return(user->sendReply(RPL_UMODEIS(user->getNickname(), user->getUserMode())));
 	}
 	if (isChannel && !checkChannelExistOnNetwork(target))
 		return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), target)));

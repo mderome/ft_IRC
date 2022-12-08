@@ -40,6 +40,7 @@ class User
         std::string timestamp(void);
         void    sendReply(std::string reply);
         void        clearMessage(void);
+        std::string getUserMode();
 
     private:
         std::string _username;

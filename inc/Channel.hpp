@@ -69,6 +69,7 @@ class Channel
 
         void sendToAll(std::string message, Server &server);
         bool checkUserIsOperatorOnChannel(std::string user);
+        std::string getChannelMode();
 };
 
 #endif
