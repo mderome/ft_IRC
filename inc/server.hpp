@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
+/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/08 19:45:36 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/08 19:54:18 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,16 +63,18 @@ class Server
         
         void    closeConnection(User *user);
 
-		void	_userCmd(User *user, std::string buf);
-		void	_passCmd(User *user, std::string buf);
-		void	_nickCmd(User *user, std::string buf);
-        void	_caplsCmd(User *user, std::string buf);
-		void	_quitCmd(User *user, std::string buf);
-        void	_pingCmd(User *user, std::string buf);
+		void	_userCmd(User *user, std::string param);
+		void	_passCmd(User *user, std::string param);
+		void	_nickCmd(User *user, std::string param);
+        void	_caplsCmd(User *user, std::string param);
+		void	_quitCmd(User *user, std::string param);
+        void	_pingCmd(User *user, std::string param);
         void	_whoCmd(User *user, std::string param);
         void    _topicCmd(User *user, std::string param);
         void    _privmsgCmd(User *user, std::string param);
-        void    _joinCmd(User *user, std::string buf);
+        void    _joinCmd(User *user, std::string param);
+        // void    _listCmd(User *user, std::string param);
+        void    _noticeCmd(User *user, std::string param);
 
         bool    checkChannelExistOnNetwork(std::string channel);
         bool    checkUserExistOnNetwork(std::string user);

@@ -11,10 +11,13 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("PING", &Server::_pingCmd));
 	_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
 	_indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
 	_indexCmd.insert(std::pair<std::string, func>("PRIVMSG", &Server::_privmsgCmd));
 	_indexCmd.insert(std::pair<std::string, func>("MODE", &Server::_modeCmd));
 	_indexCmd.insert(std::pair<std::string, func>("WHO", &Server::_whoCmd));
+	_indexCmd.insert(std::pair<std::string, func>("NOTICE", &Server::_noticeCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("LIST", &Server::_listCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
 }
@@ -249,13 +252,13 @@ void	Server::_joinCmd(User *user, std::string param)
 			else
 			{
 				_channel.find(content)->second.addUser(test);
-				std::cout << "this channel exist\n";
+				std::cout << WHITE "User <" << test.getNickname() << "> has joined <" << _channel[content].getName() << "> channel!" END << std::endl;
 			}
 		}
 		else 
 		{
 			_channel.insert(std::pair<std::string, Channel>(content, Channel(test, content)));
-			std::cout << "channel create" << std::endl;
+			std::cout << WHITE "Channel <" << _channel[content].getName() << "> has been created" END << std::endl;
 			_channel[content].setUsersMode(test.getNickname(), std::string("o"), 1);
 		}
 	}
@@ -342,6 +345,73 @@ void	Server::_modeCmd(User *user, std::string param){
 				changeModes(user, target,param.substr(it + 1, it2), false, isChannel);
 			else if (it2 > it && param[it] == '+')
 				changeModes(user, target,param.substr(it + 1, it2), true, isChannel);
+		}
+	}
+}
+
+// void	Server::_listCmd(User *user, std::string param)
+// {
+// 	// if (!user->hasBeenWelcomed)
+// 	// 	return ;	
+// 	if (param.empty())
+// 	{
+// 		for (std::map<std::string, Channel>::iterator it = _channel.begin(); it != _channel.end(); ++it)
+// 		{
+// 			std::string buf = ":" + _hostname + " 322 " + user->getNickname() + " " + it->first + " " + std::to_string(it->second.getUsers().size()) + " :" + it->second.getTopic() + "\r\n";
+// 			user->sendReply(buf);
+// 		}
+// 	}
+// 	else
+// 	{
+// 		std::vector<std::string> channels = splitov(param, ',');
+// 		for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it)
+// 		{
+// 			if (_channel.find(*it) != _channel.end())
+// 			{
+// 				std::string buf = ":" + _hostname + " 322 " + user->getNickname() + " " + *it + " " + std::to_string(_channel[*it].getUsers().size()) + " :" + _channel[*it].getTopic() + "\r\n";
+// 				user->sendReply(buf);
+// 			}
+// 		}
+// 	}	
+// 	user->sendReply(":" + _hostname + " 323 " + user->getNickname() + " :End of /LIST\r\n");
+// }
+
+void	Server::_noticeCmd(User *user, std::string param)
+{
+	if (!user->hasBeenWelcomed())
+		return;
+	if (param.find(':') == std::string::npos)
+		return;
+	if (param.find(':') == 0)
+		return;
+	std::string	msg = param.substr(param.find(':') + 1);
+	std::string target = param.substr(0, param.find(' '));
+	size_t		start = target.find_first_not_of(" ");
+
+	target = target.substr(start, target.find_last_not_of(" ") - start + 1);
+	if (target[0] == '#' || target[0] == '&')
+	{
+		std::cout << "channel" << std::endl;
+		// channel
+	 	// _channel[target].sendToAll(":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + msg + "\r\n");
+		_channel[target].sendToAll(":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + msg + "\r\n");
+		// try
+		// {
+		// 	Channel	*channel = _channel.at(target);
+
+		// 	if (!channel->userIsIn(user) && channel->isNoOutside())
+		// 		return;
+		// 	channel->privmsg(user, msg);
+		// }
+		// catch (const std::out_of_range &e) {}
+	}
+	else
+	{
+		std::cout << "user" << std::endl;
+		for (users_iterator it = _users.begin(); it != _users.end(); ++it)
+		{
+			if (it->second->getNickname() == target)
+				return (it->second->sendReply(":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + msg + "\r\n"));
 		}
 	}
 }
