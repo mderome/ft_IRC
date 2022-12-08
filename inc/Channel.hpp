@@ -69,6 +69,8 @@ class Channel
 
         void sendToAll(std::string message);
         void sendToAllSaufALui( std::string user, std::string message);
+
+        bool userIsIn(User *user);
 };
 
 #endif

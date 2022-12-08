@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/08 12:53:12 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/08 14:52:14 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,14 +62,15 @@ class Server
         
         void    closeConnection(User *user);
 
-		void	_userCmd(User *user, std::string buf);
-		void	_passCmd(User *user, std::string buf);
-		void	_nickCmd(User *user, std::string buf);
-        void	_caplsCmd(User *user, std::string buf);
-		void	_quitCmd(User *user, std::string buf);
-        void	_pingCmd(User *user, std::string buf);
+		void	_userCmd(User *user, std::string param);
+		void	_passCmd(User *user, std::string param);
+		void	_nickCmd(User *user, std::string param);
+        void	_caplsCmd(User *user, std::string param);
+		void	_quitCmd(User *user, std::string param);
+        void	_pingCmd(User *user, std::string param);
         void    _privmsgCmd(User *user, std::string param);
-        void    _joinCmd(User *user, std::string buf);
+        void    _joinCmd(User *user, std::string param);
+        void    _listCmd(User *user, std::string param);
 
     private:
         std::string                         _port;

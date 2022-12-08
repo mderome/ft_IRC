@@ -259,3 +259,16 @@ void Channel::sendToAllSaufALui( std::string user, std::string message)
         }
     }
 }
+
+bool	Channel::userIsIn(User *user)
+{
+	try
+	{
+		_users.at(user->getNickname()); // instead of _users.at(user->getFd())
+	}
+	catch (const std::out_of_range &e)
+	{
+		return (false);
+	}
+	return (true);
+}
