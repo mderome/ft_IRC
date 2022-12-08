@@ -1,11 +1,24 @@
 #include "../inc/Channel.hpp"
 
+Channel::Channel(void)
+{
+    _limit = 0;
+    _modes.insert(std::pair<std::string, bool>("m", false));
+    _modes.insert(std::pair<std::string, bool>("n", false));
+    _modes.insert(std::pair<std::string, bool>("p", false));
+    _modes.insert(std::pair<std::string, bool>("s", false));
+    _modes.insert(std::pair<std::string, bool>("t", false));
+    _modes.insert(std::pair<std::string, bool>("i", false));
+    _modes.insert(std::pair<std::string, bool>("l", false));
+    _modes.insert(std::pair<std::string, bool>("k", false));
+}
+
 Channel::Channel(User user, std::string name)
 {
     _name = name;
     _limit = 0;
     // _pwd = NULL;
-    _users.insert(std::pair<std::string, int>(user.getNickname(), user.getFd()));
+    _users.insert(std::pair<std::string, User>(user.getNickname(), user));
     _operator.insert(std::pair<std::string, int>(user.getNickname(), true));
     _modes.insert(std::pair<std::string, bool>("m", false));
     _modes.insert(std::pair<std::string, bool>("n", false));
@@ -22,7 +35,7 @@ Channel::Channel(User user, std::string name, std::string password)
     _name = name;
     _limit = 0;
     _pwd = password;
-    _users.insert(std::pair<std::string, int>(user.getNickname(), user.getFd()));
+    _users.insert(std::pair<std::string, User>(user.getNickname(), user));
     _operator.insert(std::pair<std::string, int>(user.getNickname(), true));
     _modes.insert(std::pair<std::string, bool>("m", false));
     _modes.insert(std::pair<std::string, bool>("n", false));
@@ -64,7 +77,7 @@ std::string Channel::getName() const
     return (_name);
 }
 
-std::map<std::string, int> Channel::getUsers() const
+std::map<std::string, User> Channel::getUsers() const
 {
     return (_users);
 }
@@ -96,7 +109,16 @@ void Channel::setName(std::string name)
 
 void Channel::setUsers(User users)
 {
-    _users.insert(std::pair<std::string, int>(users.getNickname(), users.getFd()));
+    _users.insert(std::pair<std::string, User>(users.getNickname(), users));
+}
+
+
+void Channel::setUsersMode(std::string user, std::string mode, int action)
+{
+    if (action < 0)
+        _users[user].setModes(mode, false);
+    else if (action > 0)
+        _users[user].setModes(mode, true);
 }
 
 void Channel::setBans(std::string bans)
@@ -129,11 +151,6 @@ void Channel::setPwd(std::string pwd)
     _pwd = pwd;
 }
 
-void Channel::removeUser(User user)
-{
-    _users.erase(user.getNickname());
-}
-
 void Channel::removeBan(std::string ban)
 {
     for (std::vector<std::string>::iterator it = _bans.begin(); it < _bans.end(); it++){
@@ -150,11 +167,6 @@ void Channel::removeOldMessage(std::string old_message)
     }
 }
 
-void Channel::removeOperator(User user)
-{
-    _operator.erase(user.getNickname());
-}
-
 int Channel::getLimit() const
 {
     return (_limit);
@@ -167,7 +179,7 @@ std::string Channel::getPwd() const
 
 void Channel::addUser(User user)
 {
-    _users.insert(std::pair<std::string, int>(user.getNickname(), user.getFd()));
+    _users.insert(std::pair<std::string, User>(user.getNickname(), user));
 }
 
 void Channel::addBan(User user)
@@ -221,10 +233,10 @@ void Channel::clearModes()
     _modes.clear();
 }
 
-void Channel::sendToAll(std::string message, Server &server)
+void Channel::sendToAll(std::string message)
 {
-    for (std::map<std::string, int>::iterator it = _users.begin(); it != _users.end(); it++)
+    for (std::map<std::string, User>::iterator it = _users.begin(); it != _users.end(); it++)
     {
-        // server.sendToUser(it->first, message);
+        send(it->second.getFd(), message.c_str(), message.length(), 0);
     }
 }

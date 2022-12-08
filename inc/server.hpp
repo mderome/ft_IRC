@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mderome <mderome@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/07 16:43:28 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/07 20:01:05 by mderome          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,12 @@
 #include <map>
 
 #include "user.hpp"
+#include "../inc/Channel.hpp"
 #include "color.hpp"
 #include "./returncode.hpp"
 
 class User;
+class Channel;
 
 class Server
 {
@@ -65,15 +67,17 @@ class Server
         void	_caplsCmd(User *user, std::string buf);
 		void	_quitCmd(User *user, std::string buf);
         void	_pingCmd(User *user, std::string buf);
+        void    _joinCmd(User *user, std::string buf);
 
     private:
-        std::string _port;
-        std::string _password;
-        std::string _hostname;
-        int     _listener;
-        std::vector<struct pollfd> _pollfds;
-        std::map<int, User *>   _users;
-        std::map<std::string, func> _indexCmd;
+        std::string                         _port;
+        std::string                         _password;
+        std::string                         _hostname;
+        int                                 _listener;
+        std::vector<struct pollfd>          _pollfds;
+        std::map<int, User *>               _users;
+        std::map<std::string, func>         _indexCmd;
+        std::map<std::string, Channel>      _channel;
 };
 
 #endif
