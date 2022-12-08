@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+         #
+#    By: mderome <mderome@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/30 13:35:26 by esafar            #+#    #+#              #
-#    Updated: 2022/12/05 19:46:06 by achane-l         ###   ########.fr        #
+#    Updated: 2022/12/07 18:18:49 by mderome          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,9 @@ SRCS =	srcs/main.cpp \
 		srcs/ServerCmd.cpp	\
 		srcs/user.cpp \
 		srcs/returncode.cpp \
-		srcs/timestamp.cpp
+		srcs/timestamp.cpp \
+		srcs/Channel.cpp	\
+		srcs/splitov.cpp
 
 GCC = c++
 FLAGS = -g -Wextra -Wall -Werror -std=c++98 

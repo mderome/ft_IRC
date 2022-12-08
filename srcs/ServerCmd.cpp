@@ -1,5 +1,6 @@
 #include "../inc/user.hpp"
 #include "../inc/server.hpp"
+#include "../inc/utils.hpp"
 
 // CONNECTION  COMMANDES
 void	Server::_indexingCmd(){
@@ -9,14 +10,13 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("CAP", &Server::_caplsCmd));
 	_indexCmd.insert(std::pair<std::string, func>("PING", &Server::_pingCmd));
 	_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
+	_indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
 	_indexCmd.insert(std::pair<std::string, func>("PRIVMSG", &Server::_privmsgCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MODE", &Server::_modeCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
-
 }
 
 void	Server::chooseCmd(User *user)
@@ -188,7 +188,7 @@ void	Server::_privmsgCmd(User *user, std::string param){
 	{
 		std::cout << "channel" << std::endl;
 		// channel
-		_channels[target]->sendToAll(user->getNickname() + " PRIVMSG " + target + " :" + message);
+		_channel[target].sendToAllSaufALui(user->getNickname() ,":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n");
 	}
 	else
 	{
@@ -209,3 +209,38 @@ void	Server::_privmsgCmd(User *user, std::string param){
 // 	//RPL_YOUREOPER
 // 	// avoir une fonction qui ajoute un operator a un channel
 // }
+
+ void	Server::_joinCmd(User *user, std::string param)
+{
+	User test = *(user);
+	std::map<std::string, std::string>	joinChannel;
+	std::vector<std::string>			channel;
+	std::vector<std::string>			Pasword;
+
+	if (!param.size())
+		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
+	channel = splitov(param, ',');
+	std::vector<std::string>::iterator it = channel.begin();
+	Pasword = splitov(param, ',');
+	//std::vector<std::string>::iterator itpass = Pasword.begin();
+	for (; it != channel.end(); it++)
+	{
+		std::string	content = *it;
+		if (_channel.find(content) != _channel.end()){
+			if (content.c_str()[0] != '#' && content.c_str()[0] != '&')
+				return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), content)));
+			else
+			{
+				_channel.find(content)->second.addUser(test);
+				std::cout << "this channel exist\n";
+			}
+		}
+		else 
+		{
+			_channel.insert(std::pair<std::string, Channel>(content, Channel(test, content)));
+			std::cout << "channel create" << std::endl;
+			_channel[content].setUsersMode(test.getNickname(), std::string("o"), 1);
+		}
+	}
+	return ; 
+}
