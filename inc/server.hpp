@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/08 14:52:14 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/08 18:02:08 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,8 @@ class Server
         void	_pingCmd(User *user, std::string param);
         void    _privmsgCmd(User *user, std::string param);
         void    _joinCmd(User *user, std::string param);
-        void    _listCmd(User *user, std::string param);
+        // void    _listCmd(User *user, std::string param);
+        void    _noticeCmd(User *user, std::string param);
 
     private:
         std::string                         _port;
