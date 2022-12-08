@@ -274,14 +274,12 @@ void	Server::_whoCmd(User *user, std::string param){
 		}
 	}
 	catch (const std::out_of_range &e){
-		User *tmp;
 		for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); it++){
 			if (it->second->getNickname() == param){
-				tmp = it->second;
+				user->sendReply(RPL_WHOREPLY(user->getNickname(), "*", it->second->getUsername(), it->second->getHostname(), it->second->getServer(), it->second->getNickname(), "", "", it->second->getRealname()));
 				break;
 			}
 		}
-		user->sendReply(RPL_WHOREPLY(user->getNickname(), "*", tmp->getUsername(), tmp->getHostname(), tmp->getServer(), tmp->getNickname(), "", "", tmp->getRealname()));
 	}
 	user->sendReply(RPL_ENDOFWHO(user->getNickname(), param));
 }
