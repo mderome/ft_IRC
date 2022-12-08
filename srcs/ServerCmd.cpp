@@ -13,8 +13,8 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
 	_indexCmd.insert(std::pair<std::string, func>("PRIVMSG", &Server::_privmsgCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("MODE", &Server::_modeCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
+	_indexCmd.insert(std::pair<std::string, func>("MODE", &Server::_modeCmd));
+	_indexCmd.insert(std::pair<std::string, func>("WHO", &Server::_whoCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
 }
@@ -262,7 +262,7 @@ void	Server::_joinCmd(User *user, std::string param)
 	return ;
 }
 
-void	Server::_who(User *user, std::string param){
+void	Server::_whoCmd(User *user, std::string param){
 	if (!user->hasBeenWelcomed())
 		return;
 	try{
@@ -286,7 +286,7 @@ void	Server::_who(User *user, std::string param){
 	user->sendReply(RPL_ENDOFWHO(user->getNickname(), param));
 }
 
-void	Server::_topic(User *user, std::string param){
+void	Server::_topicCmd(User *user, std::string param){
 	std::string	channel_name;
 	if (param.find(' ') != std::string::npos){
 		channel_name = param.substr(0, param.find(' '));
@@ -307,7 +307,7 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 		user->setModes(mode, value);
 }
 
-void	Server::_modesCmd(User *user, std::string param){
+void	Server::_modeCmd(User *user, std::string param){
 	std::string target = param;
 	bool		isChannel = false;
 

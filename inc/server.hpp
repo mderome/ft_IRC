@@ -6,7 +6,7 @@
 /*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/08 19:22:45 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/08 19:45:36 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,15 +69,15 @@ class Server
         void	_caplsCmd(User *user, std::string buf);
 		void	_quitCmd(User *user, std::string buf);
         void	_pingCmd(User *user, std::string buf);
-        void	_who(User *user, std::string param);
-        void    _topic(User *user, std::string param);
+        void	_whoCmd(User *user, std::string param);
+        void    _topicCmd(User *user, std::string param);
         void    _privmsgCmd(User *user, std::string param);
         void    _joinCmd(User *user, std::string buf);
 
         bool    checkChannelExistOnNetwork(std::string channel);
         bool    checkUserExistOnNetwork(std::string user);
         void	changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel);
-        void	_modesCmd(User *user, std::string param);
+        void	_modeCmd(User *user, std::string param);
     private:
         std::string                         _port;
         std::string                         _password;
