@@ -282,3 +282,15 @@ std::string Channel::getChannelMode(){
     return (minus + plus);
 }
 
+bool	Channel::userIsIn(User *user)
+{
+	try
+	{
+		_users.at(user->getNickname()); // instead of _users.at(user->getFd())
+	}
+	catch (const std::out_of_range &e)
+	{
+		return (false);
+	}
+	return (true);
+}
