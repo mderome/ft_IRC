@@ -144,8 +144,13 @@ void	Server::_quitCmd(User *user, std::string param)
 {
 	if (param.empty())
 		param = "No reason given by user";
-	user->sendReply(":" + user->getNickname() + "!d@" + _hostname + " QUIT :Quit: " + param + ";\n" + user->getNickname() + " is exiting the network with the message: \"Quit: " + param + "\"");
-
+	
+	for (users_iterator it = _users.begin(); it != _users.end(); ++it)
+	{
+		if (it->second->getNickname() != user->getNickname())
+			it->second->sendReply(":" + user->getNickname() + "!d@" + _hostname + " QUIT :Quit: " + param + ";\n" + user->getNickname() + " is exiting the network with the message: \"Quit: " + param + "\"");
+	}
+	// user->sendReply(":" + user->getNickname() + "!d@" + _hostname + " QUIT :Quit: " + param + ";\n" + user->getNickname() + " is exiting the network with the message: \"Quit: " + param + "\"");
 	try
 	{
 		int	fd = user->getFd();
@@ -194,6 +199,18 @@ void	Server::_privmsgCmd(User *user, std::string param){
 	{
 		std::cout << "user" << std::endl;
 		// user
+		for (std::map<int, User *>::iterator it = _users.begin(); it != _users.end(); ++it)
+		{
+			std::cout << "target : " << target << std::endl;
+			if (it->second->getNickname() == target)
+			{
+				std::string buf = ":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n";
+				it->second->sendReply(buf);
+				// send(it->first, buf.c_str(), buf.length(), 0);
+				std::cout << YELLOW "sent to " << it->second->getNickname() << END << std::endl;
+				return ;
+			}
+		}
 	}
 }
 
