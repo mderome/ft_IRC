@@ -183,7 +183,9 @@ void	Server::_who(User *user, std::string param){
 	try{
 		Channel *channel = _channels.at(param);
 		User	*tmp;
-		for (std::map<std::string, int>::iterator it = channel->getUsers().begin(); it != channel->getUsers().end(); it++){
+		std::map<std::string, int> channel_users = channel->getUsers();
+
+		for (std::map<std::string, int>::iterator it = channel_users.begin(); it != channel_users.end(); it++){
 			tmp = _users.at(it->second);
 			user->sendReply(RPL_WHOREPLY(user->getNickname(), param, tmp->getUsername(), tmp->getHostname(), tmp->getServer(), tmp->getNickname(), "", "", tmp->getRealname()));
 		}
@@ -209,6 +211,54 @@ void	Server::_topic(User *user, std::string param){
 	}
 	else
 		channel_name = param;
-	try {
+	user->sendReply("Nothing");
+	// finir la fonction
+}
+
+void	Server::changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel){
+	if (isChannel && _channels[target]->checkUserIsOperatorOnChannel(user->getNickname()))
+		_channels[target]->setModes(mode, value);
+	else if (isChannel && !_channels[target]->checkUserIsOperatorOnChannel(user->getNickname()))
+		return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), target)));
+	else
+		user->setModes(mode, value);
+}
+
+void	Server::_modesCmd(User *user, std::string param){
+	std::string target = param;
+	bool		isChannel = false;
+
+	if (param[0] == '#' || param[0] == '&')
+		isChannel = true;
+	if (param.find(' ') != std::string::npos){
+		if (isChannel)
+			target = param.substr(1, param.find(' '));
+		else
+			target = param.substr(0, param.find(' '));
+		param = param.substr(param.find(' '), param.length());
+	}
+	else{
+		if (isChannel)
+			return(user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, "", ""))); //get mode
+		else
+			return(user->sendReply(RPL_UMODEIS(user->getNickname(), "")));
+	}
+	if (isChannel && !checkChannelExistOnNetwork(target))
+		return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), target)));
+	else if (!isChannel && !checkUserExistOnNetwork(target))
+		return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(),target)));
+	else if (!isChannel && user->getNickname() != target)
+		return(user->sendReply(ERR_USERSDONTMATCH(user->getNickname())));
+	for (uint  it = 0; it != param.length(); it++){
+		if (param[it] == '-' && param[it] == '+'){
+			uint it2 = it;
+			while (param[it2] != 0 || (param[it2] != '+' && param[it2] != '-')){
+				it2++;
+			}
+			if (it2 > it && param[it] == '-')
+				changeModes(user, target,param.substr(it + 1, it2), false, isChannel);
+			else if (it2 > it && param[it] == '+')
+				changeModes(user, target,param.substr(it + 1, it2), true, isChannel);
+		}
 	}
 }

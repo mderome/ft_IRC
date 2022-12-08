@@ -7,6 +7,8 @@
 #include <map>
 #include "server.hpp"
 
+class Server;
+class User;
 class Channel
 {
     private:
@@ -66,6 +68,7 @@ class Channel
         void clearOperators();
 
         void sendToAll(std::string message, Server &server);
+        bool checkUserIsOperatorOnChannel(std::string user);
 };
 
 #endif

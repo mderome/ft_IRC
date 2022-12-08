@@ -6,7 +6,7 @@
 /*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/08 00:03:30 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/08 18:39:27 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 #include "Channel.hpp"
 
 class User;
-
+class Channel;
 class Server
 {
     typedef std::vector<pollfd>::iterator pollfd_iterator;
@@ -67,7 +67,12 @@ class Server
 		void	_quitCmd(User *user, std::string buf);
         void	_pingCmd(User *user, std::string buf);
         void	_who(User *user, std::string param);
+        void    _topic(User *user, std::string param);
 
+        bool    checkChannelExistOnNetwork(std::string channel);
+        bool    checkUserExistOnNetwork(std::string user);
+        void	changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel);
+        void	_modesCmd(User *user, std::string param);
     private:
         std::string _port;
         std::string _password;

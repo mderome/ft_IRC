@@ -195,17 +195,6 @@ void Channel::addOperator(User user)
     _operator.insert(std::pair<std::string, int>(user.getNickname(), true));
 }
 
-
-void Channel::removeOperator(User user)
-{
-    _operator.erase(user.getNickname());
-}
-
-void Channel::removeUser(User user)
-{
-    _users.erase(user.getNickname());
-}
-
 void Channel::clearUsers()
 {
     _users.clear();
@@ -236,5 +225,18 @@ void Channel::sendToAll(std::string message, Server &server)
     for (std::map<std::string, int>::iterator it = _users.begin(); it != _users.end(); it++)
     {
         // server.sendToUser(it->first, message);
+        std::cout << message << std::endl;
+        std::cout << server.getPort() << std::endl;
+    }
+}
+
+
+bool    Channel::checkUserIsOperatorOnChannel(std::string user){
+    try{
+        _users.at(user);
+        return (true);
+    }
+    catch(const std::out_of_range &e){
+        return (false);
     }
 }

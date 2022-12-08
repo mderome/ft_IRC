@@ -26,7 +26,7 @@ std::string RPL_YOUROPER(std::string nick, std::string arg1, std::string arg2);
 std::string RPL_NOTONCHANNEL();
 std::string RPL_ENDOFWHO(std::string nick, std::string param);
 std::string RPL_WHOREPLY(std::string nick, std::string channel, std::string user, std::string host, std::string server, std::string nick2, std::string flags, std::string hopcount, std::string realname);
-std::string RPL_CHANNELMODEIS(std::string nick, std::string channel, std::string mode);
+std::string RPL_CHANNELMODEIS(std::string nick, std::string channel, std::string mode, std::string modeparam);
 std::string RPL_UMODEIS(std::string nick, std::string mode);
 // ERR
 std::string ERR_NOORIGIN(const std::string nick);
