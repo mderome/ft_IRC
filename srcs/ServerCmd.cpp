@@ -188,6 +188,7 @@ void	Server::_privmsgCmd(User *user, std::string param){
 	{
 		std::cout << "channel" << std::endl;
 		// channel
+		_channels[target]->sendToAll(user->getNickname() + " PRIVMSG " + target + " :" + message);
 	}
 	else
 	{
