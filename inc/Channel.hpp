@@ -9,12 +9,13 @@
 
 class Server;
 class User;
+
 class Channel
 {
     private:
         std::string                 _name; // channel name
         std::string                 _pwd; // channel password
-        std::map<std::string, int>  _users; // users in channel with fd's
+        std::map<std::string, User>  _users; // users in channel with fd's
         std::vector<std::string>    _bans; // banned users
         std::vector<std::string>    _old_messages; // all messages in channel
         std::map<std::string, bool> _modes; // channel modes
@@ -23,6 +24,7 @@ class Channel
         int                         _limit; // channel limit if mode +l is set
 
     public:
+        Channel(void);
         Channel(User user, std::string name);
         Channel(User user, std::string name, std::string password);
         Channel(const Channel &copy);
@@ -31,7 +33,7 @@ class Channel
         Channel &operator=(const Channel &copy);
 
         std::string getName() const;
-        std::map<std::string, int> getUsers() const;
+        std::map<std::string, User> getUsers() const;
         std::vector<std::string> getBans() const;
         std::vector<std::string> getOldMessages() const;
         std::map<std::string, bool> getModes() const;
@@ -47,6 +49,7 @@ class Channel
         void setTopic(std::string topic);
         void setOldMessages(std::string old_messages);
         void setModes(std::string modes, bool value);
+        void setUsersMode(std::string user, std::string mode, int action);
         void setOperator(User users);
         void setLimit(int limit);
         void setPwd(std::string pwd);
@@ -66,10 +69,10 @@ class Channel
         void clearOldMessages();
         void clearModes();
         void clearOperators();
-
-        void sendToAll(std::string message, Server &server);
         bool checkUserIsOperatorOnChannel(std::string user);
         std::string getChannelMode();
+        void sendToAll(std::string message);
+        void sendToAllSaufALui( std::string user, std::string message);
 };
 
 #endif

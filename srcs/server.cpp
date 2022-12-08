@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/07 16:46:30 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/08 12:00:24 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 
 Server::Server() {}
 
-Server::Server(std::string port, std::string password)
+Server::Server(std::string port, std::string password) : _hostname("localhost")
 {
     _port = port;
     _password = password;
@@ -334,7 +334,8 @@ void	Server::deleteUser(pollfd_iterator &it)
         User	*user = this->_users.at(it->fd);
         int		fd = user->getFd();
 
-        close(fd);
+        if (fd != -1)
+            close(fd);
         _pollfds.erase(it);
         _users.erase(fd);
         delete user;
@@ -344,3 +345,24 @@ void	Server::deleteUser(pollfd_iterator &it)
         std::cout << "Out of range from deleteUser" << std::endl;
     }
 }
+
+// la special pour mderome
+// std::map<int, User *> &Server::splitStrToMap(std::string str, std::string sep)
+// {
+//     std::map<int, User *> map;
+//     std::string::size_type pos1, pos2;
+//     int i = 0;
+
+//     pos2 = str.find(sep);
+//     pos1 = 0;
+//     while (std::string::npos != pos2)
+//     {
+//         map.insert(std::pair<int, User *>(i, new User(str.substr(pos1, pos2 - pos1))));
+//         pos1 = pos2 + sep.size();
+//         pos2 = str.find(sep, pos1);
+//         i++;
+//     }
+//     if (pos1 != str.length())
+//         map.insert(std::pair<int, User *>(i, new User(str.substr(pos1))));
+//     return (map);
+// }

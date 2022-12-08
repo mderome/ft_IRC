@@ -1,5 +1,6 @@
 #include "../inc/user.hpp"
 #include "../inc/server.hpp"
+#include "../inc/utils.hpp"
 
 // CONNECTION  COMMANDES
 void	Server::_indexingCmd(){
@@ -8,15 +9,14 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("NICK", &Server::_nickCmd));
 	_indexCmd.insert(std::pair<std::string, func>("CAP", &Server::_caplsCmd));
 	_indexCmd.insert(std::pair<std::string, func>("PING", &Server::_pingCmd));
-	//_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
+	_indexCmd.insert(std::pair<std::string, func>("QUIT", &Server::_quitCmd));
+	_indexCmd.insert(std::pair<std::string, func>("JOIN", &Server::_joinCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("PRIVMSG", &Server::_privmsgCmd));
+	_indexCmd.insert(std::pair<std::string, func>("PRIVMSG", &Server::_privmsgCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MODE", &Server::_modeCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
-
 }
 
 void	Server::chooseCmd(User *user)
@@ -118,8 +118,8 @@ void	Server::_passCmd(User *user, std::string param)
 		return (user->sendReply(ERR_PASSWDMISMATCH(user->getNickname())));
 	}
 	user->setPassword(true);
-	if (user->getNickname().length() && user->getUsername().length())
-		user->welcome();
+	// if (user->getNickname().length() && user->getUsername().length())
+	// 	user->welcome();
 }
 
 void	Server::_nickCmd(User *user, std::string param)
@@ -136,15 +136,42 @@ void	Server::_nickCmd(User *user, std::string param)
 			return (user->sendReply(ERR_NICKCOLLISION()));
 	}
 	user->setNickname(param);
-	if (user->getUsername().length() && user->getPassword() && !user->hasBeenWelcomed())
-		user->welcome();
+	// if (user->getUsername().length() && user->getPassword() && !user->hasBeenWelcomed())
+	// 	user->welcome();
 }
 
-void	Server::_quitCmd(User *user, std::string param){
-	// pas de parsing a faire
-	std::cout << user->getMessage() << std::endl;
-	std::cout << param << std::endl;
+void	Server::_quitCmd(User *user, std::string param)
+{
+	if (param.empty())
+		param = "No reason given by user";
+	
+	for (users_iterator it = _users.begin(); it != _users.end(); ++it)
+	{
+		if (it->second->getNickname() != user->getNickname())
+			it->second->sendReply(":" + user->getNickname() + "!d@" + _hostname + " QUIT :Quit: " + param + ";\n" + user->getNickname() + " is exiting the network with the message: \"Quit: " + param + "\"");
+	}
+	// user->sendReply(":" + user->getNickname() + "!d@" + _hostname + " QUIT :Quit: " + param + ";\n" + user->getNickname() + " is exiting the network with the message: \"Quit: " + param + "\"");
+	try
+	{
+		int	fd = user->getFd();
+		close(fd);
+		for (pollfd_iterator it = _pollfds.begin(); it != _pollfds.end(); ++it)
+		{
+			if (fd == it->fd)
+			{
+				_pollfds.erase(it);
+				break;
+			}
+		}
+		_users.erase(fd);
+		delete user;
+		std::cout << "Disconnecting user on socket " << fd << std::endl;
+	}
+	catch (const std::out_of_range &e) {}
 }
+	// // pas de parsing a faire
+	// std::cout << user->getMessage() << std::endl;
+	// std::cout << param << std::endl;
 
 void	Server::_pingCmd(User *user, std::string param){
 	if (param.empty())
@@ -154,15 +181,38 @@ void	Server::_pingCmd(User *user, std::string param){
 	user->sendReply(RPL_PONG(user->getNickname(), param));
 }
 
-
-// void	Server::_pingCmd(User *user, std::string param){
-// 	std::cout << user->getMessage() << std::endl;
-// 	if (param.empty())
-// 		return ; //ERR_NEEDMOREPARAMS
-// 	if (param != _hostname)
-// 		return ; // ERR_NOSUCHSERVER
-// 	// reply msg to RPL_PONG (nickname user,_hostname)
-// }
+void	Server::_privmsgCmd(User *user, std::string param){
+	if (param.empty())
+		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
+	std::string	target = param.substr(0, param.find(' '));
+	std::string	message = param.substr(param.find(' ') + 1);
+	if (message[0] != ':')
+		return (user->sendReply(ERR_NORECIPIENT(user->getNickname())));
+	message = message.substr(1);
+	if (target[0] == '#')
+	{
+		std::cout << "channel" << std::endl;
+		// channel
+		_channel[target].sendToAllSaufALui(user->getNickname() ,":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n");
+	}
+	else
+	{
+		std::cout << "user" << std::endl;
+		// user
+		for (std::map<int, User *>::iterator it = _users.begin(); it != _users.end(); ++it)
+		{
+			std::cout << "target : " << target << std::endl;
+			if (it->second->getNickname() == target)
+			{
+				std::string buf = ":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n";
+				it->second->sendReply(buf);
+				// send(it->first, buf.c_str(), buf.length(), 0);
+				std::cout << YELLOW "sent to " << it->second->getNickname() << END << std::endl;
+				return ;
+			}
+		}
+	}
+}
 
 // void	Server::_operCmd(User *user, std::string param){
 // 	// split param pour avoir name et password | Parameters: <name> <password>
@@ -177,17 +227,50 @@ void	Server::_pingCmd(User *user, std::string param){
 // 	// avoir une fonction qui ajoute un operator a un channel
 // }
 
+void	Server::_joinCmd(User *user, std::string param)
+{
+	User test = *(user);
+	std::map<std::string, std::string>	joinChannel;
+	std::vector<std::string>			channel;
+	std::vector<std::string>			Pasword;
+
+	if (!param.size())
+		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
+	channel = splitov(param, ',');
+	std::vector<std::string>::iterator it = channel.begin();
+	Pasword = splitov(param, ',');
+	//std::vector<std::string>::iterator itpass = Pasword.begin();
+	for (; it != channel.end(); it++)
+	{
+		std::string	content = *it;
+		if (_channel.find(content) != _channel.end()){
+			if (content.c_str()[0] != '#' && content.c_str()[0] != '&')
+				return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), content)));
+			else
+			{
+				_channel.find(content)->second.addUser(test);
+				std::cout << "this channel exist\n";
+			}
+		}
+		else 
+		{
+			_channel.insert(std::pair<std::string, Channel>(content, Channel(test, content)));
+			std::cout << "channel create" << std::endl;
+			_channel[content].setUsersMode(test.getNickname(), std::string("o"), 1);
+		}
+	}
+	return ;
+}
+
 void	Server::_who(User *user, std::string param){
 	if (!user->hasBeenWelcomed())
 		return;
 	try{
-		Channel *channel = _channels.at(param);
-		User	*tmp;
-		std::map<std::string, int> channel_users = channel->getUsers();
+		Channel channel = _channel.at(param);
+		std::map<std::string, User> channel_users = channel.getUsers();
 
-		for (std::map<std::string, int>::iterator it = channel_users.begin(); it != channel_users.end(); it++){
-			tmp = _users.at(it->second);
-			user->sendReply(RPL_WHOREPLY(user->getNickname(), param, tmp->getUsername(), tmp->getHostname(), tmp->getServer(), tmp->getNickname(), "", "", tmp->getRealname()));
+		for (std::map<std::string, User>::iterator it = channel_users.begin(); it != channel_users.end(); it++){
+			user->sendReply(RPL_WHOREPLY(user->getNickname(), param, it->second.getUsername(), it->second.getHostname(), it->second.getServer(), it->second.getNickname(), "", "", it->second.getRealname()));
 		}
 	}
 	catch (const std::out_of_range &e){
@@ -216,9 +299,9 @@ void	Server::_topic(User *user, std::string param){
 }
 
 void	Server::changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel){
-	if (isChannel && _channels[target]->checkUserIsOperatorOnChannel(user->getNickname()))
-		_channels[target]->setModes(mode, value);
-	else if (isChannel && !_channels[target]->checkUserIsOperatorOnChannel(user->getNickname()))
+	if (isChannel && _channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
+		_channel[target].setModes(mode, value);
+	else if (isChannel && !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
 		return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), target)));
 	else
 		user->setModes(mode, value);
@@ -239,7 +322,7 @@ void	Server::_modesCmd(User *user, std::string param){
 	}
 	else{
 		if (isChannel)
-			return(user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channels[target]->getChannelMode(), "")));
+			return(user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channel[target].getChannelMode(), "")));
 		else if (!isChannel && user->getNickname() == target)
 			return(user->sendReply(RPL_UMODEIS(user->getNickname(), user->getUserMode())));
 	}

@@ -2,7 +2,7 @@
 
 bool    Server::checkChannelExistOnNetwork(std::string channel){
 	try{
-		_channels.at(channel);
+		_channel.at(channel);
 		return (true);
 	}
 	catch(const std::out_of_range &e){

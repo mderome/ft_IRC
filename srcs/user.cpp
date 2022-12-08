@@ -26,6 +26,11 @@ User::User(int userFd, struct sockaddr_storage *userAddr) : _nickname(""), _host
     _modes.insert(std::pair<std::string, bool>("w", false));
 }
 
+User::User(const User &cpy)
+{
+	*this = cpy;
+}
+
 User::~User() {}
 
 void	User::setUsername(std::string username){
