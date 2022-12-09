@@ -163,7 +163,8 @@ void Channel::setPwd(std::string pwd)
 
 void Channel::removeUser(User *user)
 {
-    _users.erase(user->getNickname());
+    std::string tmp = user->getNickname();
+    _users.erase(tmp);
 }
 
 void Channel::removeBan(std::string ban)

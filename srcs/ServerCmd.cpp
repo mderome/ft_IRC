@@ -442,9 +442,9 @@ void	Server::_kickCmd(User *user, std::string param)
 {
 	std::map<std::string, bool>	tmp = user->getModes();
 	std::map<std::string, bool>::iterator it_mode = tmp.begin();
-	while (it_mode->first != "0")
+	while (it_mode != tmp.end() && it_mode->first != "0")
 		it_mode++;
-	if (it_mode->second != true)
+	if (it_mode != tmp.end() && it_mode->second != true)
 		return(user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), user->getUserMode())));
 	else
 	{
@@ -459,7 +459,10 @@ void	Server::_kickCmd(User *user, std::string param)
 			for (std::map<std::string, Channel>::iterator it_chan = _channel.begin() ; it_chan != _channel.end(); it_chan++)
 			{
 				if (it_chan->first == channel)
-					it_chan->second.removeUser(it_chan->second.getUsers()[target]);
+				{
+					User *tmp = it_chan->second.getUsers()[target];
+					it_chan->second.removeUser(tmp);
+				}
 			}
 		}
 	}
