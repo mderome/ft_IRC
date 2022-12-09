@@ -15,10 +15,10 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("MODE", &Server::_modeCmd));
 	_indexCmd.insert(std::pair<std::string, func>("WHO", &Server::_whoCmd));
 	_indexCmd.insert(std::pair<std::string, func>("NOTICE", &Server::_noticeCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
+	_indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("LIST", &Server::_listCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
+	_indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
 }
 
@@ -232,7 +232,6 @@ void	Server::_privmsgCmd(User *user, std::string param){
 
 void	Server::_joinCmd(User *user, std::string param)
 {
-	User test = *(user);
 	std::map<std::string, std::string>	joinChannel;
 	std::vector<std::string>			channel;
 	std::vector<std::string>			Pasword;
@@ -242,7 +241,7 @@ void	Server::_joinCmd(User *user, std::string param)
 	channel = splitov(param, ',');
 	std::vector<std::string>::iterator it = channel.begin();
 	Pasword = splitov(param, ',');
-	//std::vector<std::string>::iterator itpass = Pasword.begin();
+	std::vector<std::string>::iterator itpass = Pasword.begin();
 	for (; it != channel.end(); it++)
 	{
 		std::string	content = *it;
@@ -251,15 +250,33 @@ void	Server::_joinCmd(User *user, std::string param)
 				return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), content)));
 			else
 			{
-				_channel.find(content)->second.addUser(test);
-				std::cout << WHITE "User <" << test.getNickname() << "> has joined <" << _channel[content].getName() << "> channel!" END << std::endl;
+				if (*itpass == _channel[content].getPwd())
+				{
+					_channel.find(content)->second.addUser(user);
+					std::cout << WHITE "User <" << user->getNickname() << "> has joined <" << _channel[content].getName() << "> channel!" END << std::endl;
+					itpass++;
+				}
+				else
+					return (user->sendReply(ERR_BADCHANNELKEY(user->getNickname(), content)));
 			}
 		}
 		else 
 		{
-			_channel.insert(std::pair<std::string, Channel>(content, Channel(test, content)));
+			_channel.insert(std::pair<std::string, Channel>(content, Channel(user, content)));
 			std::cout << WHITE "Channel <" << _channel[content].getName() << "> has been created" END << std::endl;
-			_channel[content].setUsersMode(test.getNickname(), std::string("o"), 1);
+			_channel[content].setUsersMode(user->getNickname(), std::string("o"), 1);
+			std::map<std::string, bool> checkbool = user->getModes();
+			std::map<std::string, bool>::const_iterator itbool = checkbool.begin();
+			bool check;
+			while (itbool != checkbool.end())
+			{
+				if (itbool->first == "o")
+				{
+					check = itbool->second;
+				}
+				itbool++;
+			}
+			std::cout << WHITE "User : " RED << user->getNickname() << WHITE " is operator? : " RED << check << std::endl; 
 		}
 	}
 	return ;
@@ -270,10 +287,10 @@ void	Server::_whoCmd(User *user, std::string param){
 		return;
 	try{
 		Channel channel = _channel.at(param);
-		std::map<std::string, User> channel_users = channel.getUsers();
+		std::map<std::string, User *> channel_users = channel.getUsers();
 
-		for (std::map<std::string, User>::iterator it = channel_users.begin(); it != channel_users.end(); it++){
-			user->sendReply(RPL_WHOREPLY(user->getNickname(), param, it->second.getUsername(), it->second.getHostname(), it->second.getServer(), it->second.getNickname(), "", "", it->second.getRealname()));
+		for (std::map<std::string, User*>::iterator it = channel_users.begin(); it != channel_users.end(); it++){
+			user->sendReply(RPL_WHOREPLY(user->getNickname(), param, it->second->getUsername(), it->second->getHostname(), it->second->getServer(), it->second->getNickname(), "", "", it->second->getRealname()));
 		}
 	}
 	catch (const std::out_of_range &e){
@@ -413,3 +430,56 @@ void	Server::_noticeCmd(User *user, std::string param)
 		}
 	}
 }
+
+void	Server::_kickCmd(User *user, std::string param)
+{
+	std::map<std::string, bool>	tmp = user->getModes();
+	std::map<std::string, bool>::iterator it_mode = tmp.begin();
+	while (it_mode->first != "0")
+		it_mode++;
+	if (it_mode->second != true)
+		return(user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), user->getUserMode())));
+	else
+	{
+		std::string channel = param.substr(0, param.find(' '));
+		std::string target = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
+		std::string comment = param.substr(param.find(' ', param.find(' ') + 1) + 1, param.find(' ', param.find(' ', param.find(' ') + 1) + 1) - param.find(' ', param.find(' ') + 1) - 1);
+		std::vector<std::string> multi_target = splitov(target, ',');
+
+		std::vector<std::string>::iterator it_target = multi_target.begin();
+		for (; it_target != multi_target.end(); it_target++)
+		{
+			for (std::map<std::string, Channel>::iterator it_chan = _channel.begin() ; it_chan != _channel.end(); it_chan++)
+			{
+				if (it_chan->first == channel)
+					it_chan->second.removeUser(it_chan->second.getUsers()[target]);
+			}
+		}
+	}
+}
+
+void	Server::_partCmd(User *user, std::string param)
+{
+	std::vector<std::string> multi_target = splitov(param, ',');
+	std::vector<std::string>::iterator it_target = multi_target.begin();
+	for (; it_target != multi_target.end(); it_target++)
+	{
+		std::map<std::string, Channel>::iterator it_chan = _channel.begin();
+		for (; it_chan != _channel.end(); it_chan++)
+		{
+			if (it_chan->first == *it_target)
+			{
+				it_chan->second.removeUser(user);
+				it_chan->second.sendToAll(RPL_PART(user->getNickname(), it_chan->second.getName(), " has lef channel.\r\n"));
+				break ;
+			}
+		}
+		if (it_chan == _channel.end())
+			return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), it_chan->second.getName())));
+	}
+}
+
+// void	Server::_inciteCmd(User *user, std::string param)
+// {
+
+// }

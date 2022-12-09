@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mderome <mderome@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/08 19:54:18 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 13:47:34 by mderome          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,8 @@ class Server
         void    _joinCmd(User *user, std::string param);
         // void    _listCmd(User *user, std::string param);
         void    _noticeCmd(User *user, std::string param);
+        void	_kickCmd(User *user, std::string param);
+        void	_partCmd(User *user, std::string param);
 
         bool    checkChannelExistOnNetwork(std::string channel);
         bool    checkUserExistOnNetwork(std::string user);
