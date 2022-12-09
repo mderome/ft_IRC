@@ -299,29 +299,91 @@ void	Server::_topicCmd(User *user, std::string param){
 	// finir la fonction
 }
 
-void	Server::changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel){
-	if (isChannel && _channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
+void	Server::changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel, std::vector<std::string> *modearg){
+	if (isChannel && _channel[target].checkUserIsOperatorOnChannel(user->getNickname())){
 		_channel[target].setModes(mode, value);
+		switch(mode[0]){
+			case 'b':
+				if (value){
+					std::map<std::string, User> users = _channel[target].getUsers();
+					for (std::map<std::string, User>::iterator it = users.begin(); it != users.end(); it++){
+						if ((*modearg)[0] == it->first)
+							_channel[target].addBan(it->second);
+					}
+				}
+				else
+					_channel[target].removeBan((*modearg)[0]);
+				(*modearg).erase((*modearg).begin(), (*modearg).begin());
+				break;
+			case 'w':
+				if (value){
+					_channel[target].setPwd((*modearg)[0]);
+				}
+			default:
+				break;
+		}
+	}
 	else if (isChannel && !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
 		return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), target)));
-	else
+	else{
 		user->setModes(mode, value);
+	}
+}
+
+static bool	parse_mode(std::string *target, std::vector<std::pair<std::string, bool> > *modestring, std::vector<std::string> *modearg, std::string *param, bool *isChannel){
+	if ((*param)[0] == '#' || (*param)[0] == '&'){
+		*isChannel = true;
+	}
+	for (uint it = 0; it < 3; it++){
+		if (it == 0 && (*param).find(' ') != std::string::npos && (*param).find(' ') + 1 != std::string::npos){
+			if (*isChannel){
+				*target = (*param).substr(0, (*param).find(' '));
+			}
+			else{
+				*target = (*param).substr(0, (*param).find(' '));
+				std::cout << "2" << std::endl;
+
+			}
+			(*param) = (*param).substr((*param).find(' ') + 1, (*param).length());
+		}
+		else if (it == 0 && (*param).find(' ') == std::string::npos){
+			*target = (*param);
+			return (false);
+		}
+		else if (it == 1){
+			uint i = 0;
+			int state = 0;
+			for (std::string::iterator it = (*param).begin(); *it != ' ' && it != (*param).end();it++){
+				if (*it == '+')
+					state = 1;
+				else if (*it == '-')
+					state = -1;
+				else if (*it != '-' && *it != '+' && state == 1)
+					(*modestring).push_back(std::make_pair(std::string(1, *it), true));
+				else if (*it != '-' && *it != '+' && state == -1)
+					(*modestring).push_back(std::make_pair(std::string(1, *it), false));
+				else
+					break;
+				i++;
+			}
+			if ((*param)[i] != 0 && (*param)[i] == ' ' && (*param)[i + 1] != 0)
+				(*param) = (*param).substr(i + 1, (*param).length());
+			else
+				break;
+		}
+		else if (it == 2)
+			*modearg = splitov((*param), ' ');
+	}
+	return (true);
 }
 
 void	Server::_modeCmd(User *user, std::string param){
-	std::string target = param;
+	std::string target;
+	std::vector<std::pair<std::string, bool> > modestring;
+	std::vector<std::string> modearg;
 	bool		isChannel = false;
 
-	if (param[0] == '#' || param[0] == '&')
-		isChannel = true;
-	if (param.find(' ') != std::string::npos){
-		if (isChannel)
-			target = param.substr(1, param.find(' '));
-		else
-			target = param.substr(0, param.find(' '));
-		param = param.substr(param.find(' '), param.length());
-	}
-	else{
+	if (!parse_mode(&target, &modestring, &modearg, &param, &isChannel)){
 		if (isChannel)
 			return(user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channel[target].getChannelMode(), "")));
 		else if (!isChannel && user->getNickname() == target)
@@ -333,17 +395,8 @@ void	Server::_modeCmd(User *user, std::string param){
 		return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(),target)));
 	else if (!isChannel && user->getNickname() != target)
 		return(user->sendReply(ERR_USERSDONTMATCH(user->getNickname())));
-	for (uint  it = 0; it != param.length(); it++){
-		if (param[it] == '-' && param[it] == '+'){
-			uint it2 = it;
-			while (param[it2] != 0 || (param[it2] != '+' && param[it2] != '-')){
-				it2++;
-			}
-			if (it2 > it && param[it] == '-')
-				changeModes(user, target,param.substr(it + 1, it2), false, isChannel);
-			else if (it2 > it && param[it] == '+')
-				changeModes(user, target,param.substr(it + 1, it2), true, isChannel);
-		}
+	for (std::vector<std::pair<std::string, bool> >::iterator it = modestring.begin(); it != modestring.end(); it++){
+		changeModes(user, target, it->first, it->second, isChannel, &modearg);
 	}
 }
 

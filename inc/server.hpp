@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 11:36:35 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 15:20:04 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ class Server
 
         bool    checkChannelExistOnNetwork(std::string channel);
         bool    checkUserExistOnNetwork(std::string user);
-        void	changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel);
+        void	changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel, std::vector<std::string> *modearg);
         void	_modeCmd(User *user, std::string param);
 };
 

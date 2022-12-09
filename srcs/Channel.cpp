@@ -2,7 +2,7 @@
 
 Channel::Channel(void)
 {
-    _limit = 0;
+    _limit = 100;
     _modes.insert(std::pair<std::string, bool>("m", false));
     _modes.insert(std::pair<std::string, bool>("n", false));
     _modes.insert(std::pair<std::string, bool>("p", false));
