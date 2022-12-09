@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 11:36:35 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 13:38:32 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <cstdlib>
 # include <sstream> // std::stringstream
 # include <unistd.h>
+# include <signal.h>
 
 # include <poll.h>
 # include <sys/types.h>
@@ -40,6 +41,7 @@ class Server
 {
     typedef std::vector<pollfd>::iterator pollfd_iterator;
 	typedef std::map<int, User *>::iterator users_iterator;
+    typedef std::map<std::string, Channel>::iterator channel_iterator;
     typedef void (Server::*func)(User *, std::string);
 
     public:
@@ -93,6 +95,8 @@ class Server
         bool    checkUserExistOnNetwork(std::string user);
         void	changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel);
         void	_modeCmd(User *user, std::string param);
+
+        void    clean(void);
 };
 
 #endif

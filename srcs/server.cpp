@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/08 12:00:24 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 13:52:49 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 #include <netinet/in.h>
 #include <poll.h>
 #include "../inc/returncode.hpp"
+
+bool    run;
 
 Server::Server() {}
 
@@ -150,18 +152,12 @@ void    Server::serverStart(void)
     this->_pollfds.push_back(serverFd); // Add serverFd to pollfds vector 
 
     std::cout << CYAN "Waiting for clients..." END << std::endl;
-
-    while (1)
+    while (run)
     {
         // int pollResult = poll(&serverFd, 1, -1); // initially
         // get vector array and throw it to poll
         pollResult = poll(this->_pollfds.data(), this->_pollfds.size(), -1); // poll() waits for an event concerning fd. "-1" is to wait indefinitely
-        if (pollResult == -1)
-        {
-            std::cerr << "Error: poll()" << std::endl;
-            exit(1);
-        }
-        else {
+        if (pollResult != -1){
             for (pollfd_iterator it = this->_pollfds.begin(); it != this->_pollfds.end(); it++)
             {
                 // std::cout << GREEN "=== poll() success" END << std::endl;
@@ -199,6 +195,9 @@ void    Server::serverStart(void)
             }
         }
     }
+    std::cout << GREEN "Server stopped successfully" END << std::endl;
+    std::cout << "Rune equals : " << run << std::endl;
+    clean();
 }
 
 void    Server::acceptNewConnection(void)
@@ -366,3 +365,28 @@ void	Server::deleteUser(pollfd_iterator &it)
 //         map.insert(std::pair<int, User *>(i, new User(str.substr(pos1))));
 //     return (map);
 // }
+
+void    Server::clean(void)
+{
+    // for (channel_iterator it = _channel.begin(); it != _channel.end(); ++it)
+    // {
+    //     delete it->second;
+    // }
+    for (std::map<int, User *>::iterator it = _users.begin(); it != _users.end(); ++it)
+    {
+        // if (it->first != _sockfd)
+        // {
+            // close(it->first);
+            // _users.erase(it);
+            delete it->second;
+        // }
+    }
+    for (pollfd_iterator it = _pollfds.begin(); it != _pollfds.end(); ++it)
+    {
+        // if (it->fd != _sockfd)
+        // {
+            close(it->fd);
+            // _pollfds.erase(it);
+        // }
+    }
+}
