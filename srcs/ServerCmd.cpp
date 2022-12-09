@@ -19,6 +19,7 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
 	_indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
+	_indexCmd.insert(std::pair<std::string, func>("KILL", &Server::_killCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
 }
 
@@ -413,19 +414,7 @@ void	Server::_noticeCmd(User *user, std::string param)
 	target = target.substr(start, target.find_last_not_of(" ") - start + 1);
 	if (target[0] == '#' || target[0] == '&')
 	{
-		std::cout << "channel" << std::endl;
-		// channel
-	 	// _channel[target].sendToAll(":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + msg + "\r\n");
-		_channel[target].sendToAll(":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + msg + "\r\n");
-		// try
-		// {
-		// 	Channel	*channel = _channel.at(target);
-
-		// 	if (!channel->userIsIn(user) && channel->isNoOutside())
-		// 		return;
-		// 	channel->privmsg(user, msg);
-		// }
-		// catch (const std::out_of_range &e) {}
+	 	_channel[target].sendToAll(":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + msg + "\r\n");
 	}
 	else
 	{
@@ -490,3 +479,30 @@ void	Server::_partCmd(User *user, std::string param)
 // {
 
 // }
+
+void	Server::_killCmd(User *user, std::string param)
+{
+	std::string target = param.substr(0, param.find(' '));
+	std::string comment = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
+	std::map<int, User*>::iterator it = _users.begin();
+	for (; it != _users.end(); it++)
+	{
+		if (it->second->getNickname() == target)
+		{
+			it->second->sendReply(":" + user->getNickname() + " KILL " + target + " :" + comment + "\r\n");
+			_channel[target].sendToAll(":" + user->getNickname() + " KILL " + target + " :" + comment + "\r\n");
+			_closeConnection(user);
+			// if (_channel.size() > 0)
+			// {
+				// for (std::map<std::string, Channel>::iterator it_channel = _channel.begin() ; it_channel != _channel.end(); it_channel++)
+				// {
+					// it_channel->second.sendToAll(":" + user->getNickname() + " KILL " + target + " :" + comment + "\r\n");
+					// it_channel->second.removeUser(it->second);
+				// }
+			// }
+			break ;
+		}
+	}
+	if (it == _users.end())
+		return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(), target)));
+}

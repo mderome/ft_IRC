@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 14:01:55 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 14:34:44 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,8 +194,7 @@ void    Server::_serverStart(void)
             }
         }
     }
-    std::cout << GREEN "Server stopped successfully" END << std::endl;
-    std::cout << "Rune equals : " << run << std::endl;
+    std::cout << std::endl << GREEN "Server stopped successfully" END << std::endl;
     _clean();
 }
 
