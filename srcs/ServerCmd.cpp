@@ -241,7 +241,15 @@ void	Server::_joinCmd(User *user, std::string param)
 		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
 	channel = splitov(param, ',');
 	std::vector<std::string>::iterator it = channel.begin();
-	Pasword = splitov(param, ',');
+	if (param.find(' ') != std::string::npos)
+	{
+		std::string shit = param.substr(param.find(' '), param.length());
+		Pasword = splitov(shit, ',');
+	}
+	else
+	{
+		Pasword.push_back("");
+	}
 	std::vector<std::string>::iterator itpass = Pasword.begin();
 	for (; it != channel.end(); it++)
 	{
@@ -251,11 +259,14 @@ void	Server::_joinCmd(User *user, std::string param)
 				return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), content)));
 			else
 			{
-				if (*itpass == _channel[content].getPwd())
+				std::cout << "length = " << itpass->length() << std::endl;
+				std::cout << "c koi = " << *itpass << std::endl;
+				if (*itpass == _channel[content].getPwd() || itpass->length() == 0)
 				{
 					_channel.find(content)->second.addUser(user);
 					std::cout << WHITE "User <" << user->getNickname() << "> has joined <" << _channel[content].getName() << "> channel!" END << std::endl;
-					itpass++;
+					if (itpass != Pasword.end())
+						itpass++;
 				}
 				else
 					return (user->sendReply(ERR_BADCHANNELKEY(user->getNickname(), content)));
