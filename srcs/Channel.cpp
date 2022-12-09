@@ -294,3 +294,18 @@ bool	Channel::userIsIn(User *user)
 	}
 	return (true);
 }
+
+void	Channel::callPrivmsg(User *user, std::string msg)
+{
+	std::string	nick = user->getNickname();
+
+	// if (_mode.find('m') != std::string::npos && !userIsOperator(user) && !userIsModerate(user))
+	// 	return (user->sendReply(ERR_CANNOTSENDTOCHAN(_name)));
+	// for (users_iterator it = _users.begin(); it != _users.end(); ++it)
+	// {
+    //     // if 
+	// 	// if (it->second->getNickname() != user->getNickname())
+	// 	// 	it->second->sendReply(":" + user->getNickname() + "@IRC PRIVMSG " + nick + " :" + msg + "\r\n");
+	// }
+    user->sendReply(":" + user->getNickname() + "@IRC PRIVMSG " + nick + " :" + msg + "\r\n");
+}

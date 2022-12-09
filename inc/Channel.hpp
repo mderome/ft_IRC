@@ -8,6 +8,7 @@ class User;
 
 class Channel
 {
+    typedef std::map<std::string, User>::iterator users_iterator;
     private:
         std::string                 _name; // channel name
         std::string                 _pwd; // channel password
@@ -71,6 +72,7 @@ class Channel
         void sendToAllSaufALui( std::string user, std::string message);
 
         bool userIsIn(User *user);
+        void callPrivmsg(User *user, std::string msg);
 };
 
 #endif
