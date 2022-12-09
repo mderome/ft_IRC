@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 14:34:44 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 15:46:20 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -334,6 +334,7 @@ void	Server::_deleteUser(pollfd_iterator &it)
         if (fd != -1)
             close(fd);
         _pollfds.erase(it);
+        _channel[_users[fd]->getNickname()].removeUser(_users[fd]);
         _users.erase(fd);
         delete user;
         std::cout << "Disconnecting user on socket " << fd << std::endl;

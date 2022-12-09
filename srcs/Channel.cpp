@@ -255,11 +255,13 @@ void Channel::sendToAllSaufALui( std::string user, std::string message)
     {
         if (it->first != user)
         {
-            int n = send(it->second->getFd(), message.c_str(), message.length(), 0);
-            std::cout << "send " << n << " bytes" << std::endl;
-            std::cout << "send " << message << std::endl;
-            std::cout << "send " << message.length() << std::endl;
-            std::cout << "send fd: " << it->second->getFd() << std::endl;
+            if (it->second->getFd() == -1)
+                return;
+            send(it->second->getFd(), message.c_str(), message.length(), 0);
+            // std::cout << "send " << n << " bytes" << std::endl;
+            // std::cout << "send " << message << std::endl;
+            // std::cout << "send " << message.length() << std::endl;
+            // std::cout << "send fd: " << it->second->getFd() << std::endl;
         }
     }
 }
