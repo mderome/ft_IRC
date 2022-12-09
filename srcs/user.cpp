@@ -111,6 +111,11 @@ std::map<std::string, int> User::getOperator() const
     return (_operator);
 }
 
+std::map<std::string, bool> User::getModes() const
+{
+    return (_modes);
+}
+
 void	User::clearMessage(){
 	_message.clear();
 }

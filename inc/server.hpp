@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 14:00:21 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 14:06:25 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,8 @@ class Server
         void    _joinCmd(User *user, std::string param);
         void    _listCmd(User *user, std::string param);
         void    _noticeCmd(User *user, std::string param);
+        void	_kickCmd(User *user, std::string param);
+        void	_partCmd(User *user, std::string param);
 
         bool    _checkChannelExistOnNetwork(std::string channel);
         bool    _checkUserExistOnNetwork(std::string user);

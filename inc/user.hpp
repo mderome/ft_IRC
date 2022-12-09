@@ -34,6 +34,7 @@ class User
         bool		                getPassword(void) const;
         std::string                 getUser(void) const;
         std::map<std::string, int>  getOperator() const;
+        std::map<std::string, bool> getModes() const;
 
         void                        welcome(void);
         bool                        hasBeenWelcomed(void) const;
