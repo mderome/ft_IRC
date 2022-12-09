@@ -1,10 +1,6 @@
 #ifndef CHANEL_HPP
 #define CHANEL_HPP
 
-#include "user.hpp"
-#include <vector>
-#include <string>
-#include <map>
 #include "server.hpp"
 
 class Server;

@@ -15,8 +15,8 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("MODE", &Server::_modeCmd));
 	_indexCmd.insert(std::pair<std::string, func>("WHO", &Server::_whoCmd));
 	_indexCmd.insert(std::pair<std::string, func>("NOTICE", &Server::_noticeCmd));
+	_indexCmd.insert(std::pair<std::string, func>("LIST", &Server::_listCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("LIST", &Server::_listCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
@@ -349,32 +349,39 @@ void	Server::_modeCmd(User *user, std::string param){
 	}
 }
 
-// void	Server::_listCmd(User *user, std::string param)
-// {
-// 	// if (!user->hasBeenWelcomed)
-// 	// 	return ;	
-// 	if (param.empty())
-// 	{
-// 		for (std::map<std::string, Channel>::iterator it = _channel.begin(); it != _channel.end(); ++it)
-// 		{
-// 			std::string buf = ":" + _hostname + " 322 " + user->getNickname() + " " + it->first + " " + std::to_string(it->second.getUsers().size()) + " :" + it->second.getTopic() + "\r\n";
-// 			user->sendReply(buf);
-// 		}
-// 	}
-// 	else
-// 	{
-// 		std::vector<std::string> channels = splitov(param, ',');
-// 		for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it)
-// 		{
-// 			if (_channel.find(*it) != _channel.end())
-// 			{
-// 				std::string buf = ":" + _hostname + " 322 " + user->getNickname() + " " + *it + " " + std::to_string(_channel[*it].getUsers().size()) + " :" + _channel[*it].getTopic() + "\r\n";
-// 				user->sendReply(buf);
-// 			}
-// 		}
-// 	}	
-// 	user->sendReply(":" + _hostname + " 323 " + user->getNickname() + " :End of /LIST\r\n");
-// }
+void	Server::_listCmd(User *user, std::string param)
+{
+	// if (!user->hasBeenWelcomed)
+	// 	return ;	
+	if (param.empty())
+	{
+		for (std::map<std::string, Channel>::iterator it = _channel.begin(); it != _channel.end(); ++it)
+		{
+			std::stringstream ss;
+			ss << it->second.getUsers().size();
+			std::string userSize = ss.str();
+			std::string buf = ":" + _hostname + " 322 " + user->getNickname() + " " + it->first + " " + userSize + " :" + it->second.getTopic() + "\r\n";
+			user->sendReply(buf);
+		}
+	}
+	else
+	{
+		std::vector<std::string> channels = splitov(param, ',');
+		for (std::vector<std::string>::iterator it = channels.begin(); it != channels.end(); ++it)
+		{
+			if (_channel.find(*it) != _channel.end())
+			{
+				std::stringstream ss;
+				ss << _channel[*it].getUsers().size();
+				std::string channelUserSize = ss.str();
+				std::string buf = ":" + _hostname + " 322 " + user->getNickname() + " " + *it + " " + channelUserSize + " :" + _channel[*it].getTopic() + "\r\n";
+				user->sendReply(buf);
+			}
+		}
+	}	
+	user->sendReply(":" + _hostname + " 323 " + user->getNickname() + " :End of /LIST\r\n");
+}
+ 
 
 void	Server::_noticeCmd(User *user, std::string param)
 {

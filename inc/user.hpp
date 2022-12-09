@@ -5,7 +5,6 @@
 #include <string>
 
 #include "server.hpp" // for sockaddr_storage
-#include "./returncode.hpp"
 
 class User
 {

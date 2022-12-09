@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/08 19:54:18 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 11:05:39 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,9 @@
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <netdb.h>
-# include <string>
 # include <iostream>
+# include <sstream> // std::stringstream
+# include <string>
 # include <cstdlib>
 # include <unistd.h>
 
@@ -26,10 +27,9 @@
 #include <map>
 
 #include "user.hpp"
-#include "../inc/Channel.hpp"
-#include "color.hpp"
-#include "./returncode.hpp"
 #include "Channel.hpp"
+#include "color.hpp"
+#include "returncode.hpp"
 
 class User;
 class Channel;
@@ -73,7 +73,7 @@ class Server
         void    _topicCmd(User *user, std::string param);
         void    _privmsgCmd(User *user, std::string param);
         void    _joinCmd(User *user, std::string param);
-        // void    _listCmd(User *user, std::string param);
+        void    _listCmd(User *user, std::string param);
         void    _noticeCmd(User *user, std::string param);
 
         bool    checkChannelExistOnNetwork(std::string channel);
