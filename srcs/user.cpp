@@ -111,6 +111,8 @@ std::map<std::string, int> User::getOperator() const
     return (_operator);
 }
 
+
+
 std::map<std::string, bool> User::getModes() const
 {
     return (_modes);
@@ -164,4 +166,9 @@ std::string	User::getUserMode(){
             minus += it->second;
     }
     return (minus + plus);
+}
+
+void	User::addInvitation(std::string target)
+{
+	_isInvited.push_back(target);
 }

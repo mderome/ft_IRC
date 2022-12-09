@@ -6,9 +6,10 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 14:11:49 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 16:17:45 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
@@ -93,6 +94,7 @@ class Server
         void	_kickCmd(User *user, std::string param);
         void	_partCmd(User *user, std::string param);
         void    _killCmd(User *user, std::string param);
+        void	_inviteCmd(User *user, std::string param);
 
         bool    _checkChannelExistOnNetwork(std::string channel);
         bool    _checkUserExistOnNetwork(std::string user);

@@ -23,6 +23,7 @@ class User
         void                        setPassword(bool password);
         void                        setUser(std::string user);
         void                        setModes(std::string modes, bool value);
+        void	                    addInvitation(std::string target);
 
         std::string                 getUsername(void);
         std::string                 getNickname(void);
@@ -54,6 +55,7 @@ class User
         std::string                 _message;
         bool                        _password;
         bool                        _welcomed;
+        std::vector<std::string>    _isInvited;
 
         std::string                 _user;
         std::map<std::string, int>  _operator;

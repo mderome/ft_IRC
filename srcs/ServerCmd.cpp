@@ -18,8 +18,9 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("LIST", &Server::_listCmd));
 	_indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
-	_indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
 	_indexCmd.insert(std::pair<std::string, func>("KILL", &Server::_killCmd));
+	_indexCmd.insert(std::pair<std::string, func>("INVITE", &Server::_inviteCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
 }
 
@@ -438,35 +439,35 @@ void	Server::_noticeCmd(User *user, std::string param)
 	}
 }
 
-void	Server::_kickCmd(User *user, std::string param)
-{
-	std::map<std::string, bool>	tmp = user->getModes();
-	std::map<std::string, bool>::iterator it_mode = tmp.begin();
-	while (it_mode != tmp.end() && it_mode->first != "0")
-		it_mode++;
-	if (it_mode != tmp.end() && it_mode->second != true)
-		return(user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), user->getUserMode())));
-	else
-	{
-		std::string channel = param.substr(0, param.find(' '));
-		std::string target = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
-		std::string comment = param.substr(param.find(' ', param.find(' ') + 1) + 1, param.find(' ', param.find(' ', param.find(' ') + 1) + 1) - param.find(' ', param.find(' ') + 1) - 1);
-		std::vector<std::string> multi_target = splitov(target, ',');
+// void	Server::_kickCmd(User *user, std::string param)
+// {
+// 	std::map<std::string, bool>	tmp = user->getModes();
+// 	std::map<std::string, bool>::iterator it_mode = tmp.begin();
+// 	while (it_mode != tmp.end() && it_mode->first != "0")
+// 		it_mode++;
+// 	if (it_mode != tmp.end() && it_mode->second != true)
+// 		return(user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), user->getUserMode())));
+// 	else
+// 	{
+// 		std::string channel = param.substr(0, param.find(' '));
+// 		std::string target = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
+// 		std::string comment = param.substr(param.find(' ', param.find(' ') + 1) + 1, param.find(' ', param.find(' ', param.find(' ') + 1) + 1) - param.find(' ', param.find(' ') + 1) - 1);
+// 		std::vector<std::string> multi_target = splitov(target, ',');
 
-		std::vector<std::string>::iterator it_target = multi_target.begin();
-		for (; it_target != multi_target.end(); it_target++)
-		{
-			for (std::map<std::string, Channel>::iterator it_chan = _channel.begin() ; it_chan != _channel.end(); it_chan++)
-			{
-				if (it_chan->first == channel)
-				{
-					User *tmp = it_chan->second.getUsers()[target];
-					it_chan->second.removeUser(tmp);
-				}
-			}
-		}
-	}
-}
+// 		std::vector<std::string>::iterator it_target = multi_target.begin();
+// 		for (; it_target != multi_target.end(); it_target++)
+// 		{
+// 			for (std::map<std::string, Channel>::iterator it_chan = _channel.begin() ; it_chan != _channel.end(); it_chan++)
+// 			{
+// 				if (it_chan->first == channel)
+// 				{
+// 					User *tmp = it_chan->second.getUsers()[target];
+// 					it_chan->second.removeUser(tmp);
+// 				}
+// 			}
+// 		}
+// 	}
+// }
 
 void	Server::_partCmd(User *user, std::string param)
 {
@@ -489,10 +490,63 @@ void	Server::_partCmd(User *user, std::string param)
 	}
 }
 
-// void	Server::_inciteCmd(User *user, std::string param)
-// {
+void	Server::_inviteCmd(User *user, std::string param)
+{
+	std::string channel = param.substr(0, param.find(' '));
+	std::string target = param.substr(param.find(' ') + 1, param.length());
+	std::map<std::string, Channel>::iterator it_chan = _channel.begin();
+	for (; it_chan != _channel.end(); it_chan++)
+	{
+		if (it_chan->first == channel)
+		{
+			if (it_chan->second.userIsIn(user))
+			{
+				std::map<std::string, bool> map_node = it_chan->second.getModes();
+				bool check_invite = map_node["i"];
+				if (check_invite == true)
+				{
+					std::map<std::string, bool> user_node = user->getModes();
+					bool check_priv = user_node["o"];
+					if (check_priv == true)
+					{
+						std::map<int, User *>::iterator it_user = _users.begin();
+						for(; it_user != _users.end(); it_user++)
+						{
+							if (it_user->second->getNickname() == target)
+							{
+								it_user->second->addInvitation(target);
+								return (user->sendReply(RPL_INVITING(user->getNickname(), target, channel)));
+							}
+							else
+								return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(), target)));
+						}
+					}
+					else
+						return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), channel)));
+				}
+				else
+				{
+					std::map<int, User *>::iterator it_user = _users.begin();
+					for(; it_user != _users.end(); it_user++)
+					{
+						if (it_user->second->getNickname() == target)
+						{
+							it_user->second->addInvitation(target);
+							return (user->sendReply(RPL_INVITING(user->getNickname(), target, channel)));
+						}
+						else
+							return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(), target)));
+					}
+				}
+			}
+			else
+				return (user->sendReply(ERR_NOTONCHANNEL(user->getNickname(), channel)));
+		}
+	}
+	if (it_chan == _channel.end())
+		return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), channel)));
 
-// }
+}
 
 void	Server::_killCmd(User *user, std::string param)
 {
