@@ -1,6 +1,6 @@
 #include "../inc/server.hpp"
 
-bool    Server::checkChannelExistOnNetwork(std::string channel){
+bool    Server::_checkChannelExistOnNetwork(std::string channel){
 	try{
 		_channel.at(channel);
 		return (true);
@@ -10,7 +10,7 @@ bool    Server::checkChannelExistOnNetwork(std::string channel){
 	}
 }
 
-bool    Server::checkUserExistOnNetwork(std::string user){
+bool    Server::_checkUserExistOnNetwork(std::string user){
 	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); it++){
 		if (user == it->second->getNickname())
 			return (true);

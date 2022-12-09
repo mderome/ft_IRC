@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 13:38:32 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 14:00:21 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,24 +59,24 @@ class Server
         std::map<std::string, func>         _indexCmd;
         std::map<std::string, Channel>      _channel;
         
-        std::vector<struct pollfd>  getPollFd(void)const;
-        std::string getPort(void)const;
-        std::string getPassword(void)const;
-        int getListener(void)const;
+        std::vector<struct pollfd>      _getPollFd(void)const;
+        std::string                     _getPort(void)const;
+        std::string                     _getPassword(void)const;
+        int                             _getListener(void)const;
         
-        void    createListener(void);
-        void    serverStart(void);
-        void    acceptNewConnection(void);
-        void    addUserToPollFd(int clientFd, struct sockaddr_storage clientAddr);
-        void    printUserData(int clientFd, struct sockaddr_storage clientAddr);
-        void    receiveData(pollfd_iterator &it);
-        int     getMessage(User *user);
-        void    deleteUser(pollfd_iterator &it);
+        void    _createListener(void);
+        void    _serverStart(void);
+        void    _acceptNewConnection(void);
+        void    _addUserToPollFd(int clientFd, struct sockaddr_storage clientAddr);
+        void    _printUserData(int clientFd, struct sockaddr_storage clientAddr);
+        void    _receiveData(pollfd_iterator &it);
+        int     _getMessage(User *user);
+        void    _deleteUser(pollfd_iterator &it);
 
         void    _indexingCmd();
-        void	chooseCmd(User *user);
+        void	_chooseCmd(User *user);
         
-        void    closeConnection(User *user);
+        void    _closeConnection(User *user);
 
 		void	_userCmd(User *user, std::string param);
 		void	_passCmd(User *user, std::string param);
@@ -91,12 +91,12 @@ class Server
         void    _listCmd(User *user, std::string param);
         void    _noticeCmd(User *user, std::string param);
 
-        bool    checkChannelExistOnNetwork(std::string channel);
-        bool    checkUserExistOnNetwork(std::string user);
-        void	changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel);
+        bool    _checkChannelExistOnNetwork(std::string channel);
+        bool    _checkUserExistOnNetwork(std::string user);
+        void	_changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel);
         void	_modeCmd(User *user, std::string param);
 
-        void    clean(void);
+        void    _clean(void);
 };
 
 #endif

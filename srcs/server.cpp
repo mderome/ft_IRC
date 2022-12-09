@@ -6,13 +6,12 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 13:52:49 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 14:01:55 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/server.hpp"
 #include <stdio.h>
-// #include <string.h>
 #include <cstring>
 #include <unistd.h>
 
@@ -32,35 +31,35 @@ Server::Server(std::string port, std::string password) : _hostname("localhost")
     _port = port;
     _password = password;
 
-    createListener();
+    _createListener();
     std::cout << WHITE "* Server created *" END << std::endl;
     _indexingCmd();
-    serverStart();
+    _serverStart();
 }
 
 Server::~Server() {}
 
-std::vector<struct pollfd>  Server::getPollFd(void)const
+std::vector<struct pollfd>  Server::_getPollFd(void)const
 {
     return (this->_pollfds);
 }
 
-std::string Server::getPort(void)const
+std::string Server::_getPort(void)const
 {
     return (this->_port);
 }
 
-std::string Server::getPassword(void)const
+std::string Server::_getPassword(void)const
 {
     return (this->_password);
 }
 
-int Server::getListener(void)const
+int Server::_getListener(void)const
 {
     return (this->_listener);
 }
 
-void    Server::createListener(void)
+void    Server::_createListener(void)
 {
     struct addrinfo     hint;
     struct addrinfo     *res = NULL;
@@ -141,7 +140,7 @@ void    Server::createListener(void)
     this->_listener = listenerFd;
 }
 
-void    Server::serverStart(void)
+void    Server::_serverStart(void)
 {
     pollfd serverFd;
     int    pollResult;
@@ -168,11 +167,11 @@ void    Server::serverStart(void)
                     {
                         // Accept a new connection
                         std::cout << "listener: " << this->_listener << std::endl;
-                        acceptNewConnection(); 
+                        _acceptNewConnection(); 
                         break;
                     }
                     // Receive data from client
-                    receiveData(it);
+                    _receiveData(it);
                 } 
                 else if (it->revents & POLLHUP)
                 {
@@ -197,10 +196,10 @@ void    Server::serverStart(void)
     }
     std::cout << GREEN "Server stopped successfully" END << std::endl;
     std::cout << "Rune equals : " << run << std::endl;
-    clean();
+    _clean();
 }
 
-void    Server::acceptNewConnection(void)
+void    Server::_acceptNewConnection(void)
 {
     struct sockaddr_storage userAddr;
     socklen_t userAddrSize = sizeof(userAddr);
@@ -217,15 +216,15 @@ void    Server::acceptNewConnection(void)
         std::cout << GREEN "=== accept() success" END << std::endl;
 
         // Add userFd to pollfds vector
-        addUserToPollFd(userFd, userAddr);
+        _addUserToPollFd(userFd, userAddr);
 
         // Print data about the client
-        printUserData(userFd, userAddr);
+        _printUserData(userFd, userAddr);
     }
 }
 
 
-void    Server::addUserToPollFd(int userFd, struct sockaddr_storage userAddr)
+void    Server::_addUserToPollFd(int userFd, struct sockaddr_storage userAddr)
 {
     pollfd userFdPoll;
     
@@ -239,7 +238,7 @@ void    Server::addUserToPollFd(int userFd, struct sockaddr_storage userAddr)
     // this->_users.insert(std::make_pair(userFd, new User(userFd, &userAddr))); // Add userFd to users map
 }
 
-void    Server::printUserData(int userFd, struct sockaddr_storage userAddr)
+void    Server::_printUserData(int userFd, struct sockaddr_storage userAddr)
 {
     char host[NI_MAXHOST]; // NI_MAXHOST : Maximum size of a fully-qualified domain name
     char port[NI_MAXSERV]; // NI_MAXSERV : Maximum size of a decimal port number
@@ -256,14 +255,14 @@ void    Server::printUserData(int userFd, struct sockaddr_storage userAddr)
     std::cout << CYAN "Client connected: " MAGENTA << host << ":" << port << CYAN ", on socket " MAGENTA << userFd << END << std::endl;
 }
 
-void	Server::receiveData(pollfd_iterator &it)
+void	Server::_receiveData(pollfd_iterator &it)
 {
 	try
 	{
 		User	*user = this->_users.at(it->fd);
 		int		nbytes = 0;
 
-		nbytes = getMessage(user);        
+		nbytes = _getMessage(user);        
         std::cout << YELLOW "bytes sent: " << nbytes << END << std::endl;
 		if (nbytes <= 0)
 		{
@@ -271,10 +270,10 @@ void	Server::receiveData(pollfd_iterator &it)
 				std::cout << "pollserver : socket " << it->fd << " hung up" << std::endl;
 			else // error
 				std::cerr << "Error : recv" << std::endl;
-			deleteUser(it);
+			_deleteUser(it);
 		}
 		else
-			chooseCmd(user);
+			_chooseCmd(user);
 	}
 	catch (const std::out_of_range &e)
 	{
@@ -282,7 +281,7 @@ void	Server::receiveData(pollfd_iterator &it)
 	}
 }
 
-int	Server::getMessage(User *user)
+int	Server::_getMessage(User *user)
 {
 	int			fd = user->getFd();
 	int			nbytes = 0;
@@ -304,7 +303,7 @@ int	Server::getMessage(User *user)
 	return (nbytes);
 }
 
-void	Server::closeConnection(User *user)
+void	Server::_closeConnection(User *user)
 {
 	try
 	{
@@ -326,7 +325,7 @@ void	Server::closeConnection(User *user)
 	catch (const std::out_of_range &e) {}
 }
 
-void	Server::deleteUser(pollfd_iterator &it)
+void	Server::_deleteUser(pollfd_iterator &it)
 {
     try
     {
@@ -366,7 +365,7 @@ void	Server::deleteUser(pollfd_iterator &it)
 //     return (map);
 // }
 
-void    Server::clean(void)
+void    Server::_clean(void)
 {
     // for (channel_iterator it = _channel.begin(); it != _channel.end(); ++it)
     // {

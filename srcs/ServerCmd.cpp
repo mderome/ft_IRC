@@ -22,7 +22,7 @@ void	Server::_indexingCmd(){
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
 }
 
-void	Server::chooseCmd(User *user)
+void	Server::_chooseCmd(User *user)
 {
 	std::string	msg = user->getMessage();
 	std::string	cmd;
@@ -52,7 +52,7 @@ void	Server::chooseCmd(User *user)
 				std::cout << CYAN "Buffer: <" WHITE << buf << CYAN ">" << std::endl;
 				if (cmd != "CAP" && cmd != "PASS" && !user->getPassword())
 				{
-					closeConnection(user);
+					_closeConnection(user);
 					break;
 				}
 				
@@ -299,7 +299,7 @@ void	Server::_topicCmd(User *user, std::string param){
 	// finir la fonction
 }
 
-void	Server::changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel){
+void	Server::_changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel){
 	if (isChannel && _channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
 		_channel[target].setModes(mode, value);
 	else if (isChannel && !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
@@ -327,9 +327,9 @@ void	Server::_modeCmd(User *user, std::string param){
 		else if (!isChannel && user->getNickname() == target)
 			return(user->sendReply(RPL_UMODEIS(user->getNickname(), user->getUserMode())));
 	}
-	if (isChannel && !checkChannelExistOnNetwork(target))
+	if (isChannel && !_checkChannelExistOnNetwork(target))
 		return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), target)));
-	else if (!isChannel && !checkUserExistOnNetwork(target))
+	else if (!isChannel && !_checkUserExistOnNetwork(target))
 		return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(),target)));
 	else if (!isChannel && user->getNickname() != target)
 		return(user->sendReply(ERR_USERSDONTMATCH(user->getNickname())));
@@ -340,9 +340,9 @@ void	Server::_modeCmd(User *user, std::string param){
 				it2++;
 			}
 			if (it2 > it && param[it] == '-')
-				changeModes(user, target,param.substr(it + 1, it2), false, isChannel);
+				_changeModes(user, target,param.substr(it + 1, it2), false, isChannel);
 			else if (it2 > it && param[it] == '+')
-				changeModes(user, target,param.substr(it + 1, it2), true, isChannel);
+				_changeModes(user, target,param.substr(it + 1, it2), true, isChannel);
 		}
 	}
 }
