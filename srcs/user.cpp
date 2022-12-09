@@ -71,7 +71,7 @@ void User::setModes(std::string modes, bool value)
 }
 
 std::string	User::getUsername(){
-	return(_nickname);
+	return(_username);
 }
 
 std::string	User::getNickname(){
