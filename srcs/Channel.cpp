@@ -175,6 +175,14 @@ void Channel::removeBan(std::string ban)
     }
 }
 
+void Channel::removeOperator(User *user)
+{
+    for (std::map<std::string, User *>::iterator it = _users.begin(); it != _users.end(); it++){
+        if (user->getNickname() == it->second->getNickname())
+            _users.erase(it);
+    }
+}
+
 void Channel::removeOldMessage(std::string old_message)
 {
     for (std::vector<std::string>::iterator it = _old_messages.begin(); it < _old_messages.end(); it++){

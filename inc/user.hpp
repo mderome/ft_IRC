@@ -43,6 +43,7 @@ class User
         void                        sendReply(std::string reply);
         void                        clearMessage(void);
         std::string                 getUserMode();
+        std::string                 getPrefix();
 
     private:
         std::string                 _username;

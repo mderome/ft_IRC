@@ -48,7 +48,7 @@ std::string ERR_ALREADYREGISTRED(std::string nick);
 std::string ERR_ERRONEUSNICKNAME();
 std::string ERR_PASSWDMISMATCH(std::string nick);
 std::string ERR_CHANNELISFULL(std::string nick, std::string channel);
-std::string ERR_UNKNOWNMODE();
+std::string ERR_UNKNOWNMODE(std::string nick, std::string mode);
 std::string ERR_INVITEONLYCHAN(std::string nick, std::string channel);
 std::string ERR_BANNEDFROMCHAN(std::string nick);
 std::string ERR_BADCHANNELKEY(std::string nick, std::string channel);

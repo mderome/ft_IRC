@@ -186,8 +186,8 @@ std::string ERR_CHANNELISFULL(std::string nick, std::string channel) {
 	return "471 " + nick + ": " + channel + " :Cannot join channel (+l)";
 }
 
-std::string ERR_UNKNOWNMODE() {
-	return "472 ";
+std::string ERR_UNKNOWNMODE(std::string nick, std::string mode) {
+	return "472 " + nick + " " + mode + " :is unknown mode char to me";
 }
 
 std::string ERR_INVITEONLYCHAN(std::string nick, std::string channel) {

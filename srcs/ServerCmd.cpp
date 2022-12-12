@@ -324,10 +324,12 @@ void	Server::_topicCmd(User *user, std::string param){
 }
 
 void	Server::changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel, std::vector<std::string> *modearg){
+	std::cout << "Test change mode" <<  mode << ":" << target << ":" << isChannel << std::endl;
 	if (isChannel && _channel[target].checkUserIsOperatorOnChannel(user->getNickname())){
+		std::cout << "Passe dans un channel mais operator" << std::endl;
 		switch(mode[0]){
 			case 'b':{
-
+				std::cout << "passe dans b" << std::endl;
 				_channel[target].setModes(mode, value);
 				if (value && (*modearg).size() == 0){
 					std::vector<std::string> ban_user = _channel[target].getBans();
@@ -354,7 +356,7 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 				else{
 					std::map<std::string, User*> users = _channel[target].getUsers();
 					for (std::map<std::string, User*>::iterator it = users.begin(); it != users.end(); it++){
-						if ((*modearg)[0] == it->second->getPrefix()){
+						if ((*modearg).size() > 0 && (*modearg)[0] == it->second->getPrefix()){
 							_channel[target].removeBan((*modearg)[0]);
 							(*modearg).erase((*modearg).begin(), (*modearg).begin());
 							return;
@@ -373,7 +375,7 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 			case 'l':{
 				if (value && (*modearg).size() > 0){
 					try {
-						unsigned int _limit = std::stoul((*modearg)[0]);
+						int _limit = std::atoi((*modearg)[0].c_str());
 						_channel[target].setModes(mode, value);
 						_channel[target].setLimit(_limit);
 					}
@@ -389,7 +391,7 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 			case 'o':{
 				if ((*modearg).size() == 0 || !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
 					return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
-				else if (_channel[target].checkUserIsOperatorOnChannel(user->getNickname()));
+				else if (_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
 					return (user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channel[target].getChannelMode(), "")));
 				std::map<std::string, User*> users = _channel[target].getUsers();
 				for (std::map<std::string, User*>::iterator it = users.begin(); it != users.end(); it++){
@@ -407,12 +409,15 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 			case 'i':
 				_channel[target].setModes(mode, value);
 			default:
-				return(user->sendReply(ERR_UNKNOWNMODE(mode)));
+				return(user->sendReply(ERR_UNKNOWNMODE(user->getNickname(), mode)));
 		}
 	}
-	else if (isChannel && !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
+	else if (isChannel && !_channel[target].checkUserIsOperatorOnChannel(user->getNickname())){
+		std::cout << "Passe dans un channel mais pas operator" << std::endl;
 		return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), target)));
+	}
 	else if (!isChannel){
+		std::cout << "Passe dans pas un channel" << std::endl;
 		switch (mode[0])
 		{
 			case 'i':
@@ -422,8 +427,11 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 			case 'a':
 				user->setModes(mode, value);
 			default:
-				return(user->sendReply(ERR_UNKNOWNMODE(mode)));
+				return(user->sendReply(ERR_UNKNOWNMODE(user->getNickname(), mode)));
 		}
+	}
+	else{
+		std::cout << "Passe dans else" << std::endl;
 	}
 }
 
