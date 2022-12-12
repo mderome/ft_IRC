@@ -62,7 +62,7 @@ void	Server::_chooseCmd(User *user)
 				{
 					if (it->first == cmd)
 					{
-						(this->*(it->second))(user, buf); // call function from map, giving user and buf as parameters
+						(this->*(it->second))(user, buf);
 						break;
 					}
 				}
@@ -70,7 +70,6 @@ void	Server::_chooseCmd(User *user)
 			}
 			catch (const std::out_of_range &e)
 			{
-				//std::cout << "fail: " << e.what() << std::endl;
 				msg.erase(0, msg.find("\r\n") + 2);
 				user->sendReply("421 Unknown command");
 			}
@@ -96,8 +95,6 @@ void	Server::_userCmd(User *user, std::string param)
 		return (user->sendReply(ERR_ALREADYREGISTRED(user->getNickname())));
 	if (param.empty())
 		return (user->sendReply("Error: user: empty"));
-	// std::cout << "param : " << param << std::endl;
-	// parsing here
 	std::string username = param.substr(0, param.find(' '));
 	std::string mode = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
 	std::string unused = param.substr(param.find(' ', param.find(' ') + 1) + 1, param.find(' ', param.find(' ', param.find(' ') + 1) + 1) - param.find(' ', param.find(' ') + 1) - 1);
@@ -155,7 +152,6 @@ void	Server::_quitCmd(User *user, std::string param)
 		if (it->second->getNickname() != user->getNickname())
 			it->second->sendReply(":" + user->getNickname() + "!d@" + _hostname + " QUIT :Quit: " + param + ";\n" + user->getNickname() + " is exiting the network with the message: \"Quit: " + param + "\"");
 	}
-	// user->sendReply(":" + user->getNickname() + "!d@" + _hostname + " QUIT :Quit: " + param + ";\n" + user->getNickname() + " is exiting the network with the message: \"Quit: " + param + "\"");
 	try
 	{
 		int	fd = user->getFd();
@@ -174,9 +170,6 @@ void	Server::_quitCmd(User *user, std::string param)
 	}
 	catch (const std::out_of_range &e) {}
 }
-	// // pas de parsing a faire
-	// std::cout << user->getMessage() << std::endl;
-	// std::cout << param << std::endl;
 
 void	Server::_pingCmd(User *user, std::string param){
 	if (param.empty())
@@ -208,26 +201,12 @@ void	Server::_privmsgCmd(User *user, std::string param){
 			{
 				std::string buf = ":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n";
 				it->second->sendReply(buf);
-				// send(it->first, buf.c_str(), buf.length(), 0);
 				std::cout << YELLOW "sent to " << it->second->getNickname() << END << std::endl;
 				return ;
 			}
 		}
 	}
 }
-
-// void	Server::_operCmd(User *user, std::string param){
-// 	// split param pour avoir name et password | Parameters: <name> <password>
-// 	std::string	password;
-
-// 	std::cout << param << std::endl;
-// 	if (_hostname != user->getHostname())
-// 		return ; // ERR_NOOPERHOST
-// 	if (password != getPassword())
-// 		return ; // ERR_PASSWDMISMATCH
-// 	//RPL_YOUREOPER
-// 	// avoir une fonction qui ajoute un operator a un channel
-// }
 
 void	Server::_joinCmd(User *user, std::string param)
 {
@@ -290,7 +269,6 @@ void	Server::_joinCmd(User *user, std::string param)
 				}
 				itbool++;
 			}
-			std::cout << WHITE "User : " RED << user->getNickname() << WHITE " is operator? : " RED << check << std::endl; 
 		}
 	}
 	return ;
@@ -318,25 +296,22 @@ void	Server::_whoCmd(User *user, std::string param){
 	user->sendReply(RPL_ENDOFWHO(user->getNickname(), param));
 }
 
-void	Server::_topicCmd(User *user, std::string param){
-	std::string	channel_name;
-	if (param.find(' ') != std::string::npos){
-		channel_name = param.substr(0, param.find(' '));
-		param = param.substr(param.find(' '), param.length());
-	}
-	else
-		channel_name = param;
-	user->sendReply("Nothing");
-	// TODO finir la fonction
-}
+// void	Server::_topicCmd(User *user, std::string param){
+// 	std::string	channel_name;
+// 	if (param.find(' ') != std::string::npos){
+// 		channel_name = param.substr(0, param.find(' '));
+// 		param = param.substr(param.find(' '), param.length());
+// 	}
+// 	else
+// 		channel_name = param;
+// 	user->sendReply("Nothing");
+// 	// TODO finir la fonction
+// }
 
 void	Server::changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel, std::vector<std::string> *modearg){
-	std::cout << "Test change mode" <<  mode << ":" << target << ":" << isChannel << std::endl;
 	if (isChannel && _channel[target].checkUserIsOperatorOnChannel(user->getNickname())){
-		std::cout << "Passe dans un channel mais operator" << std::endl;
 		switch(mode[0]){
 			case 'b':{
-				std::cout << "passe dans b" << std::endl;
 				_channel[target].setModes(mode, value);
 				if (value && (*modearg).size() == 0){
 					std::vector<std::string> ban_user = _channel[target].getBans();
@@ -420,11 +395,9 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 		}
 	}
 	else if (isChannel && !_channel[target].checkUserIsOperatorOnChannel(user->getNickname())){
-		std::cout << "Passe dans un channel mais pas operator" << std::endl;
 		return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), target)));
 	}
 	else if (!isChannel){
-		std::cout << "Passe dans pas un channel" << std::endl;
 		switch (mode[0])
 		{
 			case 'i':
@@ -436,9 +409,6 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 			default:
 				return(user->sendReply(ERR_UNKNOWNMODE(user->getNickname(), mode)));
 		}
-	}
-	else{
-		std::cout << "Passe dans else" << std::endl;
 	}
 }
 
@@ -634,63 +604,6 @@ void	Server::_partCmd(User *user, std::string param)
 			return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), *it_target)));
 	}
 	return ;
-}
-
-void	Server::_inviteCmd(User *user, std::string param)
-{
-	std::string channel = param.substr(0, param.find(' '));
-	std::string target = param.substr(param.find(' ') + 1, param.length());
-	std::map<std::string, Channel>::iterator it_chan = _channel.begin();
-	for (; it_chan != _channel.end(); it_chan++)
-	{
-		if (it_chan->first == channel)
-		{
-			if (it_chan->second.userIsIn(user))
-			{
-				std::map<std::string, bool> map_node = it_chan->second.getModes();
-				bool check_invite = map_node["i"];
-				if (check_invite == true)
-				{
-					std::map<std::string, bool> user_node = user->getModes();
-					bool check_priv = user_node["o"];
-					if (check_priv == true)
-					{
-						std::map<int, User *>::iterator it_user = _users.begin();
-						for(; it_user != _users.end(); it_user++)
-						{
-							if (it_user->second->getNickname() == target)
-							{
-								it_user->second->addInvitation(target);
-								return (user->sendReply(RPL_INVITING(user->getNickname(), target, channel)));
-							}
-							else
-								return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(), target)));
-						}
-					}
-					else
-						return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), channel)));
-				}
-				else
-				{
-					std::map<int, User *>::iterator it_user = _users.begin();
-					for(; it_user != _users.end(); it_user++)
-					{
-						if (it_user->second->getNickname() == target)
-						{
-							it_user->second->addInvitation(target);
-							return (user->sendReply(RPL_INVITING(user->getNickname(), target, channel)));
-						}
-						else
-							return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(), target)));
-					}
-				}
-			}
-			else
-				return (user->sendReply(ERR_NOTONCHANNEL(user->getNickname(), channel)));
-		}
-	}
-	if (it_chan == _channel.end())
-		return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), channel)));
 }
 
 void	Server::_killCmd(User *user, std::string param)
