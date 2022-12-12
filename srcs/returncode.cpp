@@ -13,6 +13,8 @@ std::string RPL_JOIN(std::string source, std::string channel) {
 }
 
 std::string RPL_PART(std::string source, std::string channel, std::string msg) {
+	if (msg.length() == 0)
+		return ":" + source + " PART " + channel + " :" + "has left channel";
 	return ":" + source + " PART " + channel + " :" + msg;
 }
 
@@ -118,7 +120,7 @@ std::string ERR_NOSUCHSERVER(std::string nick, std::string arg) {
 }
 
 std::string ERR_NOSUCHCHANNEL(std::string nick, std::string arg) {
-	return "403 " + nick + ": " + arg + ":No such channel";
+	return "403 " + nick + ": " + arg + ": No such channel";
 }
 
 std::string	ERR_TOOMANYCHANNELS(std::string nick) {

@@ -22,3 +22,12 @@ les channels local doivent commencer par ('&', 0x26).
 ils ne peuvent pas contenir (' ', 0x20), ('^G', 0x07) ou (',', 0x2C)
 
 channel->user->mode
+
+  },
+  {
+    address = "irc.rizon.net";
+    chatnet = "Rizon";
+    port = "6697";
+    use_tls = "yes";
+    tls_verify = "yes";
+  }
