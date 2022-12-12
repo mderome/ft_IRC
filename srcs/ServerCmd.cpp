@@ -296,65 +296,133 @@ void	Server::_topicCmd(User *user, std::string param){
 	else
 		channel_name = param;
 	user->sendReply("Nothing");
-	// finir la fonction
+	// TODO finir la fonction
 }
 
 void	Server::changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel, std::vector<std::string> *modearg){
 	if (isChannel && _channel[target].checkUserIsOperatorOnChannel(user->getNickname())){
-		_channel[target].setModes(mode, value);
 		switch(mode[0]){
-			case 'b':
-				if (value){
+			case 'b':{
+
+				_channel[target].setModes(mode, value);
+				if (value && (*modearg).size() == 0){
+					std::vector<std::string> ban_user = _channel[target].getBans();
+					for (std::vector<std::string>::iterator it = ban_user.begin(); it != ban_user.end(); it++){
+						user->sendReply(user->getNickname() + " " + target + " " + *it);
+					}
+					user->sendReply(user->getNickname() + " " + target + " :End of channel ban list");
+				}
+				else if (value && (*modearg).size() > 0){
 					std::map<std::string, User> users = _channel[target].getUsers();
 					for (std::map<std::string, User>::iterator it = users.begin(); it != users.end(); it++){
-						if ((*modearg)[0] == it->first)
+						if ((*modearg)[0] == it->second.getPrefix()){
 							_channel[target].addBan(it->second);
+							(*modearg).erase((*modearg).begin(), (*modearg).begin());
+							return;
+						}
+					}
+					std::vector<std::string> ban_user = _channel[target].getBans();
+					for (std::vector<std::string>::iterator it = ban_user.begin(); it != ban_user.end(); it++){
+						user->sendReply(user->getNickname() + " " + target + " " + *it);
+					}
+					user->sendReply(user->getNickname() + " " + target + " :End of channel ban list");
+				}
+				else{
+					std::map<std::string, User> users = _channel[target].getUsers();
+					for (std::map<std::string, User>::iterator it = users.begin(); it != users.end(); it++){
+						if ((*modearg)[0] == it->second.getPrefix()){
+							_channel[target].removeBan((*modearg)[0]);
+							(*modearg).erase((*modearg).begin(), (*modearg).begin());
+							return;
+						}
 					}
 				}
-				else
-					_channel[target].removeBan((*modearg)[0]);
-				(*modearg).erase((*modearg).begin(), (*modearg).begin());
 				break;
-			case 'w':
-				if (value){
+			}
+			case 'k':{
+				_channel[target].setModes(mode, value);
+				if (value && (*modearg).size() > 0)
 					_channel[target].setPwd((*modearg)[0]);
+				else if (value && (*modearg).size() == 0)
+					return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
+			}
+			case 'l':{
+				if (value && (*modearg).size() > 0){
+					try {
+						unsigned int _limit = std::stoul((*modearg)[0]);
+						_channel[target].setModes(mode, value);
+						_channel[target].setLimit(_limit);
+					}
+					catch(const std::out_of_range &e){
+						return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
+					}
 				}
+				else if (value && (*modearg).size() == 0)
+					return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
+				else
+					_channel[target].setModes(mode, value);
+			}
+			case 'o':{
+				if ((*modearg).size() == 0 || !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
+					return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
+				else if (_channel[target].checkUserIsOperatorOnChannel(user->getNickname()));
+					return (user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channel[target].getChannelMode(), "")));
+				std::map<std::string, User> users = _channel[target].getUsers();
+				for (std::map<std::string, User>::iterator it = users.begin(); it != users.end(); it++){
+					if ((*modearg)[0] == it->first && value){
+						_channel[target].addOperator(it->second);
+						return;
+					}
+					else if ((*modearg)[0] == it->first && value){
+						_channel[target].removeOperator(it->second);
+						return;
+					}
+				}
+				return;
+			}
+			case 'i':
+				_channel[target].setModes(mode, value);
 			default:
-				break;
+				return(user->sendReply(ERR_UNKNOWNMODE(mode)));
 		}
 	}
 	else if (isChannel && !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
 		return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), target)));
-	else{
-		user->setModes(mode, value);
+	else if (!isChannel){
+		switch (mode[0])
+		{
+			case 'i':
+				user->setModes(mode, value);
+			case 'o':
+				break;
+			case 'a':
+				user->setModes(mode, value);
+			default:
+				return(user->sendReply(ERR_UNKNOWNMODE(mode)));
+		}
 	}
 }
 
-static bool	parse_mode(std::string *target, std::vector<std::pair<std::string, bool> > *modestring, std::vector<std::string> *modearg, std::string *param, bool *isChannel){
+static int	parse_mode(std::string *target, std::vector<std::pair<std::string, bool> > *modestring, std::vector<std::string> *modearg, std::string *param, bool *isChannel){
 	if ((*param)[0] == '#' || (*param)[0] == '&'){
 		*isChannel = true;
 	}
 	for (uint it = 0; it < 3; it++){
 		if (it == 0 && (*param).find(' ') != std::string::npos && (*param).find(' ') + 1 != std::string::npos){
-			if (*isChannel){
-				*target = (*param).substr(0, (*param).find(' '));
-			}
-			else{
-				*target = (*param).substr(0, (*param).find(' '));
-				std::cout << "2" << std::endl;
-
-			}
+			*target = (*param).substr(0, (*param).find(' '));
 			(*param) = (*param).substr((*param).find(' ') + 1, (*param).length());
 		}
 		else if (it == 0 && (*param).find(' ') == std::string::npos){
 			*target = (*param);
-			return (false);
+			return (-1);
 		}
 		else if (it == 1){
 			uint i = 0;
 			int state = 0;
 			for (std::string::iterator it = (*param).begin(); *it != ' ' && it != (*param).end();it++){
-				if (*it == '+')
+				if (it == (*param).begin() && *it != '+' && *it != '-')
+					return (-2);
+				else if (*it == '+')
 					state = 1;
 				else if (*it == '-')
 					state = -1;
@@ -367,14 +435,14 @@ static bool	parse_mode(std::string *target, std::vector<std::pair<std::string, b
 				i++;
 			}
 			if ((*param)[i] != 0 && (*param)[i] == ' ' && (*param)[i + 1] != 0)
-				(*param) = (*param).substr(i + 1, (*param).length());
+				(*param).erase(0, (*param).find(' '));
 			else
 				break;
 		}
 		else if (it == 2)
 			*modearg = splitov((*param), ' ');
 	}
-	return (true);
+	return (0);
 }
 
 void	Server::_modeCmd(User *user, std::string param){
@@ -383,14 +451,20 @@ void	Server::_modeCmd(User *user, std::string param){
 	std::vector<std::string> modearg;
 	bool		isChannel = false;
 
-	if (!parse_mode(&target, &modestring, &modearg, &param, &isChannel)){
-		if (isChannel)
+	if (param.length() == 0)
+		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
+	int	value = parse_mode(&target, &modestring, &modearg, &param, &isChannel);
+	if (value != 0){
+		if (isChannel && value == -1)
 			return(user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channel[target].getChannelMode(), "")));
-		else if (!isChannel && user->getNickname() == target)
+		else if (!isChannel && user->getNickname() == target && value == -1)
 			return(user->sendReply(RPL_UMODEIS(user->getNickname(), user->getUserMode())));
+		//TODO unavailable mode 
 	}
 	if (isChannel && !checkChannelExistOnNetwork(target))
 		return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), target)));
+	else if (isChannel && !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
+		return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), target)));
 	else if (!isChannel && !checkUserExistOnNetwork(target))
 		return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(),target)));
 	else if (!isChannel && user->getNickname() != target)
