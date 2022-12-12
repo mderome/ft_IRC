@@ -164,6 +164,7 @@ void Channel::setPwd(std::string pwd)
 void Channel::removeUser(User *user)
 {
     std::string tmp = user->getNickname();
+    std::cout << RED  << "delete user : " << tmp << std::endl;
     _users.erase(tmp);
 }
 
@@ -242,11 +243,7 @@ void Channel::sendToAll(std::string message)
 {
     for (std::map<std::string, User *>::iterator it = _users.begin(); it != _users.end(); it++)
     {
-        int n = send(it->second->getFd(), message.c_str(), message.length(), 0);
-        std::cout << "send " << n << " bytes" << std::endl;
-        std::cout << "send " << message << std::endl;
-        std::cout << "send " << message.length() << std::endl;
-        std::cout << "send fd: " << it->second->getFd() << std::endl;
+        it->second->sendReply(message);
     }
 }
 
@@ -258,7 +255,7 @@ void Channel::sendToAllSaufALui( std::string user, std::string message)
         {
             if (it->second->getFd() == -1)
                 return;
-            send(it->second->getFd(), message.c_str(), message.length(), 0);
+            it->second->sendReply(message);
             // std::cout << "send " << n << " bytes" << std::endl;
             // std::cout << "send " << message << std::endl;
             // std::cout << "send " << message.length() << std::endl;

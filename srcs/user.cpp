@@ -172,3 +172,8 @@ void	User::addInvitation(std::string target)
 {
 	_isInvited.push_back(target);
 }
+
+std::string	User::getprefixe() const
+{
+	return (_nickname + "!" + _username + "@" + _hostname);
+}
