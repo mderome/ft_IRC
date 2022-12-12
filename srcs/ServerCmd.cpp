@@ -20,7 +20,7 @@ void	Server::_indexingCmd(){
 	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
 	_indexCmd.insert(std::pair<std::string, func>("KILL", &Server::_killCmd));
-	_indexCmd.insert(std::pair<std::string, func>("INVITE", &Server::_inviteCmd));
+	// _indexCmd.insert(std::pair<std::string, func>("INVITE", &Server::_inviteCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
 }
 
