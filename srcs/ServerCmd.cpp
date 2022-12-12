@@ -58,13 +58,10 @@ void	Server::_chooseCmd(User *user)
 					_closeConnection(user);
 					break;
 				}
-				std::cout << "test\n";
 				for (std::map<std::string, func>::iterator it = this->_indexCmd.begin(); it != this->_indexCmd.end(); it++)
 				{
-					std::cout << "it->first = " << it->first << "  cmd = " << cmd << std::endl;
 					if (it->first == cmd)
 					{
-						std::cout << "it->first = " << it->first << "  cmd = " << cmd << std::endl;
 						(this->*(it->second))(user, buf); // call function from map, giving user and buf as parameters
 						break;
 					}
@@ -266,7 +263,7 @@ void	Server::_joinCmd(User *user, std::string param)
 					std::cout << WHITE "User <" << user->getNickname() << "> has joined <" << _channel[content].getName() << "> channel!" END << std::endl;
 					user->sendReply(RPL_NAMREPLY(user->getprefixe(), user->getNickname(), content, user->getUsername()));
 					user->sendReply(RPL_ENDOFNAMES(user->getprefixe(), user->getNickname(), content));
-					_channel[content].sendToAllSaufALui(user->getNickname(), RPL_JOIN(user->getprefixe(), content));
+					_channel[content].sendToAll(RPL_JOIN(user->getprefixe(), content));
 					if (itpass != Pasword.end())
 						itpass++;
 				}
@@ -280,7 +277,7 @@ void	Server::_joinCmd(User *user, std::string param)
 			std::cout << WHITE "Channel <" << _channel[content].getName() << "> has been created" END << std::endl;
 			user->sendReply(RPL_NAMREPLY(user->getprefixe(), user->getNickname(), content, user->getUsername()));
 			user->sendReply(RPL_ENDOFNAMES(user->getprefixe(), user->getNickname(), content));
-			_channel[content].sendToAllSaufALui(user->getNickname(), RPL_JOIN(user->getprefixe(), content));
+			_channel[content].sendToAll(RPL_JOIN(user->getprefixe(), content));
 			_channel[content].setUsersMode(user->getNickname(), std::string("o"), 1);
 			std::map<std::string, bool> checkbool = user->getModes();
 			std::map<std::string, bool>::const_iterator itbool = checkbool.begin();
@@ -628,7 +625,7 @@ void	Server::_partCmd(User *user, std::string param)
 			{
 				if (!it_chan->second.userIsIn(user))
 					return (user->sendReply(ERR_NOTONCHANNEL(user->getNickname(), target)));
-				it_chan->second.sendToAllSaufALui(user->getNickname(), RPL_PART(user->getprefixe(), it_chan->second.getName(), reason));
+				it_chan->second.sendToAll(RPL_PART(user->getprefixe(), it_chan->second.getName(), reason));
 				it_chan->second.removeUser(user);
 				break ;
 			}
