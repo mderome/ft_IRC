@@ -395,11 +395,11 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 					return (user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channel[target].getChannelMode(), "")));
 				std::map<std::string, User*> users = _channel[target].getUsers();
 				for (std::map<std::string, User*>::iterator it = users.begin(); it != users.end(); it++){
-					if ((*modearg)[0] == it->first && value){
+					if ((*modearg).size() > 0 && (*modearg)[0] == it->first && value){
 						_channel[target].addOperator(it->second);
 						return;
 					}
-					else if ((*modearg)[0] == it->first && value){
+					else if ((*modearg).size() > 0 && (*modearg)[0] == it->first && value){
 						_channel[target].removeOperator(it->second);
 						return;
 					}
