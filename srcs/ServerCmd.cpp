@@ -194,32 +194,42 @@ void	Server::_privmsgCmd(User *user, std::string param){
 	if (message[0] != ':')
 		return (user->sendReply(ERR_NORECIPIENT(user->getNickname())));
 	message = message.substr(1);
-	if (target[0] == '#')
+	if (target[0] == '#' || target[0] == '&')
 	{
 		// channel
 		if (_channel.find(target) == _channel.end())
 			return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), target)));
 		else if (!_channel[target].userIsIn(user))
 			return (user->sendReply(ERR_NOTONCHANNEL(user->getNickname(), target)));
-		else if (user->hasBeenWelcomed() == false)
-			return (user->sendReply(ERR_NOTREGISTERED(user->getNickname())));
-
 		_channel[target].sendToAllSaufALui(user->getNickname() ,":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n");
 	}
 	else
 	{
 		// user
-		for (std::map<int, User *>::iterator it = _users.begin(); it != _users.end(); ++it)
+		// for (std::map<int, User *>::iterator it = _users.begin(); it != _users.end(); ++it)
+		// {
+		// 	if (it->second->getNickname() == target)
+		// 	{
+		// 		std::string buf = ":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n";
+		// 		it->second->sendReply(buf);
+		// 		// send(it->first, buf.c_str(), buf.length(), 0);
+		// 		std::cout << YELLOW "sent to " << it->second->getNickname() << END << std::endl;
+		// 		return ;
+		// 	}
+		// }
+		std::map<int, User *>::iterator it = _users.begin();
+		for (; it != _users.end(); ++it)
 		{
 			if (it->second->getNickname() == target)
 			{
 				std::string buf = ":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n";
 				it->second->sendReply(buf);
-				// send(it->first, buf.c_str(), buf.length(), 0);
 				std::cout << YELLOW "sent to " << it->second->getNickname() << END << std::endl;
 				return ;
 			}
 		}
+		if (it == _users.end())
+			return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(), target)));
 	}
 }
 
