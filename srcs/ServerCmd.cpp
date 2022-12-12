@@ -197,6 +197,13 @@ void	Server::_privmsgCmd(User *user, std::string param){
 	if (target[0] == '#')
 	{
 		// channel
+		if (_channel.find(target) == _channel.end())
+			return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), target)));
+		else if (!_channel[target].userIsIn(user))
+			return (user->sendReply(ERR_NOTONCHANNEL(user->getNickname(), target)));
+		else if (user->hasBeenWelcomed() == false)
+			return (user->sendReply(ERR_NOTREGISTERED(user->getNickname())));
+
 		_channel[target].sendToAllSaufALui(user->getNickname() ,":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n");
 	}
 	else
