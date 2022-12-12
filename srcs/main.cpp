@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:41:22 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/12 12:25:32 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/12 12:27:39 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ bool	checkPort(std::string port)
 	{
 		if (port[i] < '0' || port[i] > '9')
 			return (false);
+		// std::cout << YELLOW "Port: -> " << port[i] << END << std::endl;
 	}
 	return (true);
 }
