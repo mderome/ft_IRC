@@ -6,11 +6,7 @@
 /*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2022/12/09 15:20:04 by achane-l         ###   ########.fr       */
-=======
-/*   Updated: 2022/12/09 16:17:45 by esafar           ###   ########.fr       */
->>>>>>> testnet
+/*   Updated: 2022/12/12 15:34:20 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,15 +96,9 @@ class Server
         void    _killCmd(User *user, std::string param);
         void	_inviteCmd(User *user, std::string param);
 
-<<<<<<< HEAD
         bool    checkChannelExistOnNetwork(std::string channel);
         bool    checkUserExistOnNetwork(std::string user);
         void	changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel, std::vector<std::string> *modearg);
-=======
-        bool    _checkChannelExistOnNetwork(std::string channel);
-        bool    _checkUserExistOnNetwork(std::string user);
-        void	_changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel);
->>>>>>> testnet
         void	_modeCmd(User *user, std::string param);
 
         void    _clean(void);

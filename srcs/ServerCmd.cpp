@@ -339,9 +339,9 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 					user->sendReply(user->getNickname() + " " + target + " :End of channel ban list");
 				}
 				else if (value && (*modearg).size() > 0){
-					std::map<std::string, User> users = _channel[target].getUsers();
-					for (std::map<std::string, User>::iterator it = users.begin(); it != users.end(); it++){
-						if ((*modearg)[0] == it->second.getPrefix()){
+					std::map<std::string, User*> users = _channel[target].getUsers();
+					for (std::map<std::string, User*>::iterator it = users.begin(); it != users.end(); it++){
+						if ((*modearg)[0] == it->second->getPrefix()){
 							_channel[target].addBan(it->second);
 							(*modearg).erase((*modearg).begin(), (*modearg).begin());
 							return;
@@ -354,9 +354,9 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 					user->sendReply(user->getNickname() + " " + target + " :End of channel ban list");
 				}
 				else{
-					std::map<std::string, User> users = _channel[target].getUsers();
-					for (std::map<std::string, User>::iterator it = users.begin(); it != users.end(); it++){
-						if ((*modearg)[0] == it->second.getPrefix()){
+					std::map<std::string, User*> users = _channel[target].getUsers();
+					for (std::map<std::string, User*>::iterator it = users.begin(); it != users.end(); it++){
+						if ((*modearg)[0] == it->second->getPrefix()){
 							_channel[target].removeBan((*modearg)[0]);
 							(*modearg).erase((*modearg).begin(), (*modearg).begin());
 							return;
@@ -393,8 +393,8 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 					return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
 				else if (_channel[target].checkUserIsOperatorOnChannel(user->getNickname()));
 					return (user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channel[target].getChannelMode(), "")));
-				std::map<std::string, User> users = _channel[target].getUsers();
-				for (std::map<std::string, User>::iterator it = users.begin(); it != users.end(); it++){
+				std::map<std::string, User*> users = _channel[target].getUsers();
+				for (std::map<std::string, User*>::iterator it = users.begin(); it != users.end(); it++){
 					if ((*modearg)[0] == it->first && value){
 						_channel[target].addOperator(it->second);
 						return;
@@ -486,7 +486,7 @@ void	Server::_modeCmd(User *user, std::string param){
 		else if (!isChannel && user->getNickname() == target && value == -1)
 			return(user->sendReply(RPL_UMODEIS(user->getNickname(), user->getUserMode())));
 	}
-	if (isChannel && !_checkChannelExistOnNetwork(target))
+	if (isChannel && !checkChannelExistOnNetwork(target))
 		return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), target)));
 	else if (isChannel && !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
 		return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), target)));
