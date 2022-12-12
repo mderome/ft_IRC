@@ -16,13 +16,15 @@ void	Server::_indexingCmd(){
 	_indexCmd.insert(std::pair<std::string, func>("WHO", &Server::_whoCmd));
 	_indexCmd.insert(std::pair<std::string, func>("NOTICE", &Server::_noticeCmd));
 	_indexCmd.insert(std::pair<std::string, func>("LIST", &Server::_listCmd));
-	// _indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
+	_indexCmd.insert(std::pair<std::string, func>("PART", &Server::_partCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("WHOIS", &Server::_whoisCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("KICK", &Server::_kickCmd));
+	_indexCmd.insert(std::pair<std::string, func>("KILL", &Server::_killCmd));
+	_indexCmd.insert(std::pair<std::string, func>("INVITE", &Server::_inviteCmd));
 	// _indexCmd.insert(std::pair<std::string, func>("MOTD", &Server::_motdCmd));
 }
 
-void	Server::chooseCmd(User *user)
+void	Server::_chooseCmd(User *user)
 {
 	std::string	msg = user->getMessage();
 	std::string	cmd;
@@ -52,7 +54,7 @@ void	Server::chooseCmd(User *user)
 				std::cout << CYAN "Buffer: <" WHITE << buf << CYAN ">" << std::endl;
 				if (cmd != "CAP" && cmd != "PASS" && !user->getPassword())
 				{
-					closeConnection(user);
+					_closeConnection(user);
 					break;
 				}
 				
@@ -232,7 +234,6 @@ void	Server::_privmsgCmd(User *user, std::string param){
 
 void	Server::_joinCmd(User *user, std::string param)
 {
-	User test = *(user);
 	std::map<std::string, std::string>	joinChannel;
 	std::vector<std::string>			channel;
 	std::vector<std::string>			Pasword;
@@ -241,8 +242,16 @@ void	Server::_joinCmd(User *user, std::string param)
 		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
 	channel = splitov(param, ',');
 	std::vector<std::string>::iterator it = channel.begin();
-	Pasword = splitov(param, ',');
-	//std::vector<std::string>::iterator itpass = Pasword.begin();
+	if (param.find(' ') != std::string::npos)
+	{
+		std::string shit = param.substr(param.find(' '), param.length());
+		Pasword = splitov(shit, ',');
+	}
+	else
+	{
+		Pasword.push_back("");
+	}
+	std::vector<std::string>::iterator itpass = Pasword.begin();
 	for (; it != channel.end(); it++)
 	{
 		std::string	content = *it;
@@ -251,15 +260,36 @@ void	Server::_joinCmd(User *user, std::string param)
 				return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), content)));
 			else
 			{
-				_channel.find(content)->second.addUser(test);
-				std::cout << WHITE "User <" << test.getNickname() << "> has joined <" << _channel[content].getName() << "> channel!" END << std::endl;
+				std::cout << "length = " << itpass->length() << std::endl;
+				std::cout << "c koi = " << *itpass << std::endl;
+				if (*itpass == _channel[content].getPwd() || itpass->length() == 0)
+				{
+					_channel.find(content)->second.addUser(user);
+					std::cout << WHITE "User <" << user->getNickname() << "> has joined <" << _channel[content].getName() << "> channel!" END << std::endl;
+					if (itpass != Pasword.end())
+						itpass++;
+				}
+				else
+					return (user->sendReply(ERR_BADCHANNELKEY(user->getNickname(), content)));
 			}
 		}
 		else 
 		{
-			_channel.insert(std::pair<std::string, Channel>(content, Channel(test, content)));
+			_channel.insert(std::pair<std::string, Channel>(content, Channel(user, content)));
 			std::cout << WHITE "Channel <" << _channel[content].getName() << "> has been created" END << std::endl;
-			_channel[content].setUsersMode(test.getNickname(), std::string("o"), 1);
+			_channel[content].setUsersMode(user->getNickname(), std::string("o"), 1);
+			std::map<std::string, bool> checkbool = user->getModes();
+			std::map<std::string, bool>::const_iterator itbool = checkbool.begin();
+			bool check;
+			while (itbool != checkbool.end())
+			{
+				if (itbool->first == "o")
+				{
+					check = itbool->second;
+				}
+				itbool++;
+			}
+			std::cout << WHITE "User : " RED << user->getNickname() << WHITE " is operator? : " RED << check << std::endl; 
 		}
 	}
 	return ;
@@ -270,10 +300,10 @@ void	Server::_whoCmd(User *user, std::string param){
 		return;
 	try{
 		Channel channel = _channel.at(param);
-		std::map<std::string, User> channel_users = channel.getUsers();
+		std::map<std::string, User *> channel_users = channel.getUsers();
 
-		for (std::map<std::string, User>::iterator it = channel_users.begin(); it != channel_users.end(); it++){
-			user->sendReply(RPL_WHOREPLY(user->getNickname(), param, it->second.getUsername(), it->second.getHostname(), it->second.getServer(), it->second.getNickname(), "", "", it->second.getRealname()));
+		for (std::map<std::string, User*>::iterator it = channel_users.begin(); it != channel_users.end(); it++){
+			user->sendReply(RPL_WHOREPLY(user->getNickname(), param, it->second->getUsername(), it->second->getHostname(), it->second->getServer(), it->second->getNickname(), "", "", it->second->getRealname()));
 		}
 	}
 	catch (const std::out_of_range &e){
@@ -459,9 +489,8 @@ void	Server::_modeCmd(User *user, std::string param){
 			return(user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channel[target].getChannelMode(), "")));
 		else if (!isChannel && user->getNickname() == target && value == -1)
 			return(user->sendReply(RPL_UMODEIS(user->getNickname(), user->getUserMode())));
-		//TODO unavailable mode 
 	}
-	if (isChannel && !checkChannelExistOnNetwork(target))
+	if (isChannel && !_checkChannelExistOnNetwork(target))
 		return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), target)));
 	else if (isChannel && !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
 		return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), target)));
@@ -523,19 +552,7 @@ void	Server::_noticeCmd(User *user, std::string param)
 	target = target.substr(start, target.find_last_not_of(" ") - start + 1);
 	if (target[0] == '#' || target[0] == '&')
 	{
-		std::cout << "channel" << std::endl;
-		// channel
-	 	// _channel[target].sendToAll(":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + msg + "\r\n");
-		_channel[target].sendToAll(":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + msg + "\r\n");
-		// try
-		// {
-		// 	Channel	*channel = _channel.at(target);
-
-		// 	if (!channel->userIsIn(user) && channel->isNoOutside())
-		// 		return;
-		// 	channel->privmsg(user, msg);
-		// }
-		// catch (const std::out_of_range &e) {}
+	 	_channel[target].sendToAll(":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + msg + "\r\n");
 	}
 	else
 	{
@@ -546,4 +563,140 @@ void	Server::_noticeCmd(User *user, std::string param)
 				return (it->second->sendReply(":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + msg + "\r\n"));
 		}
 	}
+}
+
+// void	Server::_kickCmd(User *user, std::string param)
+// {
+// 	std::map<std::string, bool>	tmp = user->getModes();
+// 	std::map<std::string, bool>::iterator it_mode = tmp.begin();
+// 	while (it_mode != tmp.end() && it_mode->first != "0")
+// 		it_mode++;
+// 	if (it_mode != tmp.end() && it_mode->second != true)
+// 		return(user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), user->getUserMode())));
+// 	else
+// 	{
+// 		std::string channel = param.substr(0, param.find(' '));
+// 		std::string target = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
+// 		std::string comment = param.substr(param.find(' ', param.find(' ') + 1) + 1, param.find(' ', param.find(' ', param.find(' ') + 1) + 1) - param.find(' ', param.find(' ') + 1) - 1);
+// 		std::vector<std::string> multi_target = splitov(target, ',');
+
+// 		std::vector<std::string>::iterator it_target = multi_target.begin();
+// 		for (; it_target != multi_target.end(); it_target++)
+// 		{
+// 			for (std::map<std::string, Channel>::iterator it_chan = _channel.begin() ; it_chan != _channel.end(); it_chan++)
+// 			{
+// 				if (it_chan->first == channel)
+// 				{
+// 					User *tmp = it_chan->second.getUsers()[target];
+// 					it_chan->second.removeUser(tmp);
+// 				}
+// 			}
+// 		}
+// 	}
+// }
+
+void	Server::_partCmd(User *user, std::string param)
+{
+	std::vector<std::string> multi_target = splitov(param, ',');
+	std::vector<std::string>::iterator it_target = multi_target.begin();
+	for (; it_target != multi_target.end(); it_target++)
+	{
+		std::map<std::string, Channel>::iterator it_chan = _channel.begin();
+		for (; it_chan != _channel.end(); it_chan++)
+		{
+			if (it_chan->first == *it_target)
+			{
+				it_chan->second.removeUser(user);
+				it_chan->second.sendToAll(RPL_PART(user->getNickname(), it_chan->second.getName(), " has lef channel.\r\n"));
+				break ;
+			}
+		}
+		if (it_chan == _channel.end())
+			return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), it_chan->second.getName())));
+	}
+}
+
+void	Server::_inviteCmd(User *user, std::string param)
+{
+	std::string channel = param.substr(0, param.find(' '));
+	std::string target = param.substr(param.find(' ') + 1, param.length());
+	std::map<std::string, Channel>::iterator it_chan = _channel.begin();
+	for (; it_chan != _channel.end(); it_chan++)
+	{
+		if (it_chan->first == channel)
+		{
+			if (it_chan->second.userIsIn(user))
+			{
+				std::map<std::string, bool> map_node = it_chan->second.getModes();
+				bool check_invite = map_node["i"];
+				if (check_invite == true)
+				{
+					std::map<std::string, bool> user_node = user->getModes();
+					bool check_priv = user_node["o"];
+					if (check_priv == true)
+					{
+						std::map<int, User *>::iterator it_user = _users.begin();
+						for(; it_user != _users.end(); it_user++)
+						{
+							if (it_user->second->getNickname() == target)
+							{
+								it_user->second->addInvitation(target);
+								return (user->sendReply(RPL_INVITING(user->getNickname(), target, channel)));
+							}
+							else
+								return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(), target)));
+						}
+					}
+					else
+						return (user->sendReply(ERR_CHANOPRIVSNEEDED(user->getNickname(), channel)));
+				}
+				else
+				{
+					std::map<int, User *>::iterator it_user = _users.begin();
+					for(; it_user != _users.end(); it_user++)
+					{
+						if (it_user->second->getNickname() == target)
+						{
+							it_user->second->addInvitation(target);
+							return (user->sendReply(RPL_INVITING(user->getNickname(), target, channel)));
+						}
+						else
+							return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(), target)));
+					}
+				}
+			}
+			else
+				return (user->sendReply(ERR_NOTONCHANNEL(user->getNickname(), channel)));
+		}
+	}
+	if (it_chan == _channel.end())
+		return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), channel)));
+
+}
+
+void	Server::_killCmd(User *user, std::string param)
+{
+	std::string target = param.substr(0, param.find(' '));
+	std::string comment = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
+	std::map<int, User*>::iterator it = _users.begin();
+	for (; it != _users.end(); it++)
+	{
+		if (it->second->getNickname() == target)
+		{
+			it->second->sendReply(":" + user->getNickname() + " KILL " + target + " :" + comment + "\r\n");
+			_channel[target].sendToAll(":" + user->getNickname() + " KILL " + target + " :" + comment + "\r\n");
+			_closeConnection(user);
+			// if (_channel.size() > 0)
+			// {
+				// for (std::map<std::string, Channel>::iterator it_channel = _channel.begin() ; it_channel != _channel.end(); it_channel++)
+				// {
+					// it_channel->second.sendToAll(":" + user->getNickname() + " KILL " + target + " :" + comment + "\r\n");
+					// it_channel->second.removeUser(it->second);
+				// }
+			// }
+			break ;
+		}
+	}
+	if (it == _users.end())
+		return (user->sendReply(ERR_NOSUCHNICK(user->getNickname(), target)));
 }

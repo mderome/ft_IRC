@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
+/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:41:22 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/03 15:34:44 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/09 13:28:06 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,14 @@
 #define	BUF_SIZE 10000
 
 #include "../inc/server.hpp"
+
+extern bool	run;
+
+void	signalCheck(int signum)
+{
+	(void)signum;
+	run = false;
+}
 
 bool	checkPort(char  *port)
 {
@@ -44,6 +52,8 @@ int	main(int ac, char **av)
 		else
 		{
 			//start running server here
+			run = true;
+			signal(SIGINT, signalCheck);
 			try {
 				Server server(av[1], av[2]);
 			}

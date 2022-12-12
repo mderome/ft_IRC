@@ -6,13 +6,12 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/08 12:00:24 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 15:46:20 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/server.hpp"
 #include <stdio.h>
-// #include <string.h>
 #include <cstring>
 #include <unistd.h>
 
@@ -23,6 +22,8 @@
 #include <poll.h>
 #include "../inc/returncode.hpp"
 
+bool    run;
+
 Server::Server() {}
 
 Server::Server(std::string port, std::string password) : _hostname("localhost")
@@ -30,35 +31,35 @@ Server::Server(std::string port, std::string password) : _hostname("localhost")
     _port = port;
     _password = password;
 
-    createListener();
+    _createListener();
     std::cout << WHITE "* Server created *" END << std::endl;
     _indexingCmd();
-    serverStart();
+    _serverStart();
 }
 
 Server::~Server() {}
 
-std::vector<struct pollfd>  Server::getPollFd(void)const
+std::vector<struct pollfd>  Server::_getPollFd(void)const
 {
     return (this->_pollfds);
 }
 
-std::string Server::getPort(void)const
+std::string Server::_getPort(void)const
 {
     return (this->_port);
 }
 
-std::string Server::getPassword(void)const
+std::string Server::_getPassword(void)const
 {
     return (this->_password);
 }
 
-int Server::getListener(void)const
+int Server::_getListener(void)const
 {
     return (this->_listener);
 }
 
-void    Server::createListener(void)
+void    Server::_createListener(void)
 {
     struct addrinfo     hint;
     struct addrinfo     *res = NULL;
@@ -139,7 +140,7 @@ void    Server::createListener(void)
     this->_listener = listenerFd;
 }
 
-void    Server::serverStart(void)
+void    Server::_serverStart(void)
 {
     pollfd serverFd;
     int    pollResult;
@@ -150,18 +151,12 @@ void    Server::serverStart(void)
     this->_pollfds.push_back(serverFd); // Add serverFd to pollfds vector 
 
     std::cout << CYAN "Waiting for clients..." END << std::endl;
-
-    while (1)
+    while (run)
     {
         // int pollResult = poll(&serverFd, 1, -1); // initially
         // get vector array and throw it to poll
         pollResult = poll(this->_pollfds.data(), this->_pollfds.size(), -1); // poll() waits for an event concerning fd. "-1" is to wait indefinitely
-        if (pollResult == -1)
-        {
-            std::cerr << "Error: poll()" << std::endl;
-            exit(1);
-        }
-        else {
+        if (pollResult != -1){
             for (pollfd_iterator it = this->_pollfds.begin(); it != this->_pollfds.end(); it++)
             {
                 // std::cout << GREEN "=== poll() success" END << std::endl;
@@ -172,11 +167,11 @@ void    Server::serverStart(void)
                     {
                         // Accept a new connection
                         std::cout << "listener: " << this->_listener << std::endl;
-                        acceptNewConnection(); 
+                        _acceptNewConnection(); 
                         break;
                     }
                     // Receive data from client
-                    receiveData(it);
+                    _receiveData(it);
                 } 
                 else if (it->revents & POLLHUP)
                 {
@@ -199,9 +194,11 @@ void    Server::serverStart(void)
             }
         }
     }
+    std::cout << std::endl << GREEN "Server stopped successfully" END << std::endl;
+    _clean();
 }
 
-void    Server::acceptNewConnection(void)
+void    Server::_acceptNewConnection(void)
 {
     struct sockaddr_storage userAddr;
     socklen_t userAddrSize = sizeof(userAddr);
@@ -218,15 +215,15 @@ void    Server::acceptNewConnection(void)
         std::cout << GREEN "=== accept() success" END << std::endl;
 
         // Add userFd to pollfds vector
-        addUserToPollFd(userFd, userAddr);
+        _addUserToPollFd(userFd, userAddr);
 
         // Print data about the client
-        printUserData(userFd, userAddr);
+        _printUserData(userFd, userAddr);
     }
 }
 
 
-void    Server::addUserToPollFd(int userFd, struct sockaddr_storage userAddr)
+void    Server::_addUserToPollFd(int userFd, struct sockaddr_storage userAddr)
 {
     pollfd userFdPoll;
     
@@ -240,7 +237,7 @@ void    Server::addUserToPollFd(int userFd, struct sockaddr_storage userAddr)
     // this->_users.insert(std::make_pair(userFd, new User(userFd, &userAddr))); // Add userFd to users map
 }
 
-void    Server::printUserData(int userFd, struct sockaddr_storage userAddr)
+void    Server::_printUserData(int userFd, struct sockaddr_storage userAddr)
 {
     char host[NI_MAXHOST]; // NI_MAXHOST : Maximum size of a fully-qualified domain name
     char port[NI_MAXSERV]; // NI_MAXSERV : Maximum size of a decimal port number
@@ -257,14 +254,14 @@ void    Server::printUserData(int userFd, struct sockaddr_storage userAddr)
     std::cout << CYAN "Client connected: " MAGENTA << host << ":" << port << CYAN ", on socket " MAGENTA << userFd << END << std::endl;
 }
 
-void	Server::receiveData(pollfd_iterator &it)
+void	Server::_receiveData(pollfd_iterator &it)
 {
 	try
 	{
 		User	*user = this->_users.at(it->fd);
 		int		nbytes = 0;
 
-		nbytes = getMessage(user);        
+		nbytes = _getMessage(user);        
         std::cout << YELLOW "bytes sent: " << nbytes << END << std::endl;
 		if (nbytes <= 0)
 		{
@@ -272,10 +269,10 @@ void	Server::receiveData(pollfd_iterator &it)
 				std::cout << "pollserver : socket " << it->fd << " hung up" << std::endl;
 			else // error
 				std::cerr << "Error : recv" << std::endl;
-			deleteUser(it);
+			_deleteUser(it);
 		}
 		else
-			chooseCmd(user);
+			_chooseCmd(user);
 	}
 	catch (const std::out_of_range &e)
 	{
@@ -283,7 +280,7 @@ void	Server::receiveData(pollfd_iterator &it)
 	}
 }
 
-int	Server::getMessage(User *user)
+int	Server::_getMessage(User *user)
 {
 	int			fd = user->getFd();
 	int			nbytes = 0;
@@ -305,7 +302,7 @@ int	Server::getMessage(User *user)
 	return (nbytes);
 }
 
-void	Server::closeConnection(User *user)
+void	Server::_closeConnection(User *user)
 {
 	try
 	{
@@ -327,7 +324,7 @@ void	Server::closeConnection(User *user)
 	catch (const std::out_of_range &e) {}
 }
 
-void	Server::deleteUser(pollfd_iterator &it)
+void	Server::_deleteUser(pollfd_iterator &it)
 {
     try
     {
@@ -337,6 +334,7 @@ void	Server::deleteUser(pollfd_iterator &it)
         if (fd != -1)
             close(fd);
         _pollfds.erase(it);
+        _channel[_users[fd]->getNickname()].removeUser(_users[fd]);
         _users.erase(fd);
         delete user;
         std::cout << "Disconnecting user on socket " << fd << std::endl;
@@ -366,3 +364,28 @@ void	Server::deleteUser(pollfd_iterator &it)
 //         map.insert(std::pair<int, User *>(i, new User(str.substr(pos1))));
 //     return (map);
 // }
+
+void    Server::_clean(void)
+{
+    // for (channel_iterator it = _channel.begin(); it != _channel.end(); ++it)
+    // {
+    //     delete it->second;
+    // }
+    for (std::map<int, User *>::iterator it = _users.begin(); it != _users.end(); ++it)
+    {
+        // if (it->first != _sockfd)
+        // {
+            // close(it->first);
+            // _users.erase(it);
+            delete it->second;
+        // }
+    }
+    for (pollfd_iterator it = _pollfds.begin(); it != _pollfds.end(); ++it)
+    {
+        // if (it->fd != _sockfd)
+        // {
+            close(it->fd);
+            // _pollfds.erase(it);
+        // }
+    }
+}

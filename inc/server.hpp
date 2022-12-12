@@ -6,9 +6,14 @@
 /*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2022/12/09 15:20:04 by achane-l         ###   ########.fr       */
+=======
+/*   Updated: 2022/12/09 16:17:45 by esafar           ###   ########.fr       */
+>>>>>>> testnet
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
@@ -18,6 +23,7 @@
 # include <cstdlib>
 # include <sstream> // std::stringstream
 # include <unistd.h>
+# include <signal.h>
 
 # include <poll.h>
 # include <sys/types.h>
@@ -40,6 +46,7 @@ class Server
 {
     typedef std::vector<pollfd>::iterator pollfd_iterator;
 	typedef std::map<int, User *>::iterator users_iterator;
+    typedef std::map<std::string, Channel>::iterator channel_iterator;
     typedef void (Server::*func)(User *, std::string);
 
     public:
@@ -57,24 +64,24 @@ class Server
         std::map<std::string, func>         _indexCmd;
         std::map<std::string, Channel>      _channel;
         
-        std::vector<struct pollfd>  getPollFd(void)const;
-        std::string getPort(void)const;
-        std::string getPassword(void)const;
-        int getListener(void)const;
+        std::vector<struct pollfd>      _getPollFd(void)const;
+        std::string                     _getPort(void)const;
+        std::string                     _getPassword(void)const;
+        int                             _getListener(void)const;
         
-        void    createListener(void);
-        void    serverStart(void);
-        void    acceptNewConnection(void);
-        void    addUserToPollFd(int clientFd, struct sockaddr_storage clientAddr);
-        void    printUserData(int clientFd, struct sockaddr_storage clientAddr);
-        void    receiveData(pollfd_iterator &it);
-        int     getMessage(User *user);
-        void    deleteUser(pollfd_iterator &it);
+        void    _createListener(void);
+        void    _serverStart(void);
+        void    _acceptNewConnection(void);
+        void    _addUserToPollFd(int clientFd, struct sockaddr_storage clientAddr);
+        void    _printUserData(int clientFd, struct sockaddr_storage clientAddr);
+        void    _receiveData(pollfd_iterator &it);
+        int     _getMessage(User *user);
+        void    _deleteUser(pollfd_iterator &it);
 
         void    _indexingCmd();
-        void	chooseCmd(User *user);
+        void	_chooseCmd(User *user);
         
-        void    closeConnection(User *user);
+        void    _closeConnection(User *user);
 
 		void	_userCmd(User *user, std::string param);
 		void	_passCmd(User *user, std::string param);
@@ -88,11 +95,23 @@ class Server
         void    _joinCmd(User *user, std::string param);
         void    _listCmd(User *user, std::string param);
         void    _noticeCmd(User *user, std::string param);
+        void	_kickCmd(User *user, std::string param);
+        void	_partCmd(User *user, std::string param);
+        void    _killCmd(User *user, std::string param);
+        void	_inviteCmd(User *user, std::string param);
 
+<<<<<<< HEAD
         bool    checkChannelExistOnNetwork(std::string channel);
         bool    checkUserExistOnNetwork(std::string user);
         void	changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel, std::vector<std::string> *modearg);
+=======
+        bool    _checkChannelExistOnNetwork(std::string channel);
+        bool    _checkUserExistOnNetwork(std::string user);
+        void	_changeModes(User *user, std::string target, std::string mode, bool value, bool isChannel);
+>>>>>>> testnet
         void	_modeCmd(User *user, std::string param);
+
+        void    _clean(void);
 };
 
 #endif

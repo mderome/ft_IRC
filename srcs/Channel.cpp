@@ -13,13 +13,13 @@ Channel::Channel(void)
     _modes.insert(std::pair<std::string, bool>("k", false));
 }
 
-Channel::Channel(User user, std::string name)
+Channel::Channel(User *user, std::string name)
 {
     _name = name;
     _limit = 0;
     // _pwd = NULL;
-    _users.insert(std::pair<std::string, User>(user.getNickname(), user));
-    _operator.insert(std::pair<std::string, int>(user.getNickname(), true));
+    _users.insert(std::pair<std::string, User *>(user->getNickname(), user));
+    _operator.insert(std::pair<std::string, int>(user->getNickname(), true));
     _modes.insert(std::pair<std::string, bool>("m", false));
     _modes.insert(std::pair<std::string, bool>("n", false));
     _modes.insert(std::pair<std::string, bool>("p", false));
@@ -30,13 +30,13 @@ Channel::Channel(User user, std::string name)
     _modes.insert(std::pair<std::string, bool>("k", false));
 }
 
-Channel::Channel(User user, std::string name, std::string password)
+Channel::Channel(User *user, std::string name, std::string password)
 {
     _name = name;
     _limit = 0;
     _pwd = password;
-    _users.insert(std::pair<std::string, User>(user.getNickname(), user));
-    _operator.insert(std::pair<std::string, int>(user.getNickname(), true));
+    _users.insert(std::pair<std::string, User *>(user->getNickname(), user));
+    _operator.insert(std::pair<std::string, int>(user->getNickname(), true));
     _modes.insert(std::pair<std::string, bool>("m", false));
     _modes.insert(std::pair<std::string, bool>("n", false));
     _modes.insert(std::pair<std::string, bool>("p", false));
@@ -82,7 +82,7 @@ std::string Channel::getTopic() const
     return (_topic);
 }
 
-std::map<std::string, User> Channel::getUsers() const
+std::map<std::string, User *> Channel::getUsers() const
 {
     return (_users);
 }
@@ -117,18 +117,18 @@ void Channel::setTopic(std::string topic)
     _topic = topic;
 }
 
-void Channel::setUsers(User users)
+void Channel::setUsers(User *users)
 {
-    _users.insert(std::pair<std::string, User>(users.getNickname(), users));
+    _users.insert(std::pair<std::string, User *>(users->getNickname(), users));
 }
 
 
 void Channel::setUsersMode(std::string user, std::string mode, int action)
 {
     if (action < 0)
-        _users[user].setModes(mode, false);
+        _users[user]->setModes(mode, false);
     else if (action > 0)
-        _users[user].setModes(mode, true);
+        _users[user]->setModes(mode, true);
 }
 
 void Channel::setBans(std::string bans)
@@ -146,9 +146,9 @@ void Channel::setModes(std::string modes, bool value)
     _modes[modes] = value;
 }
 
-void Channel::setOperator(User users)
+void Channel::setOperator(User *users)
 {
-    _operator.insert(std::pair<std::string, bool>(users.getNickname(), true));
+    _operator.insert(std::pair<std::string, bool>(users->getNickname(), true));
 }
 
 void Channel::setLimit(int limit)
@@ -159,6 +159,12 @@ void Channel::setLimit(int limit)
 void Channel::setPwd(std::string pwd)
 {
     _pwd = pwd;
+}
+
+void Channel::removeUser(User *user)
+{
+    std::string tmp = user->getNickname();
+    _users.erase(tmp);
 }
 
 void Channel::removeBan(std::string ban)
@@ -187,14 +193,14 @@ std::string Channel::getPwd() const
     return (_pwd);
 }
 
-void Channel::addUser(User user)
+void Channel::addUser(User *user)
 {
-    _users.insert(std::pair<std::string, User>(user.getNickname(), user));
+    _users.insert(std::pair<std::string, User *>(user->getNickname(), user));
 }
 
-void Channel::addBan(User user)
+void Channel::addBan(User *user)
 {
-    _bans.push_back(user.getNickname());
+    _bans.push_back(user->getNickname());
 }
 
 void Channel::addOldMessage(std::string old_message)
@@ -202,9 +208,9 @@ void Channel::addOldMessage(std::string old_message)
     _old_messages.push_back(old_message);
 }   
 
-void Channel::addOperator(User user)
+void Channel::addOperator(User *user)
 {
-    _operator.insert(std::pair<std::string, int>(user.getNickname(), true));
+    _operator.insert(std::pair<std::string, int>(user->getNickname(), true));
 }
 
 void Channel::clearUsers()
@@ -234,27 +240,29 @@ void Channel::clearModes()
 
 void Channel::sendToAll(std::string message)
 {
-    for (std::map<std::string, User>::iterator it = _users.begin(); it != _users.end(); it++)
+    for (std::map<std::string, User *>::iterator it = _users.begin(); it != _users.end(); it++)
     {
-        int n = send(it->second.getFd(), message.c_str(), message.length(), 0);
+        int n = send(it->second->getFd(), message.c_str(), message.length(), 0);
         std::cout << "send " << n << " bytes" << std::endl;
         std::cout << "send " << message << std::endl;
         std::cout << "send " << message.length() << std::endl;
-        std::cout << "send fd: " << it->second.getFd() << std::endl;
+        std::cout << "send fd: " << it->second->getFd() << std::endl;
     }
 }
 
 void Channel::sendToAllSaufALui( std::string user, std::string message)
 {
-    for (std::map<std::string, User>::iterator it = _users.begin(); it != _users.end(); it++)
+    for (std::map<std::string, User *>::iterator it = _users.begin(); it != _users.end(); it++)
     {
         if (it->first != user)
         {
-            int n = send(it->second.getFd(), message.c_str(), message.length(), 0);
-            std::cout << "send " << n << " bytes" << std::endl;
-            std::cout << "send " << message << std::endl;
-            std::cout << "send " << message.length() << std::endl;
-            std::cout << "send fd: " << it->second.getFd() << std::endl;
+            if (it->second->getFd() == -1)
+                return;
+            send(it->second->getFd(), message.c_str(), message.length(), 0);
+            // std::cout << "send " << n << " bytes" << std::endl;
+            // std::cout << "send " << message << std::endl;
+            // std::cout << "send " << message.length() << std::endl;
+            // std::cout << "send fd: " << it->second->getFd() << std::endl;
         }
     }
 }
@@ -293,4 +301,19 @@ bool	Channel::userIsIn(User *user)
 		return (false);
 	}
 	return (true);
+}
+
+void	Channel::callPrivmsg(User *user, std::string msg)
+{
+	std::string	nick = user->getNickname();
+
+	// if (_mode.find('m') != std::string::npos && !userIsOperator(user) && !userIsModerate(user))
+	// 	return (user->sendReply(ERR_CANNOTSENDTOCHAN(_name)));
+	// for (users_iterator it = _users.begin(); it != _users.end(); ++it)
+	// {
+    //     // if 
+	// 	// if (it->second->getNickname() != user->getNickname())
+	// 	// 	it->second->sendReply(":" + user->getNickname() + "@IRC PRIVMSG " + nick + " :" + msg + "\r\n");
+	// }
+    user->sendReply(":" + user->getNickname() + "@IRC PRIVMSG " + nick + " :" + msg + "\r\n");
 }
