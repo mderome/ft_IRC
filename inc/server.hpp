@@ -6,7 +6,7 @@
 /*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/12 15:34:20 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/12 16:04:59 by achane-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,14 @@
 # include "Channel.hpp"
 # include "user.hpp"
 # include "returncode.hpp"
+# include "parsing.hpp"
 
 # include "color.hpp"
 
 class User;
 class Channel;
 
-class Server
+class Server : public parsing
 {
     typedef std::vector<pollfd>::iterator pollfd_iterator;
 	typedef std::map<int, User *>::iterator users_iterator;

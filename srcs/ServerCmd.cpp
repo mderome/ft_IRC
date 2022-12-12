@@ -93,11 +93,8 @@ void	Server::_caplsCmd(User *user, std::string param)
 
 void	Server::_userCmd(User *user, std::string param)
 {
-	std::cout<< param << std::endl;
 	if (user->hasBeenWelcomed())
 		return (user->sendReply(ERR_ALREADYREGISTRED(user->getNickname())));
-	// PArsing pour recuperer les params renvoyer  ERR_NEEDMOREPARAMS si probleme
-	// check username realname et mode
 	if (param.empty())
 		return (user->sendReply("Error: user: empty"));
 	// std::cout << "param : " << param << std::endl;
@@ -105,8 +102,13 @@ void	Server::_userCmd(User *user, std::string param)
 	std::string username = param.substr(0, param.find(' '));
 	std::string mode = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
 	std::string unused = param.substr(param.find(' ', param.find(' ') + 1) + 1, param.find(' ', param.find(' ', param.find(' ') + 1) + 1) - param.find(' ', param.find(' ') + 1) - 1);
-	std::string realname = param.substr(param.find(':', param.find(' ', param.find(' ') + 1) + 1) + 1);
-	user->setUsername(username);
+	std::string realname;
+	if (param.find(':', param.find(' ', param.find(' ') + 1) + 1) == std::string::npos)
+		realname = "";
+	else
+		realname = param.substr(param.find(':', param.find(' ', param.find(' ') + 1) + 1) + 1);
+	if (realname == "" || mode == "" || username == "")
+		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
 	user->setRealname(realname);
 	if (user->getNickname().size() && user->getPassword() && !user->hasBeenWelcomed())
 		user->welcome();
@@ -124,16 +126,14 @@ void	Server::_passCmd(User *user, std::string param)
 		return (user->sendReply(ERR_PASSWDMISMATCH(user->getNickname())));
 	}
 	user->setPassword(true);
-	// if (user->getNickname().length() && user->getUsername().length())
-	// 	user->welcome();
 }
 
 void	Server::_nickCmd(User *user, std::string param)
 {
 	if (param.empty())
-		return (user->sendReply(ERR_NONICKNAMEGIVEN(user->getNickname())));
-	//PARSE NICKNAME POUR CHECK SI IL EST VALIDE
-	// renvoie ERR_ERRONEUSNICKNAME
+		return (user->sendReply(ERR_NONICKNAMEGIVEN(param)));
+	if (!valid_user_name(param))
+		return (user->sendReply(ERR_NONICKNAMEGIVEN(param)));
 	if (param.find(' ') != std::string::npos)
 		param = param.substr(0, param.find_first_of(' '));
 	for (users_iterator it = _users.begin(); it != _users.end(); ++it)
@@ -142,8 +142,6 @@ void	Server::_nickCmd(User *user, std::string param)
 			return (user->sendReply(ERR_NICKCOLLISION()));
 	}
 	user->setNickname(param);
-	// if (user->getUsername().length() && user->getPassword() && !user->hasBeenWelcomed())
-	// 	user->welcome();
 }
 
 void	Server::_quitCmd(User *user, std::string param)
@@ -593,22 +591,26 @@ void	Server::_noticeCmd(User *user, std::string param)
 
 void	Server::_partCmd(User *user, std::string param)
 {
+	if (param.length() == 0)
+			return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
 	std::vector<std::string> multi_target = splitov(param, ',');
 	std::vector<std::string>::iterator it_target = multi_target.begin();
 	for (; it_target != multi_target.end(); it_target++)
 	{
+		if (!valid_server_name(*it_target))
+			return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), param)));
 		std::map<std::string, Channel>::iterator it_chan = _channel.begin();
 		for (; it_chan != _channel.end(); it_chan++)
 		{
 			if (it_chan->first == *it_target)
 			{
-				it_chan->second.removeUser(user);
 				it_chan->second.sendToAll(RPL_PART(user->getNickname(), it_chan->second.getName(), " has lef channel.\r\n"));
+				it_chan->second.removeUser(user);
 				break ;
 			}
 		}
 		if (it_chan == _channel.end())
-			return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), it_chan->second.getName())));
+			return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), *it_target)));
 	}
 }
 
@@ -667,7 +669,6 @@ void	Server::_inviteCmd(User *user, std::string param)
 	}
 	if (it_chan == _channel.end())
 		return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), channel)));
-
 }
 
 void	Server::_killCmd(User *user, std::string param)
