@@ -186,7 +186,8 @@ void	Server::_pingCmd(User *user, std::string param){
 	user->sendReply(RPL_PONG(user->getNickname(), param));
 }
 
-void	Server::_privmsgCmd(User *user, std::string param){
+void	Server::_privmsgCmd(User *user, std::string param)
+{
 	if (param.empty())
 		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), param)));
 	std::string	target = param.substr(0, param.find(' '));
@@ -206,17 +207,6 @@ void	Server::_privmsgCmd(User *user, std::string param){
 	else
 	{
 		// user
-		// for (std::map<int, User *>::iterator it = _users.begin(); it != _users.end(); ++it)
-		// {
-		// 	if (it->second->getNickname() == target)
-		// 	{
-		// 		std::string buf = ":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n";
-		// 		it->second->sendReply(buf);
-		// 		// send(it->first, buf.c_str(), buf.length(), 0);
-		// 		std::cout << YELLOW "sent to " << it->second->getNickname() << END << std::endl;
-		// 		return ;
-		// 	}
-		// }
 		std::map<int, User *>::iterator it = _users.begin();
 		for (; it != _users.end(); ++it)
 		{
