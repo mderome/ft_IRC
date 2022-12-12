@@ -50,6 +50,7 @@ void	Server::_chooseCmd(User *user)
 					buf.clear();
 				if (!buf.empty())
 					buf = buf.substr(0, buf.find_last_not_of(' ') + 1);
+				std::cout << CYAN "Time: <" WHITE << user->timestamp().substr(11) << CYAN ">" END << std::endl;
 				std::cout << CYAN "Command: <" WHITE << cmd << CYAN ">" << std::endl;
 				std::cout << CYAN "Buffer: <" WHITE << buf << CYAN ">" << std::endl;
 				if (cmd != "CAP" && cmd != "PASS" && !user->getPassword())
@@ -99,7 +100,7 @@ void	Server::_userCmd(User *user, std::string param)
 	// check username realname et mode
 	if (param.empty())
 		return (user->sendReply("Error: user: empty"));
-	std::cout << "param : " << param << std::endl;
+	// std::cout << "param : " << param << std::endl;
 	// parsing here
 	std::string username = param.substr(0, param.find(' '));
 	std::string mode = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
@@ -170,7 +171,7 @@ void	Server::_quitCmd(User *user, std::string param)
 		}
 		_users.erase(fd);
 		delete user;
-		std::cout << "Disconnecting user on socket " << fd << std::endl;
+		std::cout << CYAN "Disconnecting user on socket " MAGENTA << fd << END << std::endl;
 	}
 	catch (const std::out_of_range &e) {}
 }
@@ -196,17 +197,14 @@ void	Server::_privmsgCmd(User *user, std::string param){
 	message = message.substr(1);
 	if (target[0] == '#')
 	{
-		std::cout << "channel" << std::endl;
 		// channel
 		_channel[target].sendToAllSaufALui(user->getNickname() ,":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n");
 	}
 	else
 	{
-		std::cout << "user" << std::endl;
 		// user
 		for (std::map<int, User *>::iterator it = _users.begin(); it != _users.end(); ++it)
 		{
-			std::cout << "target : " << target << std::endl;
 			if (it->second->getNickname() == target)
 			{
 				std::string buf = ":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n";
@@ -260,8 +258,6 @@ void	Server::_joinCmd(User *user, std::string param)
 				return (user->sendReply(ERR_NOSUCHCHANNEL(user->getNickname(), content)));
 			else
 			{
-				std::cout << "length = " << itpass->length() << std::endl;
-				std::cout << "c koi = " << *itpass << std::endl;
 				if (*itpass == _channel[content].getPwd() || itpass->length() == 0)
 				{
 					_channel.find(content)->second.addUser(user);

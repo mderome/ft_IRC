@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:41:22 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 13:28:06 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/12 12:27:39 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,13 @@ void	signalCheck(int signum)
 	run = false;
 }
 
-bool	checkPort(char  *port)
+bool	checkPort(std::string port)
 {
-	for (size_t i = 0; i < strlen(port); i++)
+	for (size_t i = 0; i < port.length(); i++)
 	{
 		if (port[i] < '0' || port[i] > '9')
 			return (false);
+		// std::cout << YELLOW "Port: -> " << port[i] << END << std::endl;
 	}
 	return (true);
 }
