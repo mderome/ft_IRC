@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mderome <mderome@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 16:17:45 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/09 19:58:29 by mderome          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,14 @@
 # include "Channel.hpp"
 # include "user.hpp"
 # include "returncode.hpp"
+# include "parsing.hpp"
 
 # include "color.hpp"
 
 class User;
 class Channel;
 
-class Server
+class Server : public parsing
 {
     typedef std::vector<pollfd>::iterator pollfd_iterator;
 	typedef std::map<int, User *>::iterator users_iterator;
