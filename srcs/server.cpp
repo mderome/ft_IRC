@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/09 15:46:20 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/12 12:21:54 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,7 @@ void    Server::_serverStart(void)
     pollfd serverFd;
     int    pollResult;
     serverFd.fd = this->_listener; // File descriptor to poll (to listen)
-    serverFd.events = POLLIN; // POLLIN : There is data to read. Manage events expected.
+    serverFd.events = POLLIN | POLLOUT; // POLLIN : Data may be read without blocking. POLLOUT : Data may be written without blocking.
     serverFd.revents = 0; // Manage event detection
 
     this->_pollfds.push_back(serverFd); // Add serverFd to pollfds vector 
@@ -161,12 +161,12 @@ void    Server::_serverStart(void)
             {
                 // std::cout << GREEN "=== poll() success" END << std::endl;
                 
-                if (it->revents & POLLIN)
+                if (it->revents & (POLLIN | POLLOUT))
                 {
                     if (it->fd == this->_listener)
                     {
                         // Accept a new connection
-                        std::cout << "listener: " << this->_listener << std::endl;
+                        // std::cout << "listener: " << this->_listener << std::endl;
                         _acceptNewConnection(); 
                         break;
                     }
@@ -206,10 +206,7 @@ void    Server::_acceptNewConnection(void)
     // Accept a new connection on a specified socket
     int userFd = accept(this->_listener, (struct sockaddr *)&userAddr, &userAddrSize);
     if (userFd == -1)
-    {
         std::cerr << RED "Error: accept()" END << std::endl;
-        // exit(1);
-    }
     else
     {
         std::cout << GREEN "=== accept() success" END << std::endl;
@@ -231,7 +228,7 @@ void    Server::_addUserToPollFd(int userFd, struct sockaddr_storage userAddr)
     userFdPoll.events = POLLIN; // POLLIN : There is data to read. Manage events expected.
     userFdPoll.revents = 0; // Manage event detection
     
-    std::cout << "===== userFd: " << userFd << std::endl;
+    // std::cout << "===== userFd: " << userFd << std::endl;
     this->_pollfds.push_back(userFdPoll); // Add userFd to pollfds vector
     this->_users.insert(std::pair<int, User *>(userFd, new User(userFd, &userAddr))); // Add userFd to users map
     // this->_users.insert(std::make_pair(userFd, new User(userFd, &userAddr))); // Add userFd to users map
@@ -319,7 +316,7 @@ void	Server::_closeConnection(User *user)
 		}
 		_users.erase(fd);
 		delete user;
-		std::cout << "Disconnecting user on socket " << fd << std::endl;
+		std::cout << CYAN "Disconnecting user on socket " MAGENTA << fd << END << std::endl;
 	}
 	catch (const std::out_of_range &e) {}
 }
@@ -337,10 +334,10 @@ void	Server::_deleteUser(pollfd_iterator &it)
         _channel[_users[fd]->getNickname()].removeUser(_users[fd]);
         _users.erase(fd);
         delete user;
-        std::cout << "Disconnecting user on socket " << fd << std::endl;
+		std::cout << CYAN "Disconnecting user on socket " MAGENTA << fd << END << std::endl;
     }
     catch (const std::out_of_range &e) {
-        std::cout << "Out of range from deleteUser" << std::endl;
+        std::cout << RED "Exception: Out of range from deleteUser" END << std::endl;
     }
 }
 
