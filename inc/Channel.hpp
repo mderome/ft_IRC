@@ -38,6 +38,7 @@ class Channel
         std::map<std::string, bool> getModes() const;
         std::map<std::string, int> getOperator() const;
         std::vector<std::string> getUsersInvited() const;
+        int   getNbUser() const { return (_nb_users);};
 
         int getLimit() const;
         std::string getPwd() const;

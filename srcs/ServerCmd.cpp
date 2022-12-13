@@ -232,9 +232,7 @@ void	Server::_noticeCmd(User *user, std::string param)
 		// channel
 		if (_channel.find(target) == _channel.end())
 			return ;
-		else if (!_channel[target].userIsIn(user))
-			return ;
-		_channel[target].sendToAllSaufALui(user->getNickname() ,":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n");
+		_channel[target].sendToAllSaufALui(user->getNickname() ,":" + user->getNickname() + "@IRC NOTICE " + target + " :" + message + "\r\n");
 	}
 	else
 	{
@@ -244,7 +242,7 @@ void	Server::_noticeCmd(User *user, std::string param)
 		{
 			if (it->second->getNickname() == target)
 			{
-				std::string buf = ":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n";
+				std::string buf = ":" + user->getNickname() + "@IRC NOTICE " + target + " :" + message + "\r\n";
 				it->second->sendReply(buf);
 				std::cout << YELLOW "sent to " << it->second->getNickname() << END << std::endl;
 				return ;
@@ -393,24 +391,6 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 					return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
 				return;
 			}
-			case 'l':{
-				_channel[target].setModes(mode, value);
-				if (value && (*modearg).size() > 0){
-					try {
-						int _limit = std::atoi((*modearg)[0].c_str());
-						if (_limit < _nb_users)
-							return (user->sendReply(user->getNickname() + " mode +l " + limit + ": error limit"));
-						_channel[target].setModes(mode, value);
-						_channel[target].setLimit(_limit);
-					}
-					catch(const std::out_of_range &e){
-						return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
-					}
-				}
-				else if (value && (*modearg).size() == 0)
-					return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
-				return;
-			}
 			case 'o':{
 				if ((*modearg).size() == 0 || !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
 					return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
@@ -430,10 +410,12 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 				}
 				return;
 			}
-			case 'i':
+			case 'p':
 				_channel[target].setModes(mode, value);
+				break;
 			case 's':
 				_channel[target].setModes(mode, value);
+				break;
 			default:
 				return(user->sendReply(ERR_UNKNOWNMODE(user->getNickname(), mode)));
 		}
@@ -536,7 +518,7 @@ void	Server::_listCmd(User *user, std::string param)
 		for (std::map<std::string, Channel>::iterator it = _channel.begin(); it != _channel.end(); ++it)
 		{
 			// check if channel is secret or private
-			if (it->second.getChannelMode().find('s') != std::string::npos)
+			if (it->second.getChannelMode().find('s') != std::string::npos || it->second.getChannelMode().find('p') != std::string::npos)
 				continue;
 			std::stringstream ss;
 			ss << it->second.getUsers().size();
@@ -551,7 +533,7 @@ void	Server::_listCmd(User *user, std::string param)
 		for (std::map<std::string, Channel>::iterator it = _channel.begin(); it != _channel.end(); ++it)
 		{
 			// check if channel is secret or private
-			if (it->second.getChannelMode().find('s') != std::string::npos)
+			if (it->second.getChannelMode().find('s') != std::string::npos || it->second.getChannelMode().find('p') != std::string::npos)
 				continue;
 			std::stringstream ss;
 			ss << it->second.getUsers().size();

@@ -5,12 +5,8 @@ Channel::Channel(void)
 {
     _limit = 100;
     _nb_users = 0;
-    _modes.insert(std::pair<std::string, bool>("m", false));
-    _modes.insert(std::pair<std::string, bool>("n", false));
-    _modes.insert(std::pair<std::string, bool>("p", false));
     _modes.insert(std::pair<std::string, bool>("s", false));
-    _modes.insert(std::pair<std::string, bool>("t", false));
-    _modes.insert(std::pair<std::string, bool>("i", false));
+    _modes.insert(std::pair<std::string, bool>("p", false));
     _modes.insert(std::pair<std::string, bool>("l", false));
     _modes.insert(std::pair<std::string, bool>("k", false));
 }
@@ -23,12 +19,8 @@ Channel::Channel(User *user, std::string name)
     // _pwd = NULL;
     _users.insert(std::pair<std::string, User *>(user->getNickname(), user));
     _operator.insert(std::pair<std::string, int>(user->getNickname(), true));
-    _modes.insert(std::pair<std::string, bool>("m", false));
-    _modes.insert(std::pair<std::string, bool>("n", false));
-    _modes.insert(std::pair<std::string, bool>("p", false));
     _modes.insert(std::pair<std::string, bool>("s", false));
-    _modes.insert(std::pair<std::string, bool>("t", false));
-    _modes.insert(std::pair<std::string, bool>("i", false));
+    _modes.insert(std::pair<std::string, bool>("p", false));
     _modes.insert(std::pair<std::string, bool>("l", false));
     _modes.insert(std::pair<std::string, bool>("k", false));
 }
@@ -42,7 +34,7 @@ Channel::Channel(User *user, std::string name, std::string password)
     _users.insert(std::pair<std::string, User *>(user->getNickname(), user));
     _operator.insert(std::pair<std::string, int>(user->getNickname(), true));
     _modes.insert(std::pair<std::string, bool>("s", false));
-    _modes.insert(std::pair<std::string, bool>("i", false));
+    _modes.insert(std::pair<std::string, bool>("p", false));
     _modes.insert(std::pair<std::string, bool>("l", false));
     _modes.insert(std::pair<std::string, bool>("k", false));
 }
