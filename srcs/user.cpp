@@ -136,7 +136,7 @@ void	User::sendReply(std::string reply)
 
 	if (n == -1)
 	{
-		std::cout << RED "Error User::sendReply" END << std::endl;//Throw erreur ici
+		std::cerr << RED "Error User::sendReply" END << std::endl;
 	}
 }
 

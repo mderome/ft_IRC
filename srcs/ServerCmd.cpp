@@ -196,6 +196,7 @@ void	Server::_privmsgCmd(User *user, std::string param)
 		else if (!_channel[target].userIsIn(user))
 			return (user->sendReply(ERR_NOTONCHANNEL(user->getNickname(), target)));
 		_channel[target].sendToAllSaufALui(user->getNickname() ,":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n");
+		std::cout << YELLOW "Message sent to " << target << END << std::endl;
 	}
 	else
 	{
@@ -207,7 +208,7 @@ void	Server::_privmsgCmd(User *user, std::string param)
 			{
 				std::string buf = ":" + user->getNickname() + "@IRC PRIVMSG " + target + " :" + message + "\r\n";
 				it->second->sendReply(buf);
-				std::cout << YELLOW "sent to " << it->second->getNickname() << END << std::endl;
+				std::cout << YELLOW "Message sent to " << it->second->getNickname() << END << std::endl;
 				return ;
 			}
 		}
@@ -507,7 +508,7 @@ void	Server::_listCmd(User *user, std::string param)
 		}
 		user->sendReply(":" + _hostname + " 323 " + user->getNickname() + " :End of /LIST\r\n");
 	}
-	else if (param == "YES")
+	else if (param == "-YES")
 	{
 		for (std::map<std::string, Channel>::iterator it = _channel.begin(); it != _channel.end(); ++it)
 		{
@@ -547,7 +548,6 @@ void	Server::_noticeCmd(User *user, std::string param)
 	}
 	else
 	{
-		std::cout << "user" << std::endl;
 		for (users_iterator it = _users.begin(); it != _users.end(); ++it)
 		{
 			if (it->second->getNickname() == target)
