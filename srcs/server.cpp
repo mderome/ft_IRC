@@ -6,7 +6,7 @@
 /*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 14:01:27 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/13 11:49:29 by esafar           ###   ########.fr       */
+/*   Updated: 2022/12/13 14:48:12 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,7 +215,7 @@ void    Server::_acceptNewConnection(void)
         _addUserToPollFd(userFd, userAddr);
 
         // Print data about the client
-        _printUserData(userFd, userAddr);
+        // _printUserData(userFd, userAddr);
     }
 }
 
@@ -234,22 +234,22 @@ void    Server::_addUserToPollFd(int userFd, struct sockaddr_storage userAddr)
     // this->_users.insert(std::make_pair(userFd, new User(userFd, &userAddr))); // Add userFd to users map
 }
 
-void    Server::_printUserData(int userFd, struct sockaddr_storage userAddr)
-{
-    char host[NI_MAXHOST]; // NI_MAXHOST : Maximum size of a fully-qualified domain name
-    char port[NI_MAXSERV]; // NI_MAXSERV : Maximum size of a decimal port number
+// void    Server::_printUserData(int userFd, struct sockaddr_storage userAddr)
+// {
+//     char host[NI_MAXHOST]; // NI_MAXHOST : Maximum size of a fully-qualified domain name
+//     char port[NI_MAXSERV]; // NI_MAXSERV : Maximum size of a decimal port number
 
-    // Get the user's IP address and port number
-    int result = getnameinfo((struct sockaddr *)&userAddr, sizeof(userAddr), host, NI_MAXHOST, port, NI_MAXSERV, 0);
-    if (result)
-    {
-        std::cerr << RED "Error: getnameinfo()" END << std::endl;
-        exit(1);
-    }
-    std::cout << GREEN "=== getnameinfo() success" END << std::endl;
+//     // Get the user's IP address and port number
+//     int result = getnameinfo((struct sockaddr *)&userAddr, sizeof(userAddr), host, NI_MAXHOST, port, NI_MAXSERV, 0);
+//     if (result)
+//     {
+//         std::cerr << RED "Error: getnameinfo()" END << std::endl;
+//         exit(1);
+//     }
+//     std::cout << GREEN "=== getnameinfo() success" END << std::endl;
 
-    std::cout << CYAN "Client connected: " MAGENTA << host << ":" << port << CYAN ", on socket " MAGENTA << userFd << END << std::endl;
-}
+//     std::cout << CYAN "Client connected: " MAGENTA << host << ":" << port << CYAN ", on socket " MAGENTA << userFd << END << std::endl;
+// }
 
 void	Server::_receiveData(pollfd_iterator &it)
 {
