@@ -77,7 +77,7 @@ void	Server::_chooseCmd(User *user)
 		else
 		{
 			msg.clear();
-			user->sendReply("Message error"); //Changer message erreur
+			user->sendReply("Error: no \\r\\n found");
 		}
 	}
 }
@@ -94,7 +94,7 @@ void	Server::_userCmd(User *user, std::string param)
 	if (user->hasBeenWelcomed())
 		return (user->sendReply(ERR_ALREADYREGISTRED(user->getNickname())));
 	if (param.empty())
-		return (user->sendReply("Error: user: empty"));
+		return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
 	std::string username = param.substr(0, param.find(' '));
 	std::string mode = param.substr(param.find(' ') + 1, param.find(' ', param.find(' ') + 1) - param.find(' ') - 1);
 	std::string unused = param.substr(param.find(' ', param.find(' ') + 1) + 1, param.find(' ', param.find(' ', param.find(' ') + 1) + 1) - param.find(' ', param.find(' ') + 1) - 1);
@@ -496,6 +496,9 @@ void	Server::_listCmd(User *user, std::string param)
 	{
 		for (std::map<std::string, Channel>::iterator it = _channel.begin(); it != _channel.end(); ++it)
 		{
+			// check if channel is secret or private
+			if (it->second.getChannelMode().find('s') != std::string::npos)
+				continue;
 			std::stringstream ss;
 			ss << it->second.getUsers().size();
 			std::string userSize = ss.str();
@@ -508,6 +511,9 @@ void	Server::_listCmd(User *user, std::string param)
 	{
 		for (std::map<std::string, Channel>::iterator it = _channel.begin(); it != _channel.end(); ++it)
 		{
+			// check if channel is secret or private
+			if (it->second.getChannelMode().find('s') != std::string::npos)
+				continue;
 			std::stringstream ss;
 			ss << it->second.getUsers().size();
 			std::string userSize = ss.str();
@@ -522,7 +528,6 @@ void	Server::_listCmd(User *user, std::string param)
 	}
 }
  
-
 void	Server::_noticeCmd(User *user, std::string param)
 {
 	if (!user->hasBeenWelcomed())
