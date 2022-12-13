@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: achane-l <achane-l@student.42.fr>          +#+  +:+       +#+        */
+/*   By: esafar <esafar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/01 13:53:37 by esafar            #+#    #+#             */
-/*   Updated: 2022/12/12 16:04:59 by achane-l         ###   ########.fr       */
+/*   Updated: 2022/12/13 13:41:50 by esafar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,14 +87,14 @@ class Server : public parsing
 		void	_quitCmd(User *user, std::string param);
         void	_pingCmd(User *user, std::string param);
         void	_whoCmd(User *user, std::string param);
-        void    _topicCmd(User *user, std::string param);
+        // void    _topicCmd(User *user, std::string param);
         void    _privmsgCmd(User *user, std::string param);
         void    _joinCmd(User *user, std::string param);
         void    _listCmd(User *user, std::string param);
         void    _noticeCmd(User *user, std::string param);
         void	_kickCmd(User *user, std::string param);
         void	_partCmd(User *user, std::string param);
-        void    _killCmd(User *user, std::string param);
+        // void    _killCmd(User *user, std::string param);
         void	_inviteCmd(User *user, std::string param);
 
         bool    checkChannelExistOnNetwork(std::string channel);
