@@ -19,6 +19,8 @@ class Channel
         std::map<std::string, int>  _operator; // channel operators
         std::string                 _topic; // channel topic
         int                         _limit; // channel limit if mode +l is set
+        int                         _nb_users; // number of users in channel
+        std::vector<std::string>    _users_invited; // list of users invited
 
     public:
         Channel(void);
@@ -35,6 +37,7 @@ class Channel
         std::vector<std::string> getOldMessages() const;
         std::map<std::string, bool> getModes() const;
         std::map<std::string, int> getOperator() const;
+        std::vector<std::string> getUsersInvited() const;
 
         int getLimit() const;
         std::string getPwd() const;
@@ -55,6 +58,7 @@ class Channel
         void addBan(User *user);
         void addOldMessage(std::string message);
         void addOperator(User *user);
+        void addUsersInvited(std::string user);
 
         void removeUser(User *user);
         void removeBan(std::string nick);
@@ -74,6 +78,9 @@ class Channel
         bool userIsIn(User *user);
         bool userIsIn(std::string user);
         void callPrivmsg(User *user, std::string msg);
+        bool maxnbUsers();
+        bool userIsBanned(std::string user);
+        bool userIsInvited(std::string user);
 };
 
 #endif

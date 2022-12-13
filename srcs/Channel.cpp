@@ -1,4 +1,5 @@
 #include "../inc/Channel.hpp"
+#include <limits.h>
 
 Channel::Channel(void)
 {
@@ -166,6 +167,10 @@ void Channel::removeUser(User *user)
     std::string tmp = user->getNickname();
     std::cout << RED  << "delete user : " << tmp << std::endl;
     _users.erase(tmp);
+    if (_nb_users > 0)
+        _nb_users--;
+    else
+        std::cerr << RED << "ERROR : nb_user < 0" END << std::endl;
 }
 
 void Channel::removeBan(std::string ban)
@@ -205,6 +210,10 @@ std::string Channel::getPwd() const
 void Channel::addUser(User *user)
 {
     _users.insert(std::pair<std::string, User *>(user->getNickname(), user));
+    if (_nb_users < 2147483647)
+        _nb_users++;
+    else
+        std::cerr << RED << "ERROR : ntm" END << std::endl;
 }
 
 void Channel::addBan(User *user)
@@ -220,6 +229,11 @@ void Channel::addOldMessage(std::string old_message)
 void Channel::addOperator(User *user)
 {
     _operator.insert(std::pair<std::string, int>(user->getNickname(), true));
+}
+
+void Channel::addUsersInvited(std::string user)
+{
+    _users_invited.push_back(user);
 }
 
 void Channel::clearUsers()
@@ -264,10 +278,6 @@ void Channel::sendToAllSaufALui( std::string user, std::string message)
             if (it->second->getFd() == -1)
                 return;
             it->second->sendReply(message);
-            // std::cout << "send " << n << " bytes" << std::endl;
-            // std::cout << "send " << message << std::endl;
-            // std::cout << "send " << message.length() << std::endl;
-            // std::cout << "send fd: " << it->second->getFd() << std::endl;
         }
     }
 }
@@ -321,6 +331,23 @@ bool	Channel::userIsIn(std::string user)
 	return (true);
 }
 
+bool    Channel::maxnbUsers(){
+    if (_nb_users > _limit)
+        return (true);
+    return (false);
+}
+
+bool    Channel::userIsBanned(std::string user)
+{
+    for (std::vector<std::string>::iterator it = _bans.begin(); it < _bans.end(); it++){
+        if (user == it->data())
+            return (true);
+    }
+    return (false);
+
+}
+
+
 void	Channel::callPrivmsg(User *user, std::string msg)
 {
 	std::string	nick = user->getNickname();
@@ -334,4 +361,13 @@ void	Channel::callPrivmsg(User *user, std::string msg)
 	// 	// 	it->second->sendReply(":" + user->getNickname() + "@IRC PRIVMSG " + nick + " :" + msg + "\r\n");
 	// }
     user->sendReply(":" + user->getNickname() + "@IRC PRIVMSG " + nick + " :" + msg + "\r\n");
+}
+
+bool    Channel::userIsInvited(std::string user)
+{
+    for (std::vector<std::string>::iterator it = _users_invited.begin(); it < _users_invited.end(); it++){
+        if (user == it->data())
+            return (true);
+    }
+    return (false);
 }
