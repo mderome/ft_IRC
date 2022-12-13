@@ -1,8 +1,10 @@
 #include "../inc/Channel.hpp"
+#include <limits.h>
 
 Channel::Channel(void)
 {
     _limit = 100;
+    _nb_users = 0;
     _modes.insert(std::pair<std::string, bool>("m", false));
     _modes.insert(std::pair<std::string, bool>("n", false));
     _modes.insert(std::pair<std::string, bool>("p", false));
@@ -17,6 +19,7 @@ Channel::Channel(User *user, std::string name)
 {
     _name = name;
     _limit = 0;
+    _nb_users = 0;
     // _pwd = NULL;
     _users.insert(std::pair<std::string, User *>(user->getNickname(), user));
     _operator.insert(std::pair<std::string, int>(user->getNickname(), true));
@@ -35,6 +38,7 @@ Channel::Channel(User *user, std::string name, std::string password)
     _name = name;
     _limit = 0;
     _pwd = password;
+    _nb_users = 0;
     _users.insert(std::pair<std::string, User *>(user->getNickname(), user));
     _operator.insert(std::pair<std::string, int>(user->getNickname(), true));
     _modes.insert(std::pair<std::string, bool>("m", false));
@@ -166,6 +170,7 @@ void Channel::removeUser(User *user)
     std::string tmp = user->getNickname();
     std::cout << RED << "User <" << tmp << "> has been remove from channel" END << std::endl;
     _users.erase(tmp);
+    _nb_users--;
 }
 
 void Channel::removeBan(std::string ban)
@@ -205,6 +210,7 @@ std::string Channel::getPwd() const
 void Channel::addUser(User *user)
 {
     _users.insert(std::pair<std::string, User *>(user->getNickname(), user));
+    _nb_users++;
 }
 
 void Channel::addBan(User *user)
@@ -220,6 +226,11 @@ void Channel::addOldMessage(std::string old_message)
 void Channel::addOperator(User *user)
 {
     _operator.insert(std::pair<std::string, int>(user->getNickname(), true));
+}
+
+void Channel::addUsersInvited(std::string user)
+{
+    _users_invited.push_back(user);
 }
 
 void Channel::clearUsers()
@@ -315,4 +326,29 @@ bool	Channel::userIsIn(std::string user)
 		return (false);
 	}
 	return (true);
+}
+
+bool    Channel::maxnbUsers(){
+    if (_nb_users > _limit)
+        return (true);
+    return (false);
+}
+
+bool    Channel::userIsBanned(std::string user)
+{
+    for (std::vector<std::string>::iterator it = _bans.begin(); it < _bans.end(); it++){
+        if (user == it->data())
+            return (true);
+    }
+    return (false);
+
+}
+
+bool    Channel::userIsInvited(std::string user)
+{
+    for (std::vector<std::string>::iterator it = _users_invited.begin(); it < _users_invited.end(); it++){
+        if (user == it->data())
+            return (true);
+    }
+    return (false);
 }
