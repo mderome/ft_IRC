@@ -361,11 +361,15 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 					_channel[target].setPwd((*modearg)[0]);
 				else if (value && (*modearg).size() == 0)
 					return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
+				return;
 			}
 			case 'l':{
+				_channel[target].setModes(mode, value);
 				if (value && (*modearg).size() > 0){
 					try {
 						int _limit = std::atoi((*modearg)[0].c_str());
+						if (_limit < _nb_users)
+							return (user->sendReply(user->getNickname() + " mode +l " + limit + ": error limit"));
 						_channel[target].setModes(mode, value);
 						_channel[target].setLimit(_limit);
 					}
@@ -375,8 +379,7 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 				}
 				else if (value && (*modearg).size() == 0)
 					return (user->sendReply(ERR_NEEDMOREPARAMS(user->getNickname(), "")));
-				else
-					_channel[target].setModes(mode, value);
+				return;
 			}
 			case 'o':{
 				if ((*modearg).size() == 0 || !_channel[target].checkUserIsOperatorOnChannel(user->getNickname()))
@@ -385,11 +388,12 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 					return (user->sendReply(RPL_CHANNELMODEIS(user->getNickname(), target, _channel[target].getChannelMode(), "")));
 				std::map<std::string, User*> users = _channel[target].getUsers();
 				for (std::map<std::string, User*>::iterator it = users.begin(); it != users.end(); it++){
+					std::cout << (*modearg)[0] << ":" << it->first << ":end"<< std::endl;
 					if ((*modearg).size() > 0 && (*modearg)[0] == it->first && value){
 						_channel[target].addOperator(it->second);
 						return;
 					}
-					else if ((*modearg).size() > 0 && (*modearg)[0] == it->first && value){
+					else if ((*modearg).size() > 0 && (*modearg)[0] == it->first && !value){
 						_channel[target].removeOperator(it->second);
 						return;
 					}
@@ -397,6 +401,8 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 				return;
 			}
 			case 'i':
+				_channel[target].setModes(mode, value);
+			case 's':
 				_channel[target].setModes(mode, value);
 			default:
 				return(user->sendReply(ERR_UNKNOWNMODE(user->getNickname(), mode)));
@@ -411,6 +417,8 @@ void	Server::changeModes(User *user, std::string target, std::string mode, bool 
 			case 'i':
 				user->setModes(mode, value);
 			case 'o':
+				if (!value)
+					user->setModes(mode, value);
 				break;
 			case 'a':
 				user->setModes(mode, value);
@@ -456,8 +464,9 @@ static int	parse_mode(std::string *target, std::vector<std::pair<std::string, bo
 			else
 				break;
 		}
-		else if (it == 2)
+		else if (it == 2){
 			*modearg = splitov((*param), ' ');
+		}
 	}
 	return (0);
 }
