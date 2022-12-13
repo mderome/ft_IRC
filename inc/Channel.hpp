@@ -72,6 +72,7 @@ class Channel
         void sendToAllSaufALui( std::string user, std::string message);
 
         bool userIsIn(User *user);
+        bool userIsIn(std::string user);
         void callPrivmsg(User *user, std::string msg);
 };
 
