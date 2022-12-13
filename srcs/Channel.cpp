@@ -308,6 +308,19 @@ bool	Channel::userIsIn(User *user)
 	return (true);
 }
 
+bool	Channel::userIsIn(std::string user)
+{
+	try
+	{
+		_users.at(user); // instead of _users.at(user->getFd())
+	}
+	catch (const std::out_of_range &e)
+	{
+		return (false);
+	}
+	return (true);
+}
+
 void	Channel::callPrivmsg(User *user, std::string msg)
 {
 	std::string	nick = user->getNickname();
