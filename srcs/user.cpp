@@ -17,13 +17,8 @@ User::User(int userFd, struct sockaddr_storage *userAddr) : _nickname(""), _host
 	this->_fd = userFd;
 	this->_userAddr = userAddr;
     _modes.insert(std::pair<std::string, bool>("a", false));
-    _modes.insert(std::pair<std::string, bool>("c", false));
-    _modes.insert(std::pair<std::string, bool>("g", false));
-    _modes.insert(std::pair<std::string, bool>("h", false));
     _modes.insert(std::pair<std::string, bool>("i", false));
     _modes.insert(std::pair<std::string, bool>("o", false));
-    _modes.insert(std::pair<std::string, bool>("s", false));
-    _modes.insert(std::pair<std::string, bool>("w", false));
 }
 
 User::User(const User &cpy)
